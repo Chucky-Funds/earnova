@@ -304,7 +304,30 @@ function openVideoModal(videoIndex) {
 
   VIDEO_DATA.currentIndex = videoIndex;
   const video = VIDEO_DATA.videos[videoIndex];
-  const reward = getVideoReward(videoIndex);
+  // Prefer persisted reward for this video so modal matches the card and is permanent
+  let reward = getStoredRewardByVideo(video);
+  if (!reward) {
+    // If we know duration, generate a unique reward and persist it
+    if (typeof video.duration === 'number' && isFinite(video.duration) && video.duration > 0) {
+      const used = collectUsedRewardKeys();
+      let attempts = 0;
+      do {
+        reward = getVideoReward(videoIndex);
+        const key = `${reward.amount.toFixed(1)}|${reward.xp.toFixed(1)}`;
+        if (!used.has(key)) {
+          used.add(key);
+          try { storeRewardForVideo(video, reward); } catch (e) {}
+          break;
+        }
+        attempts++;
+      } while (attempts < 50);
+      if (!reward) reward = getVideoReward(videoIndex);
+      try { storeRewardForVideo(video, reward); } catch (e) {}
+    } else {
+      // Duration unknown — show temporary values (these will be persisted later when duration becomes known)
+      reward = getVideoReward(videoIndex);
+    }
+  }
 
   const overlay = document.getElementById('video-modal-overlay');
   const container = document.getElementById('video-modal-container');
