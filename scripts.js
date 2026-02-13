@@ -378,6 +378,8 @@ function initVideoModalSystem() {
   fetchVideoData().then(() => {
     // Update video card thumbnails
     updateVideoCardThumbnails();
+    // Populate real durations for each video
+    fetchAndPopulateDurations();
 
     // Set up modal event listeners
     const overlay = document.getElementById('video-modal-overlay');
@@ -442,5 +444,90 @@ function getVideoReward(videoIndex) {
     { amount: 90, xp: 12 }
   ];
   return rewards[videoIndex % rewards.length] || { amount: 50, xp: 8 };
+}
+
+// -------------------------
+// Populate real video durations
+// -------------------------
+
+function loadYouTubeAPI() {
+  return new Promise((resolve) => {
+    if (window.YT && window.YT.Player) return resolve();
+    window.onYouTubeIframeAPIReady = function() { resolve(); };
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+  });
+}
+
+function formatDuration(sec) {
+  if (!isFinite(sec) || sec <= 0) return 'N/A';
+  sec = Math.floor(sec);
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+async function fetchAndPopulateDurations() {
+  if (!VIDEO_DATA.videos || VIDEO_DATA.videos.length === 0) return;
+  try {
+    await loadYouTubeAPI();
+
+    VIDEO_DATA.videos.forEach((video, index) => {
+      const placeholder = document.querySelector(`.video-duration[data-video-index="${index}"]`);
+      if (!placeholder) return;
+
+      // create an offscreen container for a temporary player
+      const divId = `yt-temp-player-${index}`;
+      let div = document.getElementById(divId);
+      if (!div) {
+        div = document.createElement('div');
+        div.id = divId;
+        div.style.width = '0px';
+        div.style.height = '0px';
+        div.style.overflow = 'hidden';
+        div.style.position = 'absolute';
+        div.style.left = '-9999px';
+        document.body.appendChild(div);
+      }
+
+      try {
+        const player = new YT.Player(divId, {
+          height: '0',
+          width: '0',
+          videoId: video.videoId,
+          playerVars: { controls: 0, disablekb: 1, fs: 0, rel: 0 },
+          events: {
+            onReady: function(ev) {
+              try {
+                const dur = ev.target.getDuration();
+                placeholder.textContent = formatDuration(dur);
+              } catch (e) {
+                placeholder.textContent = 'N/A';
+              }
+              // cleanup
+              try { ev.target.destroy(); } catch (e) {}
+              if (div && div.parentNode) div.parentNode.removeChild(div);
+            },
+            onError: function() {
+              placeholder.textContent = 'N/A';
+              try { if (player && player.destroy) player.destroy(); } catch (e) {}
+              if (div && div.parentNode) div.parentNode.removeChild(div);
+            }
+          }
+        });
+      } catch (err) {
+        placeholder.textContent = 'N/A';
+        if (div && div.parentNode) div.parentNode.removeChild(div);
+      }
+    });
+
+  } catch (err) {
+    console.error('Error loading YouTube API for durations', err);
+    // set fallback text for all placeholders
+    document.querySelectorAll('.video-duration').forEach(el => el.textContent = 'N/A');
+  }
 }
 

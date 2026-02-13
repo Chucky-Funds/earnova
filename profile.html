@@ -1685,7 +1685,7 @@
             </div>
             <div class="task-body">
                 <div class="task-title">Video Task #${videoIndex + 1}</div>
-                <div class="task-meta">⏱ ${mins} Minutes • HD</div>
+                <div class="task-meta">⏱ <span class="video-duration" data-video-index="${videoIndex}">Loading...</span> • HD</div>
                 <div class="progress-container"><div class="progress-bar" id="prog-vid-${videoIndex}"></div></div>
                 <button class="btn btn-primary" onclick="openVideoModal(${videoIndex})">Watch Now</button>
             </div>
