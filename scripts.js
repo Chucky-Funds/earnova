@@ -434,16 +434,99 @@ function getVideoThumbnail(index) {
 }
 
 // Get video reward info (can be customized per video)
+// Compute reward (amount in ₦ and xp) based on video duration
 function getVideoReward(videoIndex) {
-  const rewards = [
-    { amount: 50, xp: 8 },
-    { amount: 75, xp: 10 },
-    { amount: 60, xp: 9 },
-    { amount: 80, xp: 11 },
-    { amount: 70, xp: 10 },
-    { amount: 90, xp: 12 }
+  // If duration not yet known, fall back to a safe default
+  const vid = VIDEO_DATA.videos[videoIndex];
+  if (!vid || typeof vid.duration !== 'number' || !isFinite(vid.duration) || vid.duration <= 0) {
+    // maintain previous static behaviour as a graceful fallback
+    const rewards = [
+      { amount: 50, xp: 8 },
+      { amount: 75, xp: 10 },
+      { amount: 60, xp: 9 },
+      { amount: 80, xp: 11 },
+      { amount: 70, xp: 10 },
+      { amount: 90, xp: 12 }
+    ];
+    return rewards[videoIndex % rewards.length] || { amount: 50, xp: 8 };
+  }
+
+  // Category definitions (durations in minutes)
+  const categories = [
+    { name: 'Small', minDur: 0.5, maxDur: 2, minPrice: 5,  maxPrice: 20,  minXP: 2,  maxXP: 5  },
+    { name: 'Medium',minDur: 2,   maxDur: 10, minPrice: 15, maxPrice: 70,  minXP: 6,  maxXP: 15 },
+    { name: 'Large', minDur: 10,  maxDur: 30, minPrice: 50, maxPrice: 200, minXP: 20, maxXP: 50 },
+    { name: 'Very Large', minDur: 30, maxDur: 180, minPrice: 150, maxPrice: 400, minXP: 80, maxXP: 150 }
   ];
-  return rewards[videoIndex % rewards.length] || { amount: 50, xp: 8 };
+
+  const dur = vid.duration; // minutes (float)
+
+  // pick category
+  let cat = categories.find(c => dur >= c.minDur && dur < c.maxDur);
+  // include upper bound for Very Large
+  if (!cat && dur >= 180) cat = categories[categories.length - 1];
+  if (!cat) {
+    // If something odd, fallback
+    cat = categories[0];
+  }
+
+  // duration percent in category
+  const denom = (cat.maxDur - cat.minDur) || 1;
+  let duration_percent = (dur - cat.minDur) / denom;
+  duration_percent = Math.max(0, Math.min(1, duration_percent));
+
+  // linear interpolation for base values
+  const basePrice = cat.minPrice + duration_percent * (cat.maxPrice - cat.minPrice);
+  const baseXP = cat.minXP + duration_percent * (cat.maxXP - cat.minXP);
+
+  // small random variation
+  const randPrice = (Math.random() * 2) - 1; // -1 .. +1
+  const randXP = (Math.random() - 0.5); // -0.5 .. +0.5
+
+  let price = basePrice + randPrice;
+  let xp = baseXP + randXP;
+
+  // clamp to category ranges
+  price = Math.max(cat.minPrice, Math.min(cat.maxPrice, price));
+  xp = Math.max(cat.minXP, Math.min(cat.maxXP, xp));
+
+  // round to 1 decimal to keep uniqueness while readable
+  price = Math.round(price * 10) / 10;
+  xp = Math.round(xp * 10) / 10;
+
+  return { amount: price, xp: xp };
+}
+
+// Update the DOM for all video cards with computed rewards and ensure uniqueness
+function updateVideoCardRewards() {
+  if (!VIDEO_DATA.videos || !VIDEO_DATA.videos.length) return;
+
+  const used = new Set();
+
+  VIDEO_DATA.videos.forEach((video, index) => {
+    const card = document.querySelector(`.video-task-card[data-video-index="${index}"]`);
+    if (!card) return;
+
+    // compute initial reward
+    let reward = getVideoReward(index);
+
+    // Ensure uniqueness across all videos: tweak slightly if collision
+    const key = () => `${reward.amount.toFixed(1)}|${reward.xp.toFixed(1)}`;
+    let attempts = 0;
+    while (used.has(key()) && attempts < 10) {
+      // tiny jitter but keep within category constraints
+      reward.amount = Math.round((reward.amount + (Math.random() * 0.4 - 0.2)) * 10) / 10;
+      reward.xp = Math.round((reward.xp + (Math.random() * 0.2 - 0.1)) * 10) / 10;
+      attempts++;
+    }
+    used.add(key());
+
+    // Update DOM numeric fields only (preserve all other markup)
+    const rewardEl = card.querySelector('.task-reward');
+    const xpEl = card.querySelector('.xp-badge');
+    if (rewardEl) rewardEl.textContent = `₦${reward.amount}`;
+    if (xpEl) xpEl.textContent = `+${reward.xp} XP`;
+  });
 }
 
 // -------------------------
@@ -504,8 +587,16 @@ async function fetchAndPopulateDurations() {
               try {
                 const dur = ev.target.getDuration();
                 placeholder.textContent = formatDuration(dur);
+                // store duration in minutes for reward calculation
+                try {
+                  VIDEO_DATA.videos[index].duration = (typeof dur === 'number' && isFinite(dur) && dur > 0) ? (dur / 60) : null;
+                } catch (e) {}
+                // update rewards now that duration is known
+                try { updateVideoCardRewards(); } catch (e) {}
               } catch (e) {
                 placeholder.textContent = 'N/A';
+                try { VIDEO_DATA.videos[index].duration = null; } catch (ee) {}
+                try { updateVideoCardRewards(); } catch (err) {}
               }
               // cleanup
               try { ev.target.destroy(); } catch (e) {}
@@ -513,6 +604,8 @@ async function fetchAndPopulateDurations() {
             },
             onError: function() {
               placeholder.textContent = 'N/A';
+              try { VIDEO_DATA.videos[index].duration = null; } catch (e) {}
+              try { updateVideoCardRewards(); } catch (err) {}
               try { if (player && player.destroy) player.destroy(); } catch (e) {}
               if (div && div.parentNode) div.parentNode.removeChild(div);
             }
