@@ -497,29 +497,99 @@ function getVideoReward(videoIndex) {
   return { amount: price, xp: xp };
 }
 
+// Persistent storage helpers for per-video rewards
+function getStoredRewardByVideo(video) {
+  if (!video || !video.videoId) return null;
+  try {
+    const p = localStorage.getItem('videoPrice_' + video.videoId);
+    const x = localStorage.getItem('videoXP_' + video.videoId);
+    if (p === null || x === null) return null;
+    const amount = parseFloat(p);
+    const xp = parseFloat(x);
+    if (isNaN(amount) || isNaN(xp)) return null;
+    return { amount: amount, xp: xp };
+  } catch (e) {
+    return null;
+  }
+}
+
+function storeRewardForVideo(video, reward) {
+  if (!video || !video.videoId || !reward) return;
+  try {
+    localStorage.setItem('videoPrice_' + video.videoId, String(reward.amount));
+    localStorage.setItem('videoXP_' + video.videoId, String(reward.xp));
+  } catch (e) {}
+}
+
+function collectUsedRewardKeys() {
+  const used = new Set();
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (!k) continue;
+      if (k.indexOf('videoPrice_') === 0) {
+        const vid = k.substring('videoPrice_'.length);
+        const p = localStorage.getItem(k);
+        const x = localStorage.getItem('videoXP_' + vid);
+        if (p !== null && x !== null) {
+          const ap = parseFloat(p);
+          const ax = parseFloat(x);
+          if (!isNaN(ap) && !isNaN(ax)) used.add(`${ap.toFixed(1)}|${ax.toFixed(1)}`);
+        }
+      }
+    }
+  } catch (e) {}
+  return used;
+}
+
 // Update the DOM for all video cards with computed rewards and ensure uniqueness
 function updateVideoCardRewards() {
   if (!VIDEO_DATA.videos || !VIDEO_DATA.videos.length) return;
 
-  const used = new Set();
+  // Start with any persisted rewards reserved
+  const used = collectUsedRewardKeys();
 
   VIDEO_DATA.videos.forEach((video, index) => {
     const card = document.querySelector(`.video-task-card[data-video-index="${index}"]`);
     if (!card) return;
 
-    // compute initial reward
-    let reward = getVideoReward(index);
+    // Prefer persisted value if available
+    let reward = getStoredRewardByVideo(video);
 
-    // Ensure uniqueness across all videos: tweak slightly if collision
-    const key = () => `${reward.amount.toFixed(1)}|${reward.xp.toFixed(1)}`;
-    let attempts = 0;
-    while (used.has(key()) && attempts < 10) {
-      // tiny jitter but keep within category constraints
-      reward.amount = Math.round((reward.amount + (Math.random() * 0.4 - 0.2)) * 10) / 10;
-      reward.xp = Math.round((reward.xp + (Math.random() * 0.2 - 0.1)) * 10) / 10;
-      attempts++;
+    // If no persisted reward and we have duration info, generate + persist it
+    if (!reward && typeof video.duration === 'number' && isFinite(video.duration) && video.duration > 0) {
+      // Attempt to generate a unique reward (up to many tries)
+      let attempts = 0;
+      do {
+        reward = getVideoReward(index);
+        const key = `${reward.amount.toFixed(1)}|${reward.xp.toFixed(1)}`;
+        if (!used.has(key)) {
+          used.add(key);
+          try { storeRewardForVideo(video, reward); } catch (e) {}
+          break;
+        }
+        attempts++;
+        // tiny jitter before next attempt
+        reward.amount = Math.round((reward.amount + (Math.random() * 0.6 - 0.3)) * 10) / 10;
+        reward.xp = Math.round((reward.xp + (Math.random() * 0.3 - 0.15)) * 10) / 10;
+      } while (attempts < 50);
+
+      // If still colliding after attempts, accept current reward and persist
+      if (attempts >= 50) {
+        try { storeRewardForVideo(video, reward); } catch (e) {}
+      }
     }
-    used.add(key());
+
+    // If still no reward (duration unknown), compute temporary display value but do not persist
+    if (!reward) {
+      reward = getVideoReward(index);
+      // avoid displaying identical to a persisted one where possible
+      const tmpKey = `${reward.amount.toFixed(1)}|${reward.xp.toFixed(1)}`;
+      if (used.has(tmpKey)) {
+        reward.amount = Math.round((reward.amount + 0.1) * 10) / 10;
+        reward.xp = Math.round((reward.xp + 0.1) * 10) / 10;
+      }
+    }
 
     // Update DOM numeric fields only (preserve all other markup)
     const rewardEl = card.querySelector('.task-reward');
