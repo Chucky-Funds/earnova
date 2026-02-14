@@ -1224,10 +1224,6 @@
                     <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
                     <span>Websites</span>
                 </div>
-                <div class="nav-item" data-target="social">
-                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                    <span>Social</span>
-                </div>
             </div>
 
             <div class="nav-group">
@@ -1504,13 +1500,6 @@
                     <div class="task-grid" id="website-task-list"></div>
                 </section>
 
-                <!-- SOCIAL TASKS -->
-                <section id="social" class="content-section">
-                    <div class="section-header">
-                        <h1 class="page-title">Social Engagement</h1>
-                    </div>
-                    <div class="task-grid" id="social-task-list"></div>
-                </section>
 
                 <!-- TRANSACTIONS -->
                 <section id="transactions" class="content-section">
@@ -1813,31 +1802,6 @@
                 }
             });
 
-        const socContainer = document.getElementById('social-task-list');
-        for(let i=1; i<=4; i++) {
-            socContainer.innerHTML += createSocialCard(i);
-        }
-        // Assign URLs to Perform Task buttons from social.json
-        fetch('social.json')
-            .then(res => res.json())
-            .then(socialURLs => {
-                const buttons = socContainer.querySelectorAll('.task-card button');
-                buttons.forEach((btn, idx) => {
-                    if (socialURLs[idx]) {
-                        btn.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            window.open(socialURLs[idx], '_blank');
-                        });
-                    } else {
-                        btn.disabled = true;
-                    }
-                });
-            })
-            .catch(() => {
-                // If fetch fails, disable all buttons
-                const buttons = socContainer.querySelectorAll('.task-card button');
-                buttons.forEach(btn => btn.disabled = true);
-            });
     }
 
     // --- Components ---
