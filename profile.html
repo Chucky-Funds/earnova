@@ -1679,7 +1679,7 @@
                     if (socialURLs[idx]) {
                         btn.addEventListener('click', function(e) {
                             e.preventDefault();
-                            window.location.href = socialURLs[idx];
+                            window.open(socialURLs[idx], '_blank');
                         });
                     } else {
                         btn.disabled = true;
