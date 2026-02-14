@@ -297,13 +297,44 @@ function generateThumbnailUrl(videoId) {
   return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 }
 
+// --- Video Completion Tracking ---
+function getCompletedVideos() {
+  try {
+    return JSON.parse(localStorage.getItem('completedVideos') || '[]');
+  } catch (e) { return []; }
+}
+
+function setCompletedVideos(arr) {
+  try {
+    localStorage.setItem('completedVideos', JSON.stringify(arr));
+  } catch (e) {}
+}
+
+function markVideoCompleted(videoId) {
+  if (!videoId) return;
+  const arr = getCompletedVideos();
+  if (!arr.includes(videoId)) {
+    arr.push(videoId);
+    setCompletedVideos(arr);
+  }
+}
+
+function isVideoCompleted(videoId) {
+  return getCompletedVideos().includes(videoId);
+}
+
 // Open video modal
 function openVideoModal(videoIndex) {
   if (!VIDEO_DATA.videos.length) return;
   if (videoIndex < 0 || videoIndex >= VIDEO_DATA.videos.length) return;
 
-  VIDEO_DATA.currentIndex = videoIndex;
   const video = VIDEO_DATA.videos[videoIndex];
+  if (isVideoCompleted(video.videoId)) {
+    // Prevent opening modal for completed videos
+    return;
+  }
+
+  VIDEO_DATA.currentIndex = videoIndex;
   // Prefer persisted reward for this video so modal matches the card and is permanent
   let reward = getStoredRewardByVideo(video);
   if (!reward) {
@@ -343,7 +374,6 @@ function openVideoModal(videoIndex) {
 
   // Clear previous content
   playerWrapper.innerHTML = '';
-
 
   // Load YouTube Player API and embed player with JS API enabled
   playerWrapper.innerHTML = '';
@@ -391,6 +421,14 @@ function openVideoModal(videoIndex) {
                 // Optionally, visually mark video as completed
                 const card = document.querySelector(`.video-task-card[data-video-index="${videoIndex}"]`);
                 if (card) card.style.opacity = '0.5';
+                // Mark as completed in localStorage
+                markVideoCompleted(video.videoId);
+                // Disable card interaction and update cursor
+                if (card) {
+                  card.classList.add('video-completed');
+                  card.style.pointerEvents = 'none';
+                  card.style.cursor = 'not-allowed';
+                }
                 // Show an alert
                 alert('Reward added to your profile!');
               } catch (e) {}
@@ -483,6 +521,25 @@ function initVideoModalSystem() {
       tag.src = 'https://www.youtube.com/iframe_api';
       document.head.appendChild(tag);
     }
+
+    // --- Disable completed video cards ---
+    setTimeout(() => {
+      VIDEO_DATA.videos.forEach((video, index) => {
+        const card = document.querySelector(`.video-task-card[data-video-index="${index}"]`);
+        if (card && isVideoCompleted(video.videoId)) {
+          card.classList.add('video-completed');
+          card.style.opacity = '0.5';
+          card.style.pointerEvents = 'none';
+          card.style.cursor = 'not-allowed';
+        } else if (card) {
+          // Ensure enabled for not-completed
+          card.classList.remove('video-completed');
+          card.style.opacity = '';
+          card.style.pointerEvents = '';
+          card.style.cursor = '';
+        }
+      });
+    }, 300);
   });
 }
 
