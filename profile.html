@@ -1302,7 +1302,7 @@
                         </div>
                         <div class="card">
                             <span class="stat-label">Total XP</span>
-                            <div class="stat-value">0 XP</div>
+                            <div class="stat-value" id="dash-xp">0 XP</div>
                             <div class="stat-trend trend-up"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> +0% this week</div>
                         </div>
                         <div class="card">
@@ -1800,6 +1800,11 @@
         // Header XP
         if (UI.xpDisplay) {
             UI.xpDisplay.innerText = STATE.xp + ' XP';
+        }
+        // Dashboard Total XP stat card
+        var dashXP = document.getElementById('dash-xp');
+        if (dashXP) {
+            dashXP.innerText = STATE.xp + ' XP';
         }
         // Level Card (profile/dashboard)
         if (UI.levelNumber) {
