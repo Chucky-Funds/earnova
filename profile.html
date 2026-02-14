@@ -1645,8 +1645,8 @@
 
     function renderAllTasks() {
         const vidContainer = document.getElementById('video-task-list');
-        // Create video cards for all available videos (initially just show first 8, but link to all)
-        for(let i=0; i<8; i++) {
+        // Create video cards for all available videos (show exactly 10)
+        for(let i=0; i<10; i++) {
             const reward = getVideoReward(i);
             vidContainer.innerHTML += createVideoCard(i, Math.floor(Math.random() * 5) + 1, reward.amount, reward.xp);
         }
