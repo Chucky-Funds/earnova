@@ -247,6 +247,57 @@ let VIDEO_DATA = {
   currentIndex: null
 };
 
+// --- DAILY LIMIT & LEVEL LOGIC ---
+
+/**
+ * Returns the maximum number of videos allowed per day based on XP.
+ */
+function getDailyVideoLimit(xp) {
+    if (xp < 500) return 1;     // Level 1
+    if (xp < 750) return 1;     // Level 2
+    if (xp < 1125) return 1;    // Level 3
+    if (xp < 1688) return 2;    // Level 4
+    if (xp < 2532) return 2;    // Level 5
+    if (xp < 3798) return 2;    // Level 6
+    if (xp < 5697) return 2;    // Level 7
+    if (xp < 8546) return 3;    // Level 8
+    if (xp < 12819) return 3;   // Level 9
+    if (xp < 19229) return 3;   // Level 10
+    if (xp < 28844) return 4;   // Level 11
+    if (xp < 43266) return 4;   // Level 12
+    if (xp < 64899) return 5;   // Level 13
+    if (xp < 97349) return 6;   // Level 14
+    return 6;                   // Level 15 (Final)
+}
+
+/**
+ * Gets current daily progress. Resets if date has changed.
+ */
+function checkDailyLimit() {
+    const today = new Date().toLocaleDateString();
+    const storedDate = localStorage.getItem('earnova_last_watch_date');
+    let watchedToday = parseInt(localStorage.getItem('earnova_daily_watch_count')) || 0;
+
+    // Reset if it's a new day
+    if (storedDate !== today) {
+        watchedToday = 0;
+        localStorage.setItem('earnova_last_watch_date', today);
+        localStorage.setItem('earnova_daily_watch_count', 0);
+    }
+    
+    return watchedToday;
+}
+
+/**
+ * Increments the daily watch count.
+ */
+function incrementDailyWatch() {
+    let watchedToday = checkDailyLimit();
+    watchedToday++;
+    localStorage.setItem('earnova_daily_watch_count', watchedToday);
+    localStorage.setItem('earnova_last_watch_date', new Date().toLocaleDateString());
+}
+
 // Fetch and parse video data from vids.json
 async function fetchVideoData() {
   try {
@@ -329,8 +380,20 @@ function openVideoModal(videoIndex) {
   if (videoIndex < 0 || videoIndex >= VIDEO_DATA.videos.length) return;
 
   const video = VIDEO_DATA.videos[videoIndex];
+  
+  // 1. Check if already completed historically
   if (isVideoCompleted(video.videoId)) {
-    // Prevent opening modal for completed videos
+    alert('You have already completed this task.');
+    return;
+  }
+
+  // 2. Check Daily Limit
+  const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
+  const limit = getDailyVideoLimit(currentXP);
+  const watchedToday = checkDailyLimit();
+
+  if (watchedToday >= limit) {
+    alert(`Daily Limit Reached! Level ${getLevel(currentXP)} allows ${limit} video(s) per day. Come back tomorrow!`);
     return;
   }
 
@@ -418,18 +481,21 @@ function openVideoModal(videoIndex) {
               // Add reward to balance and XP
               try {
                 window.addFunds && window.addFunds(reward.amount, 'Video', `Video Task #${videoIndex + 1}`, reward.xp);
-                // Optionally, visually mark video as completed
-                const card = document.querySelector(`.video-task-card[data-video-index="${videoIndex}"]`);
-                if (card) card.style.opacity = '0.5';
-                // Mark as completed in localStorage
+                
+                // --- NEW LOGIC START ---
+                // 1. Mark historically completed
                 markVideoCompleted(video.videoId);
-                // Disable card interaction and update cursor
-                if (card) {
-                  card.classList.add('completed');
-                  card.style.cursor = 'not-allowed';
-                }
-                // Show an alert
+                
+                // 2. Increment Daily Watch Count
+                incrementDailyWatch();
+
+                // 3. Update all cards to reflect new limit state
+                updateVideoCardStates();
+
+                // 4. Alert user
                 alert('Reward added to your profile!');
+                // --- NEW LOGIC END ---
+
               } catch (e) {}
             }
           } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.BUFFERING) {
@@ -474,7 +540,8 @@ function closeVideoModal() {
   // Restore focus to the clicked video card
   const videoCard = document.querySelector(`[data-video-index="${VIDEO_DATA.currentIndex}"]`);
   if (videoCard) {
-    videoCard.querySelector('.btn').focus();
+    const btn = videoCard.querySelector('.btn');
+    if(btn && !btn.disabled) btn.focus();
   }
 }
 
@@ -521,33 +588,90 @@ function initVideoModalSystem() {
       document.head.appendChild(tag);
     }
 
-    // --- Disable completed video cards ---
-    setTimeout(() => {
-      VIDEO_DATA.videos.forEach((video, index) => {
-        const card = document.querySelector(`.video-task-card[data-video-index="${index}"]`);
-        if (card) {
-          // Set completed state
-          if (isVideoCompleted(video.videoId)) {
-            card.classList.add('completed');
-            card.style.opacity = '0.5';
-            card.style.cursor = 'not-allowed';
-          } else {
-            card.classList.remove('completed');
-            card.style.opacity = '';
-            card.style.cursor = '';
-          }
-          // Add click handler for completed alert
-          card.addEventListener('click', function(e) {
-            if (card.classList.contains('completed')) {
-              e.stopPropagation();
-              alert('You have already watched this video before');
-              return false;
-            }
-          });
-        }
-      });
-    }, 300);
+    // --- APPLY STATES ON LOAD ---
+    setTimeout(updateVideoCardStates, 300);
   });
+}
+
+/**
+ * Updates the visual state of all video cards based on:
+ * 1. Historical Completion (Permanent disable)
+ * 2. Daily Limit (Temporary disable for today)
+ */
+function updateVideoCardStates() {
+    const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
+    const limit = getDailyVideoLimit(currentXP);
+    const watchedToday = checkDailyLimit();
+    const isLimitReached = watchedToday >= limit;
+
+    VIDEO_DATA.videos.forEach((video, index) => {
+        const card = document.querySelector(`.video-task-card[data-video-index="${index}"]`);
+        if (!card) return;
+        
+        const btn = card.querySelector('.btn');
+        const isDone = isVideoCompleted(video.videoId);
+
+        // Remove old listeners to prevent stacking alerts
+        // Simple cloning to strip listeners
+        const newCard = card.cloneNode(true); 
+        card.parentNode.replaceChild(newCard, card);
+        
+        // Re-query the button from the new card
+        const newBtn = newCard.querySelector('.btn');
+        const newThumb = newCard.querySelector('.video-card-thumbnail');
+
+        // Re-attach modal opener if allowed
+        const clickHandler = (e) => {
+             // Logic checked inside openVideoModal, but specific alerts handled here for better UX
+             if (newCard.classList.contains('completed')) {
+                 e.stopPropagation();
+                 if (isDone) {
+                     alert('You have already watched this video.');
+                 } else if (isLimitReached) {
+                     alert(`Daily Limit Reached! Level ${getLevel(currentXP)} allows ${limit} video(s) per day.`);
+                 }
+                 return;
+             }
+             openVideoModal(index);
+        };
+
+        if (isDone) {
+            // Case 1: Already watched (Forever disabled)
+            newCard.classList.add('completed');
+            newCard.style.opacity = '0.5';
+            newCard.style.cursor = 'not-allowed';
+            if(newBtn) {
+                newBtn.disabled = true;
+                newBtn.innerText = "Completed";
+            }
+            newCard.addEventListener('click', clickHandler); // For alert
+        } 
+        else if (isLimitReached) {
+            // Case 2: Daily Limit Hit (Disabled for today)
+            newCard.classList.add('completed'); // Re-using completed class for visual style
+            newCard.style.opacity = '0.5';
+            newCard.style.cursor = 'not-allowed';
+            if(newBtn) {
+                newBtn.disabled = true;
+                newBtn.innerText = "Daily Limit";
+            }
+            newCard.addEventListener('click', clickHandler); // For alert
+        } 
+        else {
+            // Case 3: Available
+            newCard.classList.remove('completed');
+            newCard.style.opacity = '';
+            newCard.style.cursor = '';
+            if(newBtn) {
+                newBtn.disabled = false;
+                newBtn.innerText = "Watch Now";
+                newBtn.onclick = () => openVideoModal(index);
+            }
+            if(newThumb) {
+                newThumb.onclick = () => openVideoModal(index);
+            }
+        }
+    });
 }
 
 // Update all video card thumbnails with real thumbnails from YouTube
@@ -840,4 +964,3 @@ async function fetchAndPopulateDurations() {
     document.querySelectorAll('.video-duration').forEach(el => el.textContent = 'N/A');
   }
 }
-
