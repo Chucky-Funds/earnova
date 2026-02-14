@@ -1670,6 +1670,27 @@
         for(let i=1; i<=4; i++) {
             socContainer.innerHTML += createSocialCard(i);
         }
+        // Assign URLs to Perform Task buttons from social.json
+        fetch('social.json')
+            .then(res => res.json())
+            .then(socialURLs => {
+                const buttons = socContainer.querySelectorAll('.task-card button');
+                buttons.forEach((btn, idx) => {
+                    if (socialURLs[idx]) {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            window.location.href = socialURLs[idx];
+                        });
+                    } else {
+                        btn.disabled = true;
+                    }
+                });
+            })
+            .catch(() => {
+                // If fetch fails, disable all buttons
+                const buttons = socContainer.querySelectorAll('.task-card button');
+                buttons.forEach(btn => btn.disabled = true);
+            });
     }
 
     // --- Components ---
