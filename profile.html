@@ -1660,7 +1660,8 @@
         fetch('websites.json')
             .then(res => res.json())
             .then(websites => {
-                for(let i=0; i<4 && i<websites.length; i++) {
+                const count = Math.max(8, Math.min(8, websites.length));
+                for(let i=0; i<count; i++) {
                     webContainer.innerHTML += createWebCard(i, websites[i]);
                 }
             });
