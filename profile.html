@@ -1595,7 +1595,7 @@
     }
 
     function addFunds(amount, type, desc, xpAmount) {
-        if (amount < 15 || amount > 2000) return alert('Error: Invalid reward amount detected.');
+        if (amount < 5 || amount > 1000) return alert('Error: Invalid reward amount detected.');
         STATE.balance += amount;
         STATE.completedTasks++;
         // XP logic
