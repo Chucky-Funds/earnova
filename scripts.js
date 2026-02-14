@@ -253,6 +253,8 @@
       if (diff <= 0) {
         // Immediately start new 24h countdown
         diff = 24 * 60 * 60 * 1000;
+        // Daily reset: refresh video tab
+        refreshVideoTabForNewDay();
       }
       const hours = Math.floor(diff / 1000 / 60 / 60);
       const mins = Math.floor((diff / 1000 / 60) % 60);
@@ -280,6 +282,50 @@
 /* ===================================================================
    VIDEO MODAL SYSTEM - Responsive Video Pop-up Manager
    =================================================================== */
+// Refresh video tab after daily reset: show only 10 uncompleted videos
+function refreshVideoTabForNewDay() {
+  const completed = getCompletedVideos();
+  const availableVideos = VIDEO_DATA.videos.filter(v => !completed.includes(v.videoId));
+  const videosToShow = availableVideos.slice(0, 10);
+  const container = document.getElementById('video-task-list');
+  if (container) {
+    container.innerHTML = '';
+    videosToShow.forEach((video, i) => {
+      const card = document.createElement('div');
+      card.className = 'video-task-card';
+      card.dataset.videoIndex = i;
+      card.innerHTML = `
+        <div class="video-card-thumbnail" style="background-image:url('${video.thumbnail}')"></div>
+        <div class="task-title">${video.title}</div>
+        <button class="btn">Watch Now</button>
+      `;
+      container.appendChild(card);
+    });
+    setTimeout(updateVideoCardStates, 100);
+  }
+}
+// Ensure only 10 uncompleted videos are shown on initial load
+function renderVideoTabOnLoad() {
+  const completed = getCompletedVideos();
+  const availableVideos = VIDEO_DATA.videos.filter(v => !completed.includes(v.videoId));
+  const videosToShow = availableVideos.slice(0, 10);
+  const container = document.getElementById('video-task-list');
+  if (container) {
+    container.innerHTML = '';
+    videosToShow.forEach((video, i) => {
+      const card = document.createElement('div');
+      card.className = 'video-task-card';
+      card.dataset.videoIndex = i;
+      card.innerHTML = `
+        <div class="video-card-thumbnail" style="background-image:url('${video.thumbnail}')"></div>
+        <div class="task-title">${video.title}</div>
+        <button class="btn">Watch Now</button>
+      `;
+      container.appendChild(card);
+    });
+    setTimeout(updateVideoCardStates, 100);
+  }
+}
 
 let VIDEO_DATA = {
   videos: [],
@@ -596,6 +642,8 @@ function handleModalKeydown(e) {
 function initVideoModalSystem() {
   // Fetch video data
   fetchVideoData().then(() => {
+    // Render only 10 uncompleted videos on load
+    renderVideoTabOnLoad();
     // Update video card thumbnails
     updateVideoCardThumbnails();
     // Populate real durations for each video
@@ -1034,7 +1082,7 @@ async function loadSurveyData() {
 // 3. Run the fetch function
 loadSurveyData();
 
-// Open Survey Modal with Specific Form Data
+// Open Survey Modal with Specific Form Dataies
 window.openSurveyModal = function(index) {
   if (index < 0 || index >= SURVEY_DATA.length) return;
   
