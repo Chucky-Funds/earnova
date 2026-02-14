@@ -1657,9 +1657,13 @@
         }
 
         const webContainer = document.getElementById('website-task-list');
-        for(let i=1; i<=4; i++) {
-            webContainer.innerHTML += createWebCard(i);
-        }
+        fetch('websites.json')
+            .then(res => res.json())
+            .then(websites => {
+                for(let i=0; i<4 && i<websites.length; i++) {
+                    webContainer.innerHTML += createWebCard(i, websites[i]);
+                }
+            });
 
         const socContainer = document.getElementById('social-task-list');
         for(let i=1; i<=4; i++) {
@@ -1711,9 +1715,9 @@
         </div>`;
     }
 
-    function createWebCard(id) {
+    function createWebCard(id, url) {
         return `
-        <div class="task-card">
+        <div class="task-card" data-web-index="${id}">
             <div class="task-header">
                 <span class="task-type">Visit</span>
                 <div style="display: flex; gap: 8px; align-items: center;">
@@ -1724,7 +1728,7 @@
             <div class="task-body">
                 <div class="task-title">Visit Partner Site</div>
                 <div class="task-meta">⏱ 30 Seconds Required</div>
-                <button class="btn btn-primary" style="margin-top:auto" onclick="startTimerTask(this, 50, 5, 'Website Visit', 5)">Visit Link</button>
+                <button class="btn btn-primary" style="margin-top:auto" onclick="startTimerTask(this, 50, 5, 'Website Visit', 5); window.open('${url}', '_blank');">Visit Link</button>
             </div>
         </div>`;
     }
