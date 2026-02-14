@@ -45,6 +45,20 @@
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
         }
 
+        /* --- Video Card: Completed State --- */
+        .video-task-card.completed,
+        .video-task-card.completed * {
+            cursor: not-allowed !important;
+            opacity: 0.5;
+            /* pointer-events: none;  <-- REMOVE THIS LINE */
+        }
+        /* Add to your CSS */
+        .video-task-card.completed,
+        .video-task-card.completed * {
+            cursor: not-allowed !important;
+            opacity: 0.5;
+            /* pointer-events: none;  <-- REMOVE THIS LINE */
+        }
         /* ------------------------------------------------------------
            2. RESET & BASE STYLES
         ------------------------------------------------------------ */

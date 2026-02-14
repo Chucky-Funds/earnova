@@ -425,8 +425,7 @@ function openVideoModal(videoIndex) {
                 markVideoCompleted(video.videoId);
                 // Disable card interaction and update cursor
                 if (card) {
-                  card.classList.add('video-completed');
-                  card.style.pointerEvents = 'none';
+                  card.classList.add('completed');
                   card.style.cursor = 'not-allowed';
                 }
                 // Show an alert
@@ -527,15 +526,13 @@ function initVideoModalSystem() {
       VIDEO_DATA.videos.forEach((video, index) => {
         const card = document.querySelector(`.video-task-card[data-video-index="${index}"]`);
         if (card && isVideoCompleted(video.videoId)) {
-          card.classList.add('video-completed');
+          card.classList.add('completed');
           card.style.opacity = '0.5';
-          card.style.pointerEvents = 'none';
           card.style.cursor = 'not-allowed';
         } else if (card) {
           // Ensure enabled for not-completed
-          card.classList.remove('video-completed');
+          card.classList.remove('completed');
           card.style.opacity = '';
-          card.style.pointerEvents = '';
           card.style.cursor = '';
         }
       });
