@@ -391,8 +391,8 @@ function openVideoModal(videoIndex) {
                 // Optionally, visually mark video as completed
                 const card = document.querySelector(`.video-task-card[data-video-index="${videoIndex}"]`);
                 if (card) card.style.opacity = '0.5';
-                // Show a toast or alert
-                if (window.showToast) window.showToast('Reward added!');
+                // Show an alert
+                alert('Reward added to your profile!');
               } catch (e) {}
             }
           } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.BUFFERING) {
