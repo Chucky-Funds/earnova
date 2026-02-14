@@ -344,13 +344,66 @@ function openVideoModal(videoIndex) {
   // Clear previous content
   playerWrapper.innerHTML = '';
 
-  // Load video
-  const iframe = document.createElement('iframe');
-  iframe.src = `https://www.youtube.com/embed/${video.videoId}?autoplay=1&controls=1&rel=0&modestbranding=1`;
-  iframe.allowFullscreen = true;
-  iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-  iframe.title = video.title;
-  playerWrapper.appendChild(iframe);
+
+  // Load YouTube Player API and embed player with JS API enabled
+  playerWrapper.innerHTML = '';
+  const ytDivId = `yt-player-${video.videoId}`;
+  const ytDiv = document.createElement('div');
+  ytDiv.id = ytDivId;
+  playerWrapper.appendChild(ytDiv);
+
+  // Ensure YouTube API is loaded
+  function onYouTubeReadyForModal() {
+    if (!window.YT || !window.YT.Player) return setTimeout(onYouTubeReadyForModal, 100);
+    let lastTime = 0;
+    let skipped = false;
+    let rewardGiven = false;
+    const player = new YT.Player(ytDivId, {
+      height: '360',
+      width: '640',
+      videoId: video.videoId,
+      playerVars: {
+        autoplay: 1,
+        controls: 1,
+        rel: 0,
+        modestbranding: 1,
+        enablejsapi: 1
+      },
+      events: {
+        onStateChange: function (event) {
+          if (event.data === YT.PlayerState.PLAYING) {
+            // Start monitoring for skipping
+            lastTime = player.getCurrentTime();
+            skipped = false;
+            player._interval = setInterval(function () {
+              const current = player.getCurrentTime();
+              // If user jumps forward more than 2 seconds, mark as skipped
+              if (current - lastTime > 2.5) skipped = true;
+              lastTime = current;
+            }, 1000);
+          } else if (event.data === YT.PlayerState.ENDED) {
+            clearInterval(player._interval);
+            if (!skipped && !rewardGiven) {
+              rewardGiven = true;
+              // Add reward to balance and XP
+              try {
+                window.addFunds && window.addFunds(reward.amount, 'Video', `Video Task #${videoIndex + 1}`, reward.xp);
+                // Optionally, visually mark video as completed
+                const card = document.querySelector(`.video-task-card[data-video-index="${videoIndex}"]`);
+                if (card) card.style.opacity = '0.5';
+                // Show a toast or alert
+                if (window.showToast) window.showToast('Reward added!');
+              } catch (e) {}
+            }
+          } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.BUFFERING) {
+            clearInterval(player._interval);
+          }
+        },
+        onError: function () {}
+      }
+    });
+  }
+  onYouTubeReadyForModal();
 
   // Show modal with animation
   overlay.classList.add('active');
@@ -423,6 +476,13 @@ function initVideoModalSystem() {
     container.addEventListener('click', (e) => {
       e.stopPropagation();
     });
+
+    // Ensure YouTube API is loaded for player events
+    if (!window.YT || !window.YT.Player) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+    }
   });
 }
 
