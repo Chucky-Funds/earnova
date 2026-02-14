@@ -234,6 +234,11 @@
     if(document.getElementById('video-modal-overlay')){
       initVideoModalSystem();
     }
+
+  // Initialize Survey Modal System
+    if(document.getElementById('survey-modal-overlay')){
+      initSurveyModalSystem();
+    }
   });
 
   // =============================
@@ -583,6 +588,7 @@ function closeVideoModal() {
 function handleModalKeydown(e) {
   if (e.key === 'Escape') {
     closeVideoModal();
+    closeSurveyModal();
   }
 }
 
@@ -997,4 +1003,397 @@ async function fetchAndPopulateDurations() {
     // set fallback text for all placeholders
     document.querySelectorAll('.video-duration').forEach(el => el.textContent = 'N/A');
   }
+}
+
+/* ===================================================================
+   SURVEY MODAL SYSTEM
+   =================================================================== */
+
+// Survey Data Constant (Normally fetched from JSON file)
+const SURVEY_DATA = [
+  {
+    "title": "Football Fanatic Survey",
+    "questions": [
+      {"id":1,"question":"Who is your favorite football player?","type":"text","placeholder":""},
+      {"id":2,"question":"Which team do you support most?","type":"text","placeholder":""},
+      {"id":3,"question":"How often do you watch football matches?","type":"radio","options":["Daily","Weekly","Monthly","Rarely"]},
+      {"id":4,"question":"Do you play football yourself?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":5,"question":"Favorite football league?","type":"text","placeholder":""},
+      {"id":6,"question":"How long have you been a fan of football?","type":"number","placeholder":"Enter years"},
+      {"id":7,"question":"Do you collect football merchandise?","type":"radio","options":["Yes","No"]},
+      {"id":8,"question":"Favorite football stadium you’ve visited or want to visit?","type":"text","placeholder":""},
+      {"id":9,"question":"Which position do you like most in football?","type":"select","options":["Forward","Midfielder","Defender","Goalkeeper"]},
+      {"id":10,"question":"Do you follow football news online?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":11,"question":"Share a memorable football match experience.","type":"textarea","placeholder":""}
+    ]
+  },
+  {
+    "title": "Daily Life Snapshot",
+    "questions": [
+      {"id":1,"question":"How many hours do you sleep daily?","type":"number","placeholder":"Enter hours"},
+      {"id":2,"question":"What is your favorite daily routine?","type":"text","placeholder":""}
+    ]
+  },
+  {
+    "title": "Tech & Gadgets Survey",
+    "questions": [
+      {"id":1,"question":"What phone do you currently use?","type":"text","placeholder":""},
+      {"id":2,"question":"Do you prefer Android or iOS?","type":"radio","options":["Android","iOS","Other"]},
+      {"id":3,"question":"How many hours per day do you spend on your laptop?","type":"number","placeholder":"Enter hours"},
+      {"id":4,"question":"Favorite app on your phone?","type":"text","placeholder":""},
+      {"id":5,"question":"Do you use wearable tech (smartwatch, fitness band)?","type":"radio","options":["Yes","No"]},
+      {"id":6,"question":"Do you prefer online or offline shopping for gadgets?","type":"radio","options":["Online","Offline","Both"]},
+      {"id":7,"question":"Do you back up your data regularly?","type":"radio","options":["Yes","No"]},
+      {"id":8,"question":"How often do you upgrade your tech devices?","type":"select","options":["Every year","Every 2 years","Every 3+ years"]},
+      {"id":9,"question":"Favorite laptop brand?","type":"text","placeholder":""},
+      {"id":10,"question":"Do you play mobile games?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":11,"question":"Do you follow tech reviews online?","type":"radio","options":["Yes","No"]},
+      {"id":12,"question":"Share a tech tip or hack you use.","type":"textarea","placeholder":""},
+      {"id":13,"question":"How concerned are you about privacy online?","type":"select","options":["Very","Somewhat","Not much","Not at all"]},
+      {"id":14,"question":"Do you prefer touchscreen or keyboard input?","type":"radio","options":["Touchscreen","Keyboard","Both"]},
+      {"id":15,"question":"How often do you clean your devices?","type":"number","placeholder":"Enter days between cleanings"}
+    ]
+  },
+  {
+    "title": "Movie Night Survey",
+    "questions": [
+      {"id":1,"question":"Favorite movie of all time?","type":"text","placeholder":""},
+      {"id":2,"question":"Preferred genre for movies?","type":"select","options":["Action","Comedy","Drama","Horror","Romance","Sci-Fi"]},
+      {"id":3,"question":"Do you watch movies alone or with friends?","type":"radio","options":["Alone","With friends","With family","Other"]},
+      {"id":4,"question":"How many movies do you watch per month?","type":"number","placeholder":"Enter number"},
+      {"id":5,"question":"Do you prefer subtitles or dubbed movies?","type":"radio","options":["Subtitles","Dubbed","Either"]},
+      {"id":6,"question":"Favorite movie snack?","type":"text","placeholder":""},
+      {"id":7,"question":"Do you follow film reviews?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":8,"question":"Share a recent movie recommendation.","type":"textarea","placeholder":""}
+      ]
+    },
+  {
+    "title": "Home & Family Survey",
+    "questions": [
+      {"id":1,"question":"How many people live in your house?","type":"number","placeholder":"Enter number"},
+      {"id":2,"question":"Do you have any pets?","type":"radio","options":["Yes","No"]},
+      {"id":3,"question":"Favorite room in your home?","type":"text","placeholder":""},
+      {"id":4,"question":"Do you cook or order food more often?","type":"radio","options":["Cook","Order","Both"]},
+      {"id":5,"question":"Do you enjoy home DIY projects?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":6,"question":"Describe a typical family weekend.","type":"textarea","placeholder":""},
+      {"id":7,"question":"How far do you live from your school/work?","type":"text","placeholder":""}
+    ]
+  },
+  {
+    "title": "Social Life & Friends",
+    "questions": [
+      {"id":1,"question":"How often do you hang out with friends?","type":"select","options":["Daily","Weekly","Monthly","Rarely"]},
+      {"id":2,"question":"Favorite activity with friends?","type":"text","placeholder":""},
+      {"id":3,"question":"Do you use social media to stay in touch with friends?","type":"radio","options":["Yes","No"]},
+      {"id":4,"question":"Do you attend social events regularly?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":5,"question":"Share a recent fun memory with friends.","type":"textarea","placeholder":""}
+    ]
+  },
+  {
+    "title": "Pet Survey",
+    "questions": [
+      {"id":1,"question":"Do you have a dog or cat?","type":"radio","options":["Dog","Cat","Both","None"]},
+      {"id":2,"question":"How often do you walk your pet?","type":"number","placeholder":"Enter times per week"},
+      {"id":3,"question":"Share a funny or cute moment with your pet.","type":"textarea","placeholder":""}
+    ]
+  },
+  {
+    "title": "Favorite Color Survey",
+    "questions": [
+      {"id":1,"question":"What is your favorite color?","type":"text","placeholder":""}
+    ]
+  },
+  {
+    "title": "Phone Habits Survey",
+    "questions": [
+      {"id":1,"question":"How long have you had your current phone?","type":"number","placeholder":"Enter months/years"},
+      {"id":2,"question":"Do you mostly use your phone for social media, games, or work?","type":"select","options":["Social media","Games","Work","Mixed"]},
+      {"id":3,"question":"Do you charge your phone overnight?","type":"radio","options":["Yes","No","Sometimes"]}
+    ]
+  },
+  {
+    "title": "Laptop Usage Survey",
+    "questions": [
+      {"id":1,"question":"How often do you use your laptop?","type":"radio","options":["Daily","Weekly","Rarely"]},
+      {"id":2,"question":"Favorite software or app on your laptop?","type":"text","placeholder":""},
+      {"id":3,"question":"Do you use a laptop for gaming, work, or school?","type":"select","options":["Gaming","Work","School","All"]},
+      {"id":4,"question":"How many tabs do you usually have open?","type":"number","placeholder":"Enter number"},
+      {"id":5,"question":"Do you clean or maintain your laptop regularly?","type":"radio","options":["Yes","No"]}
+    ]
+  },
+  {
+    "title": "Food & Diet Survey",
+    "questions": [
+      {"id":1,"question":"Favorite meal of the day?","type":"select","options":["Breakfast","Lunch","Dinner","Snack"]},
+      {"id":2,"question":"Do you prefer homemade or restaurant food?","type":"radio","options":["Homemade","Restaurant","Both"]},
+      {"id":3,"question":"How often do you try new recipes?","type":"number","placeholder":"Times per month"},
+      {"id":4,"question":"Do you follow a particular diet or eating plan?","type":"radio","options":["Yes","No"]},
+      {"id":5,"question":"Favorite cuisine?","type":"text","placeholder":""},
+      {"id":6,"question":"Do you eat fast food regularly?","type":"radio","options":["Yes","No","Occasionally"]},
+      {"id":7,"question":"Share a favorite recipe or dish.","type":"textarea","placeholder":""}
+    ]
+  },
+  {
+    "title": "Weekend Activities Survey",
+    "questions": [
+      {"id":1,"question":"How do you usually spend your weekends?","type":"textarea","placeholder":""},
+      {"id":2,"question":"Do you prefer indoor or outdoor activities on weekends?","type":"radio","options":["Indoor","Outdoor","Both"]}
+    ]
+  },
+  {
+    "title": "School & Learning Survey",
+    "questions": [
+      {"id":1,"question":"What is your favorite subject at school?","type":"text","placeholder":""},
+      {"id":2,"question":"How many hours do you study daily?","type":"number","placeholder":"Enter hours"},
+      {"id":3,"question":"Do you prefer group projects or solo assignments?","type":"radio","options":["Group","Solo","Both"]},
+      {"id":4,"question":"Do you enjoy online learning?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":5,"question":"Have you participated in any school competitions?","type":"radio","options":["Yes","No"]},
+      {"id":6,"question":"What extracurricular activity do you enjoy most?","type":"text","placeholder":""},
+      {"id":7,"question":"How do you organize your study materials?","type":"text","placeholder":""},
+      {"id":8,"question":"Do you use educational apps?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":9,"question":"Which school subject is most challenging for you?","type":"text","placeholder":""},
+      {"id":10,"question":"How do you prepare for exams?","type":"textarea","placeholder":""},
+      {"id":11,"question":"Do you take notes digitally or on paper?","type":"radio","options":["Digitally","Paper","Both"]},
+      {"id":12,"question":"Do you attend tutoring or extra lessons?","type":"radio","options":["Yes","No"]},
+      {"id":13,"question":"Do you use libraries or online resources more?","type":"radio","options":["Library","Online","Both"]},
+      {"id":14,"question":"Do you participate in study groups?","type":"radio","options":["Yes","No"]},
+      {"id":15,"question":"What motivates you to study effectively?","type":"textarea","placeholder":""},
+      {"id":16,"question":"Share a memorable school experience.","type":"textarea","placeholder":""}
+    ]
+  },
+  {
+    "title": "Food & Cooking Survey",
+    "questions": [
+      {"id":1,"question":"Favorite cuisine?","type":"text","placeholder":""},
+      {"id":2,"question":"How often do you cook at home?","type":"number","placeholder":"Times per week"},
+      {"id":3,"question":"Do you enjoy baking?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":4,"question":"What is your go-to comfort food?","type":"text","placeholder":""},
+      {"id":5,"question":"Do you follow food blogs or YouTube channels?","type":"radio","options":["Yes","No"]},
+      {"id":6,"question":"How often do you eat out at restaurants?","type":"number","placeholder":"Times per month"},
+      {"id":7,"question":"Do you try exotic foods?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":8,"question":"Share a favorite recipe or dish you make.","type":"textarea","placeholder":""},
+      {"id":9,"question":"Do you meal prep for the week?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":10,"question":"Do you follow a special diet?","type":"radio","options":["Yes","No"]},
+      {"id":11,"question":"Do you enjoy street food?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":12,"question":"Favorite beverage?","type":"text","placeholder":""},
+      {"id":13,"question":"Do you cook with family or alone?","type":"radio","options":["Family","Alone","Both"]},
+      {"id":14,"question":"How adventurous are you with flavors?","type":"select","options":["Very","Moderate","Low"]},
+      {"id":15,"question":"Do you use kitchen gadgets often?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":16,"question":"Share a cooking tip you learned.","type":"textarea","placeholder":""},
+      {"id":17,"question":"Do you enjoy watching cooking shows?","type":"radio","options":["Yes","No"]},
+      {"id":18,"question":"How important is presentation for you?","type":"select","options":["Very","Somewhat","Not important"]},
+      {"id":19,"question":"Do you host dinner parties?","type":"radio","options":["Yes","No"]},
+      {"id":20,"question":"Favorite dessert?","type":"text","placeholder":""},
+      {"id":21,"question":"Do you like spicy food?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":22,"question":"Share a cooking fail story.","type":"textarea","placeholder":""},
+      {"id":23,"question":"Do you prefer savory or sweet dishes?","type":"radio","options":["Savory","Sweet","Both"]},
+      {"id":24,"question":"Do you plan meals in advance?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":25,"question":"Do you enjoy food photography?","type":"radio","options":["Yes","No"]}
+    ]
+  },
+  {
+    "title": "Social Media Usage Survey",
+    "questions": [
+      {"id":1,"question":"Which social media platforms do you use?","type":"checkbox","options":["Instagram","TikTok","X","YouTube","Facebook","Snapchat"]},
+      {"id":2,"question":"How many hours per day do you spend online?","type":"number","placeholder":"Enter hours"},
+      {"id":3,"question":"Do you follow content creators or influencers?","type":"radio","options":["Yes","No"]},
+      {"id":4,"question":"How often do you post updates or stories?","type":"radio","options":["Daily","Weekly","Monthly","Rarely"]},
+      {"id":5,"question":"Do you prefer video content or images?","type":"radio","options":["Video","Images","Both"]},
+      {"id":6,"question":"Share a favorite online account you follow.","type":"text","placeholder":""},
+      {"id":7,"question":"Have you ever taken a social media break?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":8,"question":"Do you use social media for work or school?","type":"radio","options":["Work","School","Both","None"]},
+      {"id":9,"question":"Do you interact with online communities?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":10,"question":"How do you feel after using social media?","type":"textarea","placeholder":""},
+      {"id":11,"question":"Do you use social media to follow news?","type":"radio","options":["Yes","No"]},
+      {"id":12,"question":"Do you share personal achievements online?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":13,"question":"Do you post pictures of pets or family?","type":"radio","options":["Pets","Family","Both","None"]},
+      {"id":14,"question":"Do you schedule posts in advance?","type":"radio","options":["Yes","No"]},
+      {"id":15,"question":"Do you feel social media affects your mood?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":16,"question":"Do you watch social media tutorials for learning?","type":"radio","options":["Yes","No"]},
+      {"id":17,"question":"Share your social media handle (optional).","type":"text","placeholder":""}
+    ]
+  },
+  {
+    "title": "Daily Fitness & Exercise Survey",
+    "questions": [
+      {"id":1,"question":"Do you exercise regularly?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":2,"question":"Favorite type of exercise?","type":"select","options":["Running","Yoga","Gym","Sports","Other"]},
+      {"id":3,"question":"How many hours do you exercise weekly?","type":"number","placeholder":"Enter hours"},
+      {"id":4,"question":"Do you exercise alone or with a group?","type":"radio","options":["Alone","Group","Both"]},
+      {"id":5,"question":"Do you track your fitness progress?","type":"radio","options":["Yes","No"]},
+      {"id":6,"question":"Favorite exercise music?","type":"text","placeholder":""},
+      {"id":7,"question":"Do you prefer morning or evening workouts?","type":"radio","options":["Morning","Evening","No preference"]},
+      {"id":8,"question":"Do you follow any diet plan with your exercise?","type":"radio","options":["Yes","No"]},
+      {"id":9,"question":"Share a personal fitness achievement.","type":"textarea","placeholder":""},
+      {"id":10,"question":"Do you use any fitness apps or devices?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":11,"question":"Favorite sport or activity besides gym?","type":"text","placeholder":""},
+      {"id":12,"question":"How often do you stretch or warm-up?","type":"radio","options":["Always","Sometimes","Never"]},
+      {"id":13,"question":"Do you prefer indoor or outdoor workouts?","type":"radio","options":["Indoor","Outdoor","Both"]},
+      {"id":14,"question":"Do you follow online workout tutorials?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":15,"question":"Do you use supplements or vitamins?","type":"radio","options":["Yes","No"]},
+      {"id":16,"question":"How motivated are you to maintain fitness?","type":"select","options":["Very","Moderate","Low"]},
+      {"id":17,"question":"Do you have a workout buddy?","type":"radio","options":["Yes","No"]},
+      {"id":18,"question":"Favorite post-workout meal or snack?","type":"text","placeholder":""},
+      {"id":19,"question":"Do you participate in sports events or marathons?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":20,"question":"Share your top fitness tip.","type":"textarea","placeholder":""}
+    ]
+  },
+  {
+    "title": "Movie & TV Marathon Survey",
+    "questions": [
+      {"id":1,"question":"Favorite movie genre?","type":"select","options":["Action","Comedy","Drama","Horror","Romance","Sci-Fi"]},
+      {"id":2,"question":"Do you watch movies in theaters or online?","type":"radio","options":["Theater","Online","Both"]},
+      {"id":3,"question":"How many movies do you watch per month?","type":"number","placeholder":"Enter number"},
+      {"id":4,"question":"Favorite TV show currently?","type":"text","placeholder":""},
+      {"id":5,"question":"Do you binge-watch shows?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":6,"question":"Preferred streaming platform?","type":"select","options":["Netflix","Disney+","Prime Video","HBO","Other"]},
+      {"id":7,"question":"Do you watch with family or friends?","type":"radio","options":["Family","Friends","Alone","Other"]},
+      {"id":8,"question":"Favorite actor or actress?","type":"text","placeholder":""},
+      {"id":9,"question":"Do you read reviews before watching a movie?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":10,"question":"Do you follow movie trailers online?","type":"radio","options":["Yes","No"]},
+      {"id":11,"question":"Do you prefer subtitles or dubbed movies?","type":"radio","options":["Subtitles","Dubbed","Both"]},
+      {"id":12,"question":"Favorite movie snack?","type":"text","placeholder":""},
+      {"id":13,"question":"Do you enjoy movie merchandise?","type":"radio","options":["Yes","No"]},
+      {"id":14,"question":"Share your top 3 favorite movies.","type":"textarea","placeholder":""},
+      {"id":15,"question":"Do you like animated movies or live-action?","type":"radio","options":["Animated","Live-action","Both"]},
+      {"id":16,"question":"Do you attend film festivals or special screenings?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":17,"question":"Do you discuss movies with friends or online communities?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":18,"question":"Favorite movie soundtrack or composer?","type":"text","placeholder":""},
+      {"id":19,"question":"Do you prefer classic films or new releases?","type":"radio","options":["Classic","New","Both"]},
+      {"id":20,"question":"How often do you rewatch old favorites?","type":"number","placeholder":"Times per year"},
+      {"id":21,"question":"Do you follow actors or directors on social media?","type":"radio","options":["Yes","No"]},
+      {"id":22,"question":"Do you enjoy fan theories and discussions?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":23,"question":"Do you create your own reviews or content?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":24,"question":"Do you prefer movies based on books?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":25,"question":"Favorite cinema snack or drink?","type":"text","placeholder":""},
+      {"id":26,"question":"Do you share your movie experiences online?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":27,"question":"Do you watch international films?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":28,"question":"Do you use apps to track movies or shows?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":29,"question":"Do you enjoy movie soundtracks separately?","type":"radio","options":["Yes","No"]},
+      {"id":30,"question":"Share a recent favorite scene or quote from a movie.","type":"textarea","placeholder":""}
+    ]
+  },
+  {
+    "title": "Pet Care & Habits Survey",
+    "questions": [
+      {"id":1,"question":"Do you own a pet?","type":"radio","options":["Yes","No"]},
+      {"id":2,"question":"Type of pet?","type":"select","options":["Dog","Cat","Bird","Other"]},
+      {"id":3,"question":"How often do you feed your pet?","type":"number","placeholder":"Times per day"},
+      {"id":4,"question":"Do you take your pet for walks?","type":"radio","options":["Yes","No"]},
+      {"id":5,"question":"Favorite activity with your pet?","type":"text","placeholder":""},
+      {"id":6,"question":"Do you groom your pet at home or professional?","type":"radio","options":["Home","Professional","Both"]},
+      {"id":7,"question":"Do you train your pet?","type":"radio","options":["Yes","No"]},
+      {"id":8,"question":"Do you buy toys or treats often?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":9,"question":"Share a funny or memorable pet story.","type":"textarea","placeholder":""},
+      {"id":10,"question":"Do you use apps for pet care?","type":"radio","options":["Yes","No"]},
+      {"id":11,"question":"Do you follow pet influencers online?","type":"radio","options":["Yes","No","Sometimes"]},
+      {"id":12,"question":"Do you take your pet to vet checkups regularly?","type":"radio","options":["Yes","No"]},
+      {"id":13,"question":"Do you prefer adopting pets or buying?","type":"radio","options":["Adopt","Buy","Both"]},
+      {"id":14,"question":"Do you have multiple pets?","type":"radio","options":["Yes","No"]},
+      {"id":15,"question":"Share a training tip for pets.","type":"textarea","placeholder":""}
+    ]
+  }
+];
+
+// Open Survey Modal with Specific Form Data
+window.openSurveyModal = function(index) {
+  if (index < 0 || index >= SURVEY_DATA.length) return;
+  
+  const survey = SURVEY_DATA[index];
+  const overlay = document.getElementById('survey-modal-overlay');
+  const title = document.getElementById('survey-modal-title');
+  const formContent = document.getElementById('survey-form-content');
+  
+  // Set Title
+  title.innerText = survey.title;
+  
+  // Clear and Populate Form
+  formContent.innerHTML = '';
+  
+  survey.questions.forEach(q => {
+    formContent.innerHTML += renderFormInput(q);
+  });
+  
+  // Open Modal
+  overlay.classList.add('active');
+  document.body.classList.add('modal-open');
+};
+
+window.closeSurveyModal = function() {
+  const overlay = document.getElementById('survey-modal-overlay');
+  overlay.classList.remove('active');
+  document.body.classList.remove('modal-open');
+};
+
+function renderFormInput(q) {
+  let inputHtml = '';
+  
+  switch(q.type) {
+    case 'text':
+    case 'number':
+      inputHtml = `<input type="${q.type}" class="survey-input" placeholder="${q.placeholder || ''}" name="q_${q.id}">`;
+      break;
+    
+    case 'textarea':
+      inputHtml = `<textarea class="survey-textarea" placeholder="${q.placeholder || ''}" name="q_${q.id}"></textarea>`;
+      break;
+      
+    case 'select':
+      const options = q.options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+      inputHtml = `<select class="survey-select" name="q_${q.id}"><option value="" disabled selected>Select an option</option>${options}</select>`;
+      break;
+      
+    case 'radio':
+      inputHtml = `<div class="survey-radio-group">`;
+      q.options.forEach(opt => {
+        const id = `q_${q.id}_${opt.replace(/\s+/g, '_')}`;
+        inputHtml += `
+          <label class="survey-option-label" for="${id}">
+            <input type="radio" class="survey-option-input" name="q_${q.id}" id="${id}" value="${opt}">
+            ${opt}
+          </label>
+        `;
+      });
+      inputHtml += `</div>`;
+      break;
+      
+    case 'checkbox':
+      inputHtml = `<div class="survey-checkbox-group">`;
+      q.options.forEach(opt => {
+        const id = `q_${q.id}_${opt.replace(/\s+/g, '_')}`;
+        inputHtml += `
+          <label class="survey-option-label" for="${id}">
+            <input type="checkbox" class="survey-option-input" name="q_${q.id}[]" id="${id}" value="${opt}">
+            ${opt}
+          </label>
+        `;
+      });
+      inputHtml += `</div>`;
+      break;
+  }
+  
+  return `
+    <div class="survey-form-group">
+      <label class="survey-question-label">${q.id}. ${q.question}</label>
+      ${inputHtml}
+    </div>
+  `;
+}
+
+// Initialize Survey Modal Functionality
+function initSurveyModalSystem() {
+  const overlay = document.getElementById('survey-modal-overlay');
+  const container = document.getElementById('survey-modal-container');
+  
+  // Close on overlay click
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      closeSurveyModal();
+    }
+  });
+  
+  // Prevent closing when clicking inside modal
+  container.addEventListener('click', (e) => {
+    e.stopPropagation();
+  });
 }
