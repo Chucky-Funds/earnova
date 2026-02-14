@@ -1,7 +1,60 @@
 // Earnova: payment-gated auth and profile population
 // All logic kept in this JS file (no HTML/CSS changes)
 
+// --- Earnova Reward System Patch ---
 (function(){
+    // --- 1. Persistent Profile Storage ---
+    function ensureUserProfileStorage() {
+      if (localStorage.getItem('userBalance') === null) {
+        localStorage.setItem('userBalance', '0');
+      }
+      if (localStorage.getItem('userXP') === null) {
+        localStorage.setItem('userXP', '0');
+      }
+    }
+
+    // --- 2. Profile UI Update ---
+    function updateProfileUI() {
+      // Read from localStorage
+      const balance = parseFloat(localStorage.getItem('userBalance') || '0');
+      const xp = parseInt(localStorage.getItem('userXP') || '0');
+      // Header
+      const balEl = document.getElementById('header-balance');
+      if (balEl) balEl.innerText = `₦${balance.toFixed(2)}`;
+      const xpEl = document.getElementById('header-xp');
+      if (xpEl) xpEl.innerText = xp + ' XP';
+      // Dashboard
+      const dashEarnings = document.getElementById('dash-earnings');
+      if (dashEarnings) dashEarnings.innerText = `₦${balance.toFixed(2)}`;
+      // Level Card
+      const levelNumber = document.querySelector('.level-number');
+      if (levelNumber) levelNumber.innerText = getLevel(xp);
+      const levelTier = document.querySelector('.level-tier-name');
+      if (levelTier) levelTier.innerText = 'Level ' + getLevel(xp);
+      const xpBar = document.querySelector('.xp-progress-bar-fill');
+      if (xpBar) {
+        const level = getLevel(xp);
+        const prevXP = getLevelXP(level);
+        const nextXP = getNextLevelXP(level);
+        const progress = nextXP > prevXP ? ((xp - prevXP) / (nextXP - prevXP)) * 100 : 100;
+        xpBar.style.width = Math.max(0, Math.min(100, progress)) + '%';
+      }
+      const xpCurrent = document.querySelector('.xp-current');
+      if (xpCurrent) {
+        const level = getLevel(xp);
+        const prevXP = getLevelXP(level);
+        const nextXP = getNextLevelXP(level);
+        xpCurrent.innerText = (xp - prevXP) + ' / ' + (nextXP - prevXP) + ' XP';
+      }
+      const xpRemaining = document.querySelector('.xp-remaining');
+      if (xpRemaining) {
+        const level = getLevel(xp);
+        const nextXP = getNextLevelXP(level);
+        const rem = nextXP - xp;
+        xpRemaining.innerText = rem > 0 ? (rem + ' XP to next level') : 'Max Level';
+      }
+    }
+
   'use strict';
 
   // Utilities for accounts in localStorage
@@ -227,13 +280,118 @@
 
     // If on profile page, populate using sessionStorage
     if(document.getElementById('profile')){
+      ensureUserProfileStorage();
+      updateProfileUI();
       populateProfileFromSession();
     }
 
-  // Initialize video modal system if on profile page
+    // Initialize video modal system if on profile page
     if(document.getElementById('video-modal-overlay')){
       initVideoModalSystem();
     }
+  // --- 3. Detect Full Video Watch and Reward Logic ---
+  // Patch the video modal system to use YouTube IFrame API for end detection
+  let ytPlayer = null;
+  let ytRewardGiven = false;
+
+  function setupYouTubePlayerForReward(video, videoIndex) {
+    // Load API if needed
+    function onYouTubeIframeAPIReadyPatch() {
+      if (ytPlayer) try { ytPlayer.destroy(); } catch (e) {}
+      ytRewardGiven = false;
+      ytPlayer = new YT.Player('video-player-iframe', {
+        events: {
+          'onStateChange': function(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+              handleVideoReward(video, videoIndex);
+            }
+          }
+        }
+      });
+    }
+    if (window.YT && window.YT.Player) {
+      onYouTubeIframeAPIReadyPatch();
+    } else {
+      window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReadyPatch;
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      document.head.appendChild(tag);
+    }
+  }
+
+  function handleVideoReward(video, videoIndex) {
+    if (ytRewardGiven) return;
+    const rewardKey = 'videoRewarded_' + video.videoId;
+    if (localStorage.getItem(rewardKey)) return;
+    // Get exact reward
+    const reward = getStoredRewardByVideo(video);
+    if (!reward) return;
+    // Get current balance and XP
+    let oldBalance = parseFloat(localStorage.getItem('userBalance') || '0');
+    let oldXP = parseInt(localStorage.getItem('userXP') || '0');
+    // Add reward
+    const newBalance = oldBalance + reward.amount;
+    const newXP = oldXP + reward.xp;
+    localStorage.setItem('userBalance', String(newBalance));
+    localStorage.setItem('userXP', String(newXP));
+    localStorage.setItem(rewardKey, 'true');
+    ytRewardGiven = true;
+    updateProfileUI();
+    alert('Reward added successfully');
+  }
+
+  // Patch openVideoModal to use YouTube API and reward logic
+  const originalOpenVideoModal = window.openVideoModal || openVideoModal;
+  window.openVideoModal = function(videoIndex) {
+    if (!VIDEO_DATA.videos.length) return;
+    if (videoIndex < 0 || videoIndex >= VIDEO_DATA.videos.length) return;
+    VIDEO_DATA.currentIndex = videoIndex;
+    const video = VIDEO_DATA.videos[videoIndex];
+    let reward = getStoredRewardByVideo(video);
+    if (!reward) {
+      if (typeof video.duration === 'number' && isFinite(video.duration) && video.duration > 0) {
+        const used = collectUsedRewardKeys();
+        let attempts = 0;
+        do {
+          reward = getVideoReward(videoIndex);
+          const key = `${reward.amount.toFixed(1)}|${reward.xp.toFixed(1)}`;
+          if (!used.has(key)) {
+            used.add(key);
+            try { storeRewardForVideo(video, reward); } catch (e) {}
+            break;
+          }
+          attempts++;
+        } while (attempts < 50);
+        if (!reward) reward = getVideoReward(videoIndex);
+        try { storeRewardForVideo(video, reward); } catch (e) {}
+      } else {
+        reward = getVideoReward(videoIndex);
+      }
+    }
+    const overlay = document.getElementById('video-modal-overlay');
+    const container = document.getElementById('video-modal-container');
+    const playerWrapper = document.getElementById('video-player-wrapper');
+    const titleEl = document.getElementById('video-modal-title');
+    const infoEl = document.getElementById('video-modal-info');
+    const rewardEl = document.getElementById('video-modal-reward');
+    titleEl.textContent = video.title;
+    infoEl.textContent = `Video ${videoIndex + 1} of ${VIDEO_DATA.videos.length}`;
+    rewardEl.textContent = `₦${reward.amount} + ${reward.xp} XP`;
+    playerWrapper.innerHTML = '';
+    // Insert YouTube iframe with known id for API
+    const iframe = document.createElement('iframe');
+    iframe.id = 'video-player-iframe';
+    iframe.src = `https://www.youtube.com/embed/${video.videoId}?autoplay=1&controls=1&rel=0&modestbranding=1&enablejsapi=1`;
+    iframe.allowFullscreen = true;
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframe.title = video.title;
+    playerWrapper.appendChild(iframe);
+    overlay.classList.add('active');
+    document.body.classList.add('modal-open');
+    document.addEventListener('keydown', handleModalKeydown);
+    // Setup reward detection
+    setTimeout(() => setupYouTubePlayerForReward(video, videoIndex), 600);
+  };
   });
 
 })();
