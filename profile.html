@@ -1794,6 +1794,11 @@
             qContainer.innerHTML += createQuestionCard(i);
         }
 
+
+     // After all video cards are rendered, update durations
+     if (typeof fetchAndPopulateDurations === 'function') {
+          fetchAndPopulateDurations();
+     }
         const webContainer = document.getElementById('website-task-list');
         fetch('websites.json')
             .then(res => res.json())
