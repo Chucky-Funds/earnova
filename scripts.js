@@ -525,15 +525,25 @@ function initVideoModalSystem() {
     setTimeout(() => {
       VIDEO_DATA.videos.forEach((video, index) => {
         const card = document.querySelector(`.video-task-card[data-video-index="${index}"]`);
-        if (card && isVideoCompleted(video.videoId)) {
-          card.classList.add('completed');
-          card.style.opacity = '0.5';
-          card.style.cursor = 'not-allowed';
-        } else if (card) {
-          // Ensure enabled for not-completed
-          card.classList.remove('completed');
-          card.style.opacity = '';
-          card.style.cursor = '';
+        if (card) {
+          // Set completed state
+          if (isVideoCompleted(video.videoId)) {
+            card.classList.add('completed');
+            card.style.opacity = '0.5';
+            card.style.cursor = 'not-allowed';
+          } else {
+            card.classList.remove('completed');
+            card.style.opacity = '';
+            card.style.cursor = '';
+          }
+          // Add click handler for completed alert
+          card.addEventListener('click', function(e) {
+            if (card.classList.contains('completed')) {
+              e.stopPropagation();
+              alert('You have already watched this video before');
+              return false;
+            }
+          });
         }
       });
     }, 300);
