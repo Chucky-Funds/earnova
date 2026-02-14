@@ -236,6 +236,40 @@
     }
   });
 
+  // =============================
+  // Daily Reset Countdown Timer
+  // =============================
+  function startDailyResetCountdown() {
+    function updateCountdown() {
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setHours(24, 0, 0, 0); // midnight next day
+      let diff = tomorrow - now;
+      if (diff <= 0) {
+        // Immediately start new 24h countdown
+        diff = 24 * 60 * 60 * 1000;
+      }
+      const hours = Math.floor(diff / 1000 / 60 / 60);
+      const mins = Math.floor((diff / 1000 / 60) % 60);
+      const secs = Math.floor((diff / 1000) % 60);
+      const el = document.getElementById('reset-countdown');
+      if (el) {
+        el.textContent = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  }
+
+  // Start countdown after DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      if (document.getElementById('reset-countdown')) startDailyResetCountdown();
+    });
+  } else {
+    if (document.getElementById('reset-countdown')) startDailyResetCountdown();
+  }
+
 })();
 
 /* ===================================================================
