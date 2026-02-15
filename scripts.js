@@ -1,3 +1,296 @@
+// =============================
+// DAILY QUESTION LIMIT SYSTEM (Questions Tab Only)
+// =============================
+
+// Level table for daily question limit
+function getDailyQuestionLimit(xp) {
+  if (xp < 500) return 1;     // Level 1
+  if (xp < 750) return 2;     // Level 2
+  if (xp < 1125) return 3;    // Level 3
+  if (xp < 1688) return 4;    // Level 4
+  if (xp < 2532) return 6;    // Level 5
+  if (xp < 3798) return 7;    // Level 6
+  if (xp < 5697) return 8;    // Level 7
+  if (xp < 8546) return 9;    // Level 8
+  if (xp < 12819) return 12;  // Level 9
+  if (xp < 19229) return 13;  // Level 10
+  if (xp < 28844) return 16;  // Level 11
+  if (xp < 43266) return 18;  // Level 12
+  if (xp < 64899) return 21;  // Level 13
+  if (xp < 97349) return 24;  // Level 14
+  return 24;                  // Level 15 (Final)
+}
+
+// Returns today's answered count, resets if date changed
+function checkDailyQuestionLimit() {
+  const today = new Date().toLocaleDateString();
+  const storedDate = localStorage.getItem('earnova_last_question_date');
+  let answeredToday = parseInt(localStorage.getItem('earnova_daily_question_count')) || 0;
+  if (storedDate !== today) {
+    answeredToday = 0;
+    localStorage.setItem('earnova_last_question_date', today);
+    localStorage.setItem('earnova_daily_question_count', 0);
+  }
+  return answeredToday;
+}
+
+// Increments today's answered count
+function incrementDailyQuestion() {
+  let answeredToday = checkDailyQuestionLimit();
+  answeredToday++;
+  localStorage.setItem('earnova_daily_question_count', answeredToday);
+  localStorage.setItem('earnova_last_question_date', new Date().toLocaleDateString());
+}
+
+// Wrapper for question card click
+window.handleQuestionClick = function(index, surveyId) {
+  // Defensive: ensure SURVEY_DATA exists
+  if (!Array.isArray(SURVEY_DATA) || SURVEY_DATA.length === 0) return;
+  const completedArr = getCompletedQuestionCards();
+  const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
+  const limit = getDailyQuestionLimit(currentXP);
+  const answeredToday = checkDailyQuestionLimit();
+  // Check 1: Already completed
+  if (completedArr.includes(surveyId)) {
+    alert('You have already answered this question.');
+    return;
+  }
+  // Check 2: Daily limit
+  if (answeredToday >= limit) {
+    alert(`Daily Question Limit Reached! Level ${getLevel(currentXP)} allows ${limit} questions per day.`);
+    return;
+  }
+  // Success: open modal for the correct survey
+  // Find the correct index in SURVEY_DATA
+  let surveyIdx = -1;
+  for (let i = 0; i < SURVEY_DATA.length; i++) {
+    if (SURVEY_DATA[i].id == surveyId) { surveyIdx = i; break; }
+  }
+  if (surveyIdx === -1) surveyIdx = index % SURVEY_DATA.length;
+  if (typeof openSurveyModal === 'function') openSurveyModal(surveyIdx);
+};
+
+// UI updater for question cards
+function updateQuestionUI() {
+  const completedArr = getCompletedQuestionCards();
+  const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
+  const limit = getDailyQuestionLimit(currentXP);
+  const answeredToday = checkDailyQuestionLimit();
+  const isLimitReached = answeredToday >= limit;
+  for (let i = 0; i < 25; i++) {
+    const card = document.getElementById(`q-card-${i}`);
+    if (!card) continue;
+    const surveyId = card.getAttribute('data-survey-id');
+    const btn = card.querySelector('button');
+    // Reset state
+    card.classList.remove('completed');
+    card.style.opacity = '';
+    card.style.cursor = '';
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = 'Perform Task';
+      btn.style.opacity = '';
+      btn.style.cursor = '';
+    }
+    // Completed
+    if (completedArr.includes(surveyId)) {
+      card.classList.add('completed');
+      card.style.opacity = '0.5';
+      card.style.cursor = 'not-allowed';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Completed';
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+      }
+      continue;
+    }
+    // Daily limit reached (not completed)
+    if (isLimitReached) {
+      card.classList.add('completed');
+      card.style.opacity = '0.5';
+      card.style.cursor = 'not-allowed';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Daily Limit';
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+      }
+      continue;
+    }
+    // Available (already reset above)
+  }
+}
+
+// Call updateQuestionUI on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', updateQuestionUI);
+} else {
+  updateQuestionUI();
+}
+
+// Hook: after survey reward is claimed, increment and update UI
+(function() {
+  // Patch markQuestionCardCompleted if not already patched
+  if (!window._questionLimitPatched) {
+    const origMark = window.markQuestionCardCompleted;
+    window.markQuestionCardCompleted = function(survey) {
+      if (origMark) origMark.apply(this, arguments);
+      incrementDailyQuestion();
+      updateQuestionUI();
+    };
+    window._questionLimitPatched = true;
+  }
+})();
+// =============================
+// DAILY QUESTION LIMIT SYSTEM
+// =============================
+
+// Map XP to Daily Question Limit (mirrors level table)
+function getDailyQuestionLimit(xp) {
+  if (xp < 500) return 1;     // Level 1
+  if (xp < 750) return 2;     // Level 2
+  if (xp < 1125) return 3;    // Level 3
+  if (xp < 1688) return 4;    // Level 4
+  if (xp < 2532) return 6;    // Level 5
+  if (xp < 3798) return 7;    // Level 6
+  if (xp < 5697) return 8;    // Level 7
+  if (xp < 8546) return 9;    // Level 8
+  if (xp < 12819) return 12;  // Level 9
+  if (xp < 19229) return 13;  // Level 10
+  if (xp < 28844) return 16;  // Level 11
+  if (xp < 43266) return 18;  // Level 12
+  if (xp < 64899) return 21;  // Level 13
+  if (xp < 97349) return 24;  // Level 14
+  return 25;                  // Level 15 (Final)
+}
+
+// Check and reset daily question count if needed
+function checkDailyQuestionLimit() {
+  const today = new Date().toLocaleDateString();
+  const storedDate = localStorage.getItem('earnova_last_question_date');
+  let answeredToday = parseInt(localStorage.getItem('earnova_daily_question_count')) || 0;
+  if (storedDate !== today) {
+    answeredToday = 0;
+    localStorage.setItem('earnova_last_question_date', today);
+    localStorage.setItem('earnova_daily_question_count', 0);
+  }
+  return answeredToday;
+}
+
+// Increment daily question count
+function incrementDailyQuestion() {
+  let answeredToday = checkDailyQuestionLimit();
+  answeredToday++;
+  localStorage.setItem('earnova_daily_question_count', answeredToday);
+  localStorage.setItem('earnova_last_question_date', new Date().toLocaleDateString());
+}
+
+// Central function to update all question card states
+function updateQuestionCardStates() {
+  const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
+  const limit = getDailyQuestionLimit(currentXP);
+  const answeredToday = checkDailyQuestionLimit();
+  const isLimitReached = answeredToday >= limit;
+  const completedArr = getCompletedQuestionCards();
+  for (let i = 0; i < 25; i++) {
+    const card = document.querySelector(`.task-card[data-card-index="${i}"]`);
+    if (!card) continue;
+    const surveyId = card.getAttribute('data-survey-id');
+    const btn = card.querySelector('button');
+    // Remove all state
+    card.classList.remove('completed');
+    card.style.opacity = '';
+    card.style.cursor = '';
+    if (btn) {
+      btn.disabled = false;
+      btn.innerText = 'Perform Task';
+      btn.style.opacity = '';
+      btn.style.cursor = '';
+      btn.onclick = function() { openSurveyModal(i); };
+    }
+    // Condition A: Already completed
+    if (completedArr.includes(surveyId)) {
+      card.classList.add('completed');
+      card.style.opacity = '0.5';
+      card.style.cursor = 'not-allowed';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Completed';
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+        btn.onclick = function() { alert('You have already answered this question.'); };
+      }
+      continue;
+    }
+    // Condition B: Daily Limit Reached
+    if (isLimitReached) {
+      card.classList.add('completed');
+      card.style.opacity = '0.5';
+      card.style.cursor = 'not-allowed';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Daily Limit';
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+        btn.onclick = function() { 
+          alert(`Daily Question Limit Reached! Level ${getLevel(currentXP)} allows ${limit} questions per day.`); 
+        };
+      }
+      continue;
+    }
+    // Condition C: Available (already reset above)
+  }
+}
+
+// --- Patch openSurveyModal to enforce strict checks ---
+const _originalOpenSurveyModal = window.openSurveyModal;
+window.openSurveyModal = function(index) {
+  // Defensive: get card and surveyId
+  const card = document.querySelector(`.task-card[data-card-index="${index}"]`);
+  if (!card) return;
+  const surveyId = card.getAttribute('data-survey-id');
+  const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
+  const limit = getDailyQuestionLimit(currentXP);
+  const answeredToday = checkDailyQuestionLimit();
+  const isLimitReached = answeredToday >= limit;
+  const completedArr = getCompletedQuestionCards();
+  // Check 1: Already completed
+  if (completedArr.includes(surveyId)) {
+    alert('You have already answered this question.');
+    return;
+  }
+  // Check 2: Daily limit reached
+  if (isLimitReached) {
+    alert(`Daily Question Limit Reached! Level ${getLevel(currentXP)} allows ${limit} questions per day.`);
+    return;
+  }
+  // Find correct survey index in SURVEY_DATA
+  let surveyIdx = -1;
+  if (typeof SURVEY_DATA !== 'undefined' && Array.isArray(SURVEY_DATA) && SURVEY_DATA.length > 0) {
+    for (let i = 0; i < SURVEY_DATA.length; i++) {
+      if (SURVEY_DATA[i].id == surveyId) { surveyIdx = i; break; }
+    }
+  }
+  if (surveyIdx === -1) surveyIdx = index % (SURVEY_DATA ? SURVEY_DATA.length : 1);
+  // Call original modal logic
+  _originalOpenSurveyModal(surveyIdx);
+};
+
+// Patch markQuestionCardCompleted to increment daily question count and update UI
+const _originalMarkQuestionCardCompleted = markQuestionCardCompleted;
+markQuestionCardCompleted = function(survey) {
+  _originalMarkQuestionCardCompleted(survey);
+  incrementDailyQuestion();
+  updateQuestionCardStates();
+};
+
+// On load, update question card states
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', updateQuestionCardStates);
+} else {
+  updateQuestionCardStates();
+}
 // Earnova: payment-gated auth and profile population
 // All logic kept in this JS file (no HTML/CSS changes)
 
