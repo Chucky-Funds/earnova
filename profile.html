@@ -1220,6 +1220,24 @@
              .header { height: 50px; }
              .sidebar { padding-top: 60px; } /* Ensure header doesn't block sidebar top */
         }
+        /* Responsive font size for timer */
+/* Responsive font size for reset timer and label */
+.daily-reset-timer {
+    font-weight: 600;
+    color: var(--accent-secondary);
+    font-size: 1.7rem; /* Base size for large screens */
+    line-height: 1;
+}
+@media (max-width: 900px) {
+    .daily-reset-timer{
+        font-size: 1.5rem;
+    }
+}
+@media (max-width: 600px) {
+    .daily-reset-timer{
+        font-size: 1rem;
+    }
+}
     </style>
 </head>
 <body>
@@ -1291,9 +1309,9 @@
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 </button>
                 <!-- Daily Reset Countdown Timer -->
-                <div id="daily-reset-timer" style="font-weight:600; color:var(--accent-secondary); font-size:15px;">
-                  Reset: <span id="reset-countdown">--:--:--</span>
-                </div>
+                                <div class="daily-reset-timer" id="daily-reset-timer">
+                                    Reset: <span class="reset-countdown" id="reset-countdown">--:--:--</span>
+                                </div>
             </div>
 
             <div class="header-actions">
