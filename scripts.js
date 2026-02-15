@@ -404,19 +404,19 @@ if (document.readyState === 'loading') {
       
       if (diff <= 0) {
         // --- DAILY RESET TRIGGERED ---
-        
         // 1. Reset Counters immediately
         localStorage.setItem('earnova_daily_watch_count', 0);
         localStorage.setItem('earnova_last_watch_date', new Date().toLocaleDateString());
-        
+        // Remove last video set so new set is generated
+        localStorage.removeItem('earnova_last_video_set');
         // Reset Question Counter
         localStorage.setItem('earnova_daily_question_count', 0);
         localStorage.setItem('earnova_last_question_date', new Date().toLocaleDateString());
-        
+        // Remove last question set so new set is generated
+        localStorage.removeItem('earnova_last_question_set');
         // 2. Refresh the tabs contents (Load new videos/questions, remove old ones)
         if (typeof refreshVideoTabForNewDay === 'function') refreshVideoTabForNewDay();
         if (typeof renderQuestionTabOnLoad === 'function') renderQuestionTabOnLoad();
-        
         // Reset diff for visual timer to start counting 24h again immediately
         diff = 24 * 60 * 60 * 1000;
       }
@@ -520,21 +520,54 @@ function refreshVideoTabForNewDay() {
 
 // Initial load rendering logic
 function renderVideoTabOnLoad() {
-  const completed = getCompletedVideos();
-  const availableVideos = VIDEO_DATA.videos.filter(v => !completed.includes(v.videoId));
-  const videosToShow = availableVideos.slice(0, 10);
   const container = document.getElementById('video-task-list');
-  if (container) {
-    container.innerHTML = '';
+  if (!container) return;
+
+  // Get current XP and daily limit
+  const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
+  const limit = getDailyVideoLimit(currentXP);
+  const watchedToday = checkDailyLimit();
+  const isLimitReached = watchedToday >= limit;
+
+  // 1. Get List of videos previously completed (history)
+  const completed = getCompletedVideos();
+
+  let videosToShow = [];
+  if (isLimitReached) {
+    // Show the same set as when the limit was reached (store in localStorage)
+    let lastSet = localStorage.getItem('earnova_last_video_set');
+    if (lastSet) {
+      try {
+        const lastSetArr = JSON.parse(lastSet);
+        // Map ids to video objects (filter out if video removed)
+        videosToShow = lastSetArr.map(id => VIDEO_DATA.videos.find(v => v.videoId === id)).filter(Boolean);
+      } catch (e) {
+        videosToShow = [];
+      }
+    }
+    // If no last set, fallback to current available
+    if (!videosToShow.length) {
+      const availableVideos = VIDEO_DATA.videos.filter(v => !completed.includes(v.videoId));
+      videosToShow = availableVideos.slice(0, 10);
+    }
+  } else {
+    // Not at limit, show fresh set and store it
+    const availableVideos = VIDEO_DATA.videos.filter(v => !completed.includes(v.videoId));
+    videosToShow = availableVideos.slice(0, 10);
+    // Store this set for reference if limit is reached later
+    localStorage.setItem('earnova_last_video_set', JSON.stringify(videosToShow.map(v => v.videoId)));
+  }
+
+  container.innerHTML = '';
+  if (videosToShow.length === 0) {
+    container.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">No new videos available at the moment. Please check back later.</p>';
+  } else {
     videosToShow.forEach((video, i) => {
-      // Use full createVideoCard function for rendering (Available in HTML scope, or recreated here)
       let mins = video.duration || 0;
       let rewardObj = getStoredRewardByVideo(video) || getVideoReward(i);
       let reward = rewardObj.amount;
       let xp = rewardObj.xp;
-      
-      // We reconstruct html string here to be safe
-       let cardHtml = `
+      let cardHtml = `
         <div class="task-card video-task-card" id="vid-${i}" data-video-index="${video.index}">
             <div class="task-header">
                 <span class="task-type">Video Ad</span>
@@ -555,13 +588,12 @@ function renderVideoTabOnLoad() {
                 <button class="btn btn-primary" onclick="openVideoModal(${video.index})">Watch Now</button>
             </div>
         </div>`;
-        
       const wrapper = document.createElement('div');
       wrapper.innerHTML = cardHtml;
       container.appendChild(wrapper.firstElementChild);
     });
-    setTimeout(updateVideoCardStates, 100);
   }
+  setTimeout(updateVideoCardStates, 100);
 }
 
 let VIDEO_DATA = {
@@ -1302,63 +1334,71 @@ loadSurveyData();
 function renderQuestionTabOnLoad() {
     const container = document.getElementById('question-task-list');
     if (!container) return;
-    
+
     // Ensure data exists
     if (!SURVEY_DATA || SURVEY_DATA.length === 0) return;
+
+    // Get current XP and daily limit
+    const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
+    const limit = getDailyQuestionLimit(currentXP);
+    const answeredToday = checkDailyQuestionLimit();
+    const isLimitReached = answeredToday >= limit;
 
     // 1. Get History (Completed questions)
     const completed = getCompletedQuestionCards();
 
-    // 2. Filter out questions that have been permanently completed
-    const available = SURVEY_DATA.filter(q => !completed.includes(q.id));
-    
-    // 3. Select subset to show (e.g. 25 fresh ones)
-    const toShow = available.slice(0, 25);
-    
+    // 2. Determine if we should show the same set (if limit reached) or fresh (if new day)
+    let toShow = [];
+    if (isLimitReached) {
+      // Show the same set as when the limit was reached (store in localStorage)
+      let lastSet = localStorage.getItem('earnova_last_question_set');
+      if (lastSet) {
+        try {
+          const lastSetArr = JSON.parse(lastSet);
+          // Map ids to survey objects (filter out if survey removed)
+          toShow = lastSetArr.map(id => SURVEY_DATA.find(q => q.id === id)).filter(Boolean);
+        } catch (e) {
+          toShow = [];
+        }
+      }
+      // If no last set, fallback to current available
+      if (!toShow.length) {
+        const available = SURVEY_DATA.filter(q => !completed.includes(q.id));
+        toShow = available.slice(0, 25);
+      }
+    } else {
+      // Not at limit, show fresh set and store it
+      const available = SURVEY_DATA.filter(q => !completed.includes(q.id));
+      toShow = available.slice(0, 25);
+      // Store this set for reference if limit is reached later
+      localStorage.setItem('earnova_last_question_set', JSON.stringify(toShow.map(q => q.id)));
+    }
+
     // 4. Render
     container.innerHTML = '';
     if (toShow.length === 0) {
-        container.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">No more questions available right now. Please check back later.</p>';
-        return;
+      container.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">No more questions available right now. Please check back later.</p>';
+      return;
     }
-    
-    toShow.forEach((survey, index) => {
-        // inline logic for card creation (to match profile.html style)
-        let reward = null;
-        if (typeof getStoredRewardByQuestionCard === "function") {
-            reward = getStoredRewardByQuestionCard(survey);
-        }
-        if (!reward && typeof getQuestionCardReward === "function") {
-            reward = getQuestionCardReward(survey, index);
-        }
-        if (!reward) reward = { amount: 150, xp: 10 };
 
-        // Even though we filtered available, double check state for button attributes
-        let completedState = false; // By definition of filter, these should be false
-        let btnText = 'Perform Task';
-        // FIX: Using handleQuestionClick instead of openSurveyModal
-        let btnAttrs = `onclick=\"handleQuestionClick(${index}, '${survey.id}')\"`;
-        let btnStyle = 'margin-top:auto';
-        
-        const cardHtml = `
-        <div class="task-card" id="q-card-${index}" data-survey-id="${survey.id}">
-            <div class="task-header">
-                <span class="task-type">Survey</span>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <span class="task-reward">₦${reward.amount}</span>
-                    <span class="xp-badge">+${reward.xp} XP</span>
-                </div>
-            </div>
-            <div class="task-body">
-                <div class="task-title">${survey.title}</div>
-                <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Complete this survey to earn rewards.</p>
-                <button class="btn btn-primary" style="${btnStyle}" ${btnAttrs}>${btnText}</button>
-            </div>
-        </div>`;
-        
-        container.insertAdjacentHTML('beforeend', cardHtml);
+    toShow.forEach((survey, index) => {
+      let reward = null;
+      if (typeof getStoredRewardByQuestionCard === "function") {
+        reward = getStoredRewardByQuestionCard(survey);
+      }
+      if (!reward && typeof getQuestionCardReward === "function") {
+        reward = getQuestionCardReward(survey, index);
+      }
+      if (!reward) reward = { amount: 150, xp: 10 };
+
+      let btnText = 'Perform Task';
+      let btnAttrs = `onclick=\"handleQuestionClick(${index}, '${survey.id}')\"`;
+      let btnStyle = 'margin-top:auto';
+      const cardHtml = `
+      <div class=\"task-card\" id=\"q-card-${index}\" data-survey-id=\"${survey.id}\">\n            <div class=\"task-header\">\n                <span class=\"task-type\">Survey</span>\n                <div style=\"display: flex; gap: 8px; align-items: center;\">\n                    <span class=\"task-reward\">₦${reward.amount}</span>\n                    <span class=\"xp-badge\">+${reward.xp} XP</span>\n                </div>\n            </div>\n            <div class=\"task-body\">\n                <div class=\"task-title\">${survey.title}</div>\n                <p style=\"font-size:12px; color:var(--text-secondary); margin-bottom:12px;\">Complete this survey to earn rewards.</p>\n                <button class=\"btn btn-primary\" style=\"${btnStyle}\" ${btnAttrs}>${btnText}</button>\n            </div>\n        </div>`;
+      container.insertAdjacentHTML('beforeend', cardHtml);
     });
-    
+
     // 5. Update UI States (Check Daily Limits)
     updateQuestionUI();
 }
