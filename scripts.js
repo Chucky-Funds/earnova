@@ -1164,24 +1164,117 @@ if (document.readyState === 'loading') {
 }
 
 // Open Survey Modal with Specific Form Dataies
+// --- Question Card Completion & Reward Logic ---
+function isQuestionCardCompleted(survey) {
+  if (!survey || !survey.id) return false;
+  try {
+    const completed = JSON.parse(localStorage.getItem('completedQuestionCards') || '[]');
+    return completed.includes(survey.id);
+  } catch (e) { return false; }
+}
+
+function markQuestionCardCompleted(survey) {
+  if (!survey || !survey.id) return;
+  try {
+    let completed = JSON.parse(localStorage.getItem('completedQuestionCards') || '[]');
+    if (!completed.includes(survey.id)) {
+      completed.push(survey.id);
+      localStorage.setItem('completedQuestionCards', JSON.stringify(completed));
+    }
+  } catch (e) {}
+}
+
 window.openSurveyModal = function(index) {
   if (index < 0 || index >= SURVEY_DATA.length) return;
-  
   const survey = SURVEY_DATA[index];
   const overlay = document.getElementById('survey-modal-overlay');
   const title = document.getElementById('survey-modal-title');
   const formContent = document.getElementById('survey-form-content');
-  
+
   // Set Title
   title.innerText = survey.title;
-  
+
   // Clear and Populate Form
   formContent.innerHTML = '';
-  
   survey.questions.forEach(q => {
     formContent.innerHTML += renderFormInput(q);
   });
-  
+
+  // Add Get Rewards button if not already present
+  let footer = document.querySelector('.survey-modal-footer');
+  if (footer) {
+    footer.innerHTML = '';
+    // Only show button if not already completed
+    if (!isQuestionCardCompleted(survey)) {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-primary';
+      btn.textContent = 'Get Rewards';
+      btn.onclick = function() {
+        // Validate all questions as required (ignore q.required)
+        let allFilled = true;
+        for (let i = 0; i < survey.questions.length; i++) {
+          const q = survey.questions[i];
+          let inputName = `q_${q.id}`;
+          if (q.type === 'checkbox') inputName += '[]';
+          const els = document.querySelectorAll(`[name="${inputName}"]`);
+          if (!els || els.length === 0) { allFilled = false; break; }
+          const type = (els[0].type || '').toLowerCase();
+          if (type === 'checkbox' || type === 'radio') {
+            let checked = false;
+            els.forEach(e => { if (e.checked) checked = true; });
+            if (!checked) { allFilled = false; break; }
+          } else if (type === 'select-one') {
+            if (!els[0].value || els[0].value === '') { allFilled = false; break; }
+          } else {
+            let filled = false;
+            els.forEach(e => {
+              if (e.value && e.value.trim() !== '') filled = true;
+            });
+            if (!filled) { allFilled = false; break; }
+          }
+        }
+        if (!allFilled) {
+          alert('You have not completed the form. Please answer all questions before claiming your reward.');
+          return;
+        }
+        // Prevent duplicate reward
+        if (isQuestionCardCompleted(survey)) {
+          alert('You have already claimed this reward.');
+          return;
+        }
+        // Get reward (persistent)
+        let reward = null;
+        if (typeof getStoredRewardByQuestionCard === 'function') reward = getStoredRewardByQuestionCard(survey);
+        if (!reward && typeof getQuestionCardReward === 'function') reward = getQuestionCardReward(survey, index);
+        if (!reward) reward = { amount: 150, xp: 10 };
+        // Add funds and XP (same as video logic)
+        if (typeof addFunds === 'function') {
+          addFunds(reward.amount, 'Survey', survey.title, reward.xp);
+        } else {
+          // Fallback: update localStorage directly
+          let bal = parseFloat(localStorage.getItem('earnova_balance')) || 0;
+          let xp = parseInt(localStorage.getItem('earnova_xp')) || 0;
+          bal += reward.amount;
+          xp += reward.xp;
+          localStorage.setItem('earnova_balance', bal);
+          localStorage.setItem('earnova_xp', xp);
+        }
+        // Mark as completed
+        markQuestionCardCompleted(survey);
+        // Close modal
+        window.closeSurveyModal();
+      };
+      footer.appendChild(btn);
+    } else {
+      // Already completed
+      const doneMsg = document.createElement('div');
+      doneMsg.textContent = 'You have already completed this survey and claimed your reward.';
+      doneMsg.style.color = 'var(--success)';
+      doneMsg.style.fontWeight = 'bold';
+      footer.appendChild(doneMsg);
+    }
+  }
+
   // Open Modal
   overlay.classList.add('active');
   document.body.classList.add('modal-open');
