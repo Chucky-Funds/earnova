@@ -1,5 +1,5 @@
 [
-  {
+  {"id":1,
     "title": "Football Fanatic Survey",
     "questions": [
       {"id":1,"question":"Who is your favorite football player?","type":"text","placeholder":""},
@@ -15,14 +15,14 @@
       {"id":11,"question":"Share a memorable football match experience.","type":"textarea","placeholder":""}
     ]
   },
-  {
+  {"id":2,
     "title": "Daily Life Snapshot",
     "questions": [
       {"id":1,"question":"How many hours do you sleep daily?","type":"number","placeholder":"Enter hours"},
       {"id":2,"question":"What is your favorite daily routine?","type":"text","placeholder":""}
     ]
   },
-  {
+  {"id":3,
     "title": "Tech & Gadgets Survey",
     "questions": [
       {"id":1,"question":"What phone do you currently use?","type":"text","placeholder":""},
@@ -42,7 +42,7 @@
       {"id":15,"question":"How often do you clean your devices?","type":"number","placeholder":"Enter days between cleanings"}
     ]
   },
-  {
+  {"id":4,
     "title": "Movie Night Survey",
     "questions": [
       {"id":1,"question":"Favorite movie of all time?","type":"text","placeholder":""},
@@ -55,7 +55,7 @@
       {"id":8,"question":"Share a recent movie recommendation.","type":"textarea","placeholder":""}
       ]
     },
-  {
+  {"id":5,
     "title": "Home & Family Survey",
     "questions": [
       {"id":1,"question":"How many people live in your house?","type":"number","placeholder":"Enter number"},
@@ -67,7 +67,7 @@
       {"id":7,"question":"How far do you live from your school/work?","type":"text","placeholder":""}
     ]
   },
-  {
+  {"id":6,
     "title": "Social Life & Friends",
     "questions": [
       {"id":1,"question":"How often do you hang out with friends?","type":"select","options":["Daily","Weekly","Monthly","Rarely"]},
@@ -77,7 +77,7 @@
       {"id":5,"question":"Share a recent fun memory with friends.","type":"textarea","placeholder":""}
     ]
   },
-  {
+  {"id":7,
     "title": "Pet Survey",
     "questions": [
       {"id":1,"question":"Do you have a dog or cat?","type":"radio","options":["Dog","Cat","Both","None"]},
@@ -85,13 +85,13 @@
       {"id":3,"question":"Share a funny or cute moment with your pet.","type":"textarea","placeholder":""}
     ]
   },
-  {
+  {"id":8,
     "title": "Favorite Color Survey",
     "questions": [
       {"id":1,"question":"What is your favorite color?","type":"text","placeholder":""}
     ]
   },
-  {
+  {"id":9,
     "title": "Phone Habits Survey",
     "questions": [
       {"id":1,"question":"How long have you had your current phone?","type":"number","placeholder":"Enter months/years"},
@@ -99,7 +99,7 @@
       {"id":3,"question":"Do you charge your phone overnight?","type":"radio","options":["Yes","No","Sometimes"]}
     ]
   },
-  {
+  {"id":10,
     "title": "Laptop Usage Survey",
     "questions": [
       {"id":1,"question":"How often do you use your laptop?","type":"radio","options":["Daily","Weekly","Rarely"]},
@@ -109,7 +109,7 @@
       {"id":5,"question":"Do you clean or maintain your laptop regularly?","type":"radio","options":["Yes","No"]}
     ]
   },
-  {
+  {"id":11,
     "title": "Laptop Usage Survey",
     "questions": [
       {"id":1,"question":"How often do you use your laptop?","type":"radio","options":["Daily","Weekly","Rarely"]},
@@ -129,7 +129,7 @@
       {"id":15,"question":"Do you watch tutorials to improve tech skills?","type":"radio","options":["Yes","No"]}
     ]
   },
-  {
+  {"id":12,
     "title": "Food & Diet Survey",
     "questions": [
       {"id":1,"question":"Favorite meal of the day?","type":"select","options":["Breakfast","Lunch","Dinner","Snack"]},
@@ -141,7 +141,7 @@
       {"id":7,"question":"Share a favorite recipe or dish.","type":"textarea","placeholder":""}
     ]
   },
-  {
+  {"id":13,
     "title": "Food & Diet Survey",
     "questions": [
       {"id":1,"question":"Favorite meal of the day?","type":"select","options":["Breakfast","Lunch","Dinner","Snack"]},
@@ -153,7 +153,7 @@
       {"id":7,"question":"Share a favorite recipe or dish.","type":"textarea","placeholder":""}
     ]
   },
-  {
+  {"id":14,
     "title": "Pet Survey",
     "questions": [
       {"id":1,"question":"Do you have a dog or cat?","type":"radio","options":["Dog","Cat","Both","None"]},
@@ -163,7 +163,7 @@
       {"id":5,"question":"How do you celebrate your pet’s birthday?","type":"textarea","placeholder":""}
     ]
   },
-  {
+  {"id":15,
     "title": "Home & Family Survey",
     "questions":[
       {"id":1,"question":"How many people live in your house?","type":"number","placeholder":"Enter number"},
@@ -175,7 +175,7 @@
       {"id":7,"question":"How far do you live from your school/work?","type":"text","placeholder":""}
     ]
   },
-  {
+  {"id":16,
     "title": "Social Life & Friends",
     "questions":[
       {"id":1,"question":"How often do you hang out with friends?","type":"select","options":["Daily","Weekly","Monthly","Rarely"]},
@@ -185,7 +185,7 @@
       {"id":5,"question":"Share a recent fun memory with friends.","type":"textarea","placeholder":""}
     ]
   },
-  {
+  {"id":17,
     "title": "Pet Survey",
     "questions":[
       {"id":1,"question":"Do you have a dog or cat?","type":"radio","options":["Dog","Cat","Both","None"]},
@@ -193,13 +193,13 @@
       {"id":3,"question":"Share a funny or cute moment with your pet.","type":"textarea","placeholder":""}
     ]
   },
-  {
+  {"id":18,
     "title": "Favorite Color Survey",
     "questions":[
       {"id":1,"question":"What is your favorite color?","type":"text","placeholder":""}
     ]
   },
-  {
+  {"id":19,
     "title": "Phone Habits Survey",
     "questions":[
       {"id":1,"question":"How long have you had your current phone?","type":"number","placeholder":"Enter months/years"},
@@ -207,7 +207,7 @@
       {"id":3,"question":"Do you charge your phone overnight?","type":"radio","options":["Yes","No","Sometimes"]}
     ]
   },
-  {
+  {"id":20,
     "title": "Laptop Usage Survey",
     "questions":[
       {"id":1,"question":"How often do you use your laptop?","type":"radio","options":["Daily","Weekly","Rarely"]},
@@ -227,14 +227,14 @@
       {"id":15,"question":"Do you watch tutorials to improve tech skills?","type":"radio","options":["Yes","No"]}
     ]
   },
-  {
+  {"id":21,
     "title": "Weekend Activities Survey",
     "questions": [
       {"id":1,"question":"How do you usually spend your weekends?","type":"textarea","placeholder":""},
       {"id":2,"question":"Do you prefer indoor or outdoor activities on weekends?","type":"radio","options":["Indoor","Outdoor","Both"]}
     ]
   },
-  {
+  {"id":22,
     "title": "School & Learning Survey",
     "questions": [
       {"id":1,"question":"What is your favorite subject at school?","type":"text","placeholder":""},
@@ -255,7 +255,7 @@
       {"id":16,"question":"Share a memorable school experience.","type":"textarea","placeholder":""}
     ]
   },
-  {
+  {"id":23,
     "title": "Food & Cooking Survey",
     "questions": [
       {"id":1,"question":"Favorite cuisine?","type":"text","placeholder":""},
@@ -285,7 +285,7 @@
       {"id":25,"question":"Do you enjoy food photography?","type":"radio","options":["Yes","No"]}
     ]
   },
-  {
+  {"id":24,
     "title": "Social Media Usage Survey",
     "questions": [
       {"id":1,"question":"Which social media platforms do you use?","type":"checkbox","options":["Instagram","TikTok","X","YouTube","Facebook","Snapchat"]},
@@ -307,7 +307,7 @@
       {"id":17,"question":"Share your social media handle (optional).","type":"text","placeholder":""}
     ]
   },
-  {
+  {"id":25,
     "title": "Daily Fitness & Exercise Survey",
     "questions": [
       {"id":1,"question":"Do you exercise regularly?","type":"radio","options":["Yes","No","Sometimes"]},
@@ -332,7 +332,7 @@
       {"id":20,"question":"Share your top fitness tip.","type":"textarea","placeholder":""}
     ]
   },
-  {
+  {"id":26,
     "title": "Movie & TV Marathon Survey",
     "questions": [
       {"id":1,"question":"Favorite movie genre?","type":"select","options":["Action","Comedy","Drama","Horror","Romance","Sci-Fi"]},
@@ -367,7 +367,7 @@
       {"id":30,"question":"Share a recent favorite scene or quote from a movie.","type":"textarea","placeholder":""}
     ]
   },
-  {
+  {"id":27,
     "title": "Pet Care & Habits Survey",
     "questions": [
       {"id":1,"question":"Do you own a pet?","type":"radio","options":["Yes","No"]},

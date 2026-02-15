@@ -1167,12 +1167,46 @@ if (document.readyState === 'loading') {
 
 // Open Survey Modal with Specific Form Dataies
 // --- Question Card Completion & Reward Logic ---
+// Persistent completion helpers for question cards
+function getCompletedQuestionCards() {
+  try {
+    return JSON.parse(localStorage.getItem('completedQuestionCards')) || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function setCompletedQuestionCards(arr) {
+  localStorage.setItem('completedQuestionCards', JSON.stringify(arr));
+}
+
 function isQuestionCardCompleted(survey) {
   if (!survey || !survey.id) return false;
-  try {
-    const completed = JSON.parse(localStorage.getItem('completedQuestionCards') || '[]');
-    return completed.includes(survey.id);
-  } catch (e) { return false; }
+  const arr = getCompletedQuestionCards();
+  return arr.includes(survey.id);
+}
+
+function markQuestionCardCompleted(survey) {
+  if (!survey || !survey.id) return;
+  const arr = getCompletedQuestionCards();
+  if (!arr.includes(survey.id)) {
+    arr.push(survey.id);
+    setCompletedQuestionCards(arr);
+  }
+  // Immediately update the UI for the completed card
+  var card = document.getElementById('question-card-' + survey.id);
+  if (card) {
+    card.classList.add('completed');
+    card.style.opacity = '0.5';
+    card.style.cursor = 'not-allowed';
+    var btn = card.querySelector('button');
+    if (btn) {
+      btn.textContent = 'Completed';
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+    }
+  }
 }
 
 function markQuestionCardCompleted(survey) {
@@ -1184,6 +1218,20 @@ function markQuestionCardCompleted(survey) {
       localStorage.setItem('completedQuestionCards', JSON.stringify(completed));
     }
   } catch (e) {}
+
+  // Immediately update the UI for the completed card
+  // Assumes each card has id="question-card-<survey.id>"
+  var card = document.getElementById('question-card-' + survey.id);
+  if (card) {
+    card.classList.add('completed');
+    var btn = card.querySelector('button');
+    if (btn) {
+      btn.textContent = 'Completed';
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+    }
+  }
 }
 
 window.openSurveyModal = function(index) {
@@ -1261,7 +1309,7 @@ window.openSurveyModal = function(index) {
           localStorage.setItem('earnova_balance', bal);
           localStorage.setItem('earnova_xp', xp);
         }
-        // Mark as completed
+        // Mark as completed and update UI immediately
         markQuestionCardCompleted(survey);
         // Close modal
         window.closeSurveyModal();
