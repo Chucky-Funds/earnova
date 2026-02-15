@@ -190,3 +190,7 @@ Watched videos are replaced with new ones
 Repeat'
 
 please apply this feature this is only funtionality there is no redesigning of any element here except for disabling and enabling no feature already ther i smeant to be deleted just add this feature and give me back may full updated profile.html and scripts.js code to copy. remember this is only functionality there is no designing here add the feature and give me back may full updated profile.html and scripts.js code to copy
+
+temporary refreshing:
+localStorage.setItem('earnova_daily_watch_count', 0);
+refreshVideoTabForNewDay();

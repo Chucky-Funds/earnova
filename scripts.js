@@ -1,7 +1,3 @@
-// =============================
-// DAILY QUESTION LIMIT SYSTEM (Questions Tab Only)
-// =============================
-
 // Level table for daily question limit
 function getDailyQuestionLimit(xp) {
   if (xp < 500) return 1;     // Level 1
@@ -142,155 +138,7 @@ if (document.readyState === 'loading') {
     window._questionLimitPatched = true;
   }
 })();
-// =============================
-// DAILY QUESTION LIMIT SYSTEM
-// =============================
 
-// Map XP to Daily Question Limit (mirrors level table)
-function getDailyQuestionLimit(xp) {
-  if (xp < 500) return 1;     // Level 1
-  if (xp < 750) return 2;     // Level 2
-  if (xp < 1125) return 3;    // Level 3
-  if (xp < 1688) return 4;    // Level 4
-  if (xp < 2532) return 6;    // Level 5
-  if (xp < 3798) return 7;    // Level 6
-  if (xp < 5697) return 8;    // Level 7
-  if (xp < 8546) return 9;    // Level 8
-  if (xp < 12819) return 12;  // Level 9
-  if (xp < 19229) return 13;  // Level 10
-  if (xp < 28844) return 16;  // Level 11
-  if (xp < 43266) return 18;  // Level 12
-  if (xp < 64899) return 21;  // Level 13
-  if (xp < 97349) return 24;  // Level 14
-  return 25;                  // Level 15 (Final)
-}
-
-// Check and reset daily question count if needed
-function checkDailyQuestionLimit() {
-  const today = new Date().toLocaleDateString();
-  const storedDate = localStorage.getItem('earnova_last_question_date');
-  let answeredToday = parseInt(localStorage.getItem('earnova_daily_question_count')) || 0;
-  if (storedDate !== today) {
-    answeredToday = 0;
-    localStorage.setItem('earnova_last_question_date', today);
-    localStorage.setItem('earnova_daily_question_count', 0);
-  }
-  return answeredToday;
-}
-
-// Increment daily question count
-function incrementDailyQuestion() {
-  let answeredToday = checkDailyQuestionLimit();
-  answeredToday++;
-  localStorage.setItem('earnova_daily_question_count', answeredToday);
-  localStorage.setItem('earnova_last_question_date', new Date().toLocaleDateString());
-}
-
-// Central function to update all question card states
-function updateQuestionCardStates() {
-  const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
-  const limit = getDailyQuestionLimit(currentXP);
-  const answeredToday = checkDailyQuestionLimit();
-  const isLimitReached = answeredToday >= limit;
-  const completedArr = getCompletedQuestionCards();
-  for (let i = 0; i < 25; i++) {
-    const card = document.querySelector(`.task-card[data-card-index="${i}"]`);
-    if (!card) continue;
-    const surveyId = card.getAttribute('data-survey-id');
-    const btn = card.querySelector('button');
-    // Remove all state
-    card.classList.remove('completed');
-    card.style.opacity = '';
-    card.style.cursor = '';
-    if (btn) {
-      btn.disabled = false;
-      btn.innerText = 'Perform Task';
-      btn.style.opacity = '';
-      btn.style.cursor = '';
-      btn.onclick = function() { openSurveyModal(i); };
-    }
-    // Condition A: Already completed
-    if (completedArr.includes(surveyId)) {
-      card.classList.add('completed');
-      card.style.opacity = '0.5';
-      card.style.cursor = 'not-allowed';
-      if (btn) {
-        btn.disabled = true;
-        btn.innerText = 'Completed';
-        btn.style.opacity = '0.5';
-        btn.style.cursor = 'not-allowed';
-        btn.onclick = function() { alert('You have already answered this question.'); };
-      }
-      continue;
-    }
-    // Condition B: Daily Limit Reached
-    if (isLimitReached) {
-      card.classList.add('completed');
-      card.style.opacity = '0.5';
-      card.style.cursor = 'not-allowed';
-      if (btn) {
-        btn.disabled = true;
-        btn.innerText = 'Daily Limit';
-        btn.style.opacity = '0.5';
-        btn.style.cursor = 'not-allowed';
-        btn.onclick = function() { 
-          alert(`Daily Question Limit Reached! Level ${getLevel(currentXP)} allows ${limit} questions per day.`); 
-        };
-      }
-      continue;
-    }
-    // Condition C: Available (already reset above)
-  }
-}
-
-// --- Patch openSurveyModal to enforce strict checks ---
-const _originalOpenSurveyModal = window.openSurveyModal;
-window.openSurveyModal = function(index) {
-  // Defensive: get card and surveyId
-  const card = document.querySelector(`.task-card[data-card-index="${index}"]`);
-  if (!card) return;
-  const surveyId = card.getAttribute('data-survey-id');
-  const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
-  const limit = getDailyQuestionLimit(currentXP);
-  const answeredToday = checkDailyQuestionLimit();
-  const isLimitReached = answeredToday >= limit;
-  const completedArr = getCompletedQuestionCards();
-  // Check 1: Already completed
-  if (completedArr.includes(surveyId)) {
-    alert('You have already answered this question.');
-    return;
-  }
-  // Check 2: Daily limit reached
-  if (isLimitReached) {
-    alert(`Daily Question Limit Reached! Level ${getLevel(currentXP)} allows ${limit} questions per day.`);
-    return;
-  }
-  // Find correct survey index in SURVEY_DATA
-  let surveyIdx = -1;
-  if (typeof SURVEY_DATA !== 'undefined' && Array.isArray(SURVEY_DATA) && SURVEY_DATA.length > 0) {
-    for (let i = 0; i < SURVEY_DATA.length; i++) {
-      if (SURVEY_DATA[i].id == surveyId) { surveyIdx = i; break; }
-    }
-  }
-  if (surveyIdx === -1) surveyIdx = index % (SURVEY_DATA ? SURVEY_DATA.length : 1);
-  // Call original modal logic
-  _originalOpenSurveyModal(surveyIdx);
-};
-
-// Patch markQuestionCardCompleted to increment daily question count and update UI
-const _originalMarkQuestionCardCompleted = markQuestionCardCompleted;
-markQuestionCardCompleted = function(survey) {
-  _originalMarkQuestionCardCompleted(survey);
-  incrementDailyQuestion();
-  updateQuestionCardStates();
-};
-
-// On load, update question card states
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', updateQuestionCardStates);
-} else {
-  updateQuestionCardStates();
-}
 // Earnova: payment-gated auth and profile population
 // All logic kept in this JS file (no HTML/CSS changes)
 
@@ -523,41 +371,56 @@ if (document.readyState === 'loading') {
       populateProfileFromSession();
     }
 
-  // Initialize video modal system if on profile page
+    // Initialize video modal system if on profile page
     if(document.getElementById('video-modal-overlay')){
       initVideoModalSystem();
     }
 
-  // Initialize Survey Modal System
+    // Initialize Survey Modal System
     if(document.getElementById('survey-modal-overlay')){
       initSurveyModalSystem();
     }
   });
 
   // =============================
-  // Daily Reset Countdown Timer
+  // Daily Reset Countdown Timer & Auto Refresh
   // =============================
   function startDailyResetCountdown() {
     function updateCountdown() {
       const now = new Date();
       const tomorrow = new Date(now);
       tomorrow.setHours(24, 0, 0, 0); // midnight next day
+      
       let diff = tomorrow - now;
+      
       if (diff <= 0) {
-        // Immediately start new 24h countdown
-        diff = 24 * 60 * 60 * 1000;
-        // Daily reset: refresh video tab
+        // --- DAILY RESET TRIGGERED ---
+        
+        // 1. Reset Counter immediately
+        localStorage.setItem('earnova_daily_watch_count', 0);
+        localStorage.setItem('earnova_last_watch_date', new Date().toLocaleDateString());
+        
+        // 2. Refresh the video tab contents (Load new videos, remove old watched ones)
         refreshVideoTabForNewDay();
+        
+        // Reset diff for visual timer to start counting 24h again immediately
+        diff = 24 * 60 * 60 * 1000;
       }
+      
+      // Calculate hours, mins, secs
       const hours = Math.floor(diff / 1000 / 60 / 60);
       const mins = Math.floor((diff / 1000 / 60) % 60);
       const secs = Math.floor((diff / 1000) % 60);
+      
       const el = document.getElementById('reset-countdown');
       if (el) {
         el.textContent = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
       }
     }
+    
+    // Initial call
     updateCountdown();
+    // Update every second
     setInterval(updateCountdown, 1000);
   }
 
@@ -575,30 +438,73 @@ if (document.readyState === 'loading') {
 /* ===================================================================
    VIDEO MODAL SYSTEM - Responsive Video Pop-up Manager
    =================================================================== */
-// Refresh video tab after daily reset: show only 10 uncompleted videos
+
+// Refresh video tab automatically for a new day
+// Triggers when timer hits 00:00:00
 function refreshVideoTabForNewDay() {
-  const completed = getCompletedVideos();
-  const availableVideos = VIDEO_DATA.videos.filter(v => !completed.includes(v.videoId));
-  const videosToShow = availableVideos.slice(0, 10);
   const container = document.getElementById('video-task-list');
-  if (container) {
-    container.innerHTML = '';
+  if (!container) return;
+
+  // 1. Get List of videos previously completed (history)
+  const completed = getCompletedVideos();
+
+  // 2. Filter master list to find videos NOT in history
+  const availableVideos = VIDEO_DATA.videos.filter(v => !completed.includes(v.videoId));
+
+  // 3. Take top 10 (or less if running out)
+  const videosToShow = availableVideos.slice(0, 10);
+
+  // 4. Clear current DOM list
+  container.innerHTML = '';
+
+  // 5. Populate with new cards
+  if (videosToShow.length === 0) {
+    container.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">No new videos available at the moment. Please check back later.</p>';
+  } else {
     videosToShow.forEach((video, i) => {
-      // Use full createVideoCard function for rendering
+      // Create HTML for card
       let mins = video.duration || 0;
       let rewardObj = getStoredRewardByVideo(video) || getVideoReward(i);
       let reward = rewardObj.amount;
       let xp = rewardObj.xp;
-      // Replace thumbnail placeholder with actual thumbnail
-      let cardHtml = createVideoCard(i, mins, reward, xp).replace('https://img.youtube.com/vi/placeholder/hqdefault.jpg', video.thumbnail).replace('Video Task #' + (i + 1), video.title);
+      
+      // Re-use HTML creation logic (inlined here to ensure scripts.js is self-contained for refresh)
+      let cardHtml = `
+        <div class="task-card video-task-card" id="vid-${i}" data-video-index="${video.index}">
+            <div class="task-header">
+                <span class="task-type">Video Ad</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span class="task-reward">₦${reward}</span>
+                    <span class="xp-badge">+${xp} XP</span>
+                </div>
+            </div>
+            <div class="video-card-thumbnail" style="background-image: url('${video.thumbnail}');" onclick="openVideoModal(${video.index})" title="Click to watch video">
+                <div class="video-card-play-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                </div>
+            </div>
+            <div class="task-body">
+                <div class="task-title">${video.title}</div>
+                <div class="task-meta">⏱ <span class="video-duration" data-video-index="${video.index}">Loading...</span> • HD</div>
+                <div class="progress-container"><div class="progress-bar" id="prog-vid-${video.index}"></div></div>
+                <button class="btn btn-primary" onclick="openVideoModal(${video.index})">Watch Now</button>
+            </div>
+        </div>`;
+      
       const wrapper = document.createElement('div');
       wrapper.innerHTML = cardHtml;
       container.appendChild(wrapper.firstElementChild);
     });
-    setTimeout(updateVideoCardStates, 100);
   }
+
+  // 6. Fetch durations for the newly loaded videos
+  setTimeout(fetchAndPopulateDurations, 100);
+
+  // 7. Update states (Enables buttons because daily count was just reset to 0)
+  setTimeout(updateVideoCardStates, 200);
 }
-// Ensure only 10 uncompleted videos are shown on initial load
+
+// Initial load rendering logic
 function renderVideoTabOnLoad() {
   const completed = getCompletedVideos();
   const availableVideos = VIDEO_DATA.videos.filter(v => !completed.includes(v.videoId));
@@ -607,13 +513,35 @@ function renderVideoTabOnLoad() {
   if (container) {
     container.innerHTML = '';
     videosToShow.forEach((video, i) => {
-      // Use full createVideoCard function for rendering
+      // Use full createVideoCard function for rendering (Available in HTML scope, or recreated here)
       let mins = video.duration || 0;
       let rewardObj = getStoredRewardByVideo(video) || getVideoReward(i);
       let reward = rewardObj.amount;
       let xp = rewardObj.xp;
-      // Replace thumbnail placeholder with actual thumbnail
-      let cardHtml = createVideoCard(i, mins, reward, xp).replace('https://img.youtube.com/vi/placeholder/hqdefault.jpg', video.thumbnail).replace('Video Task #' + (i + 1), video.title);
+      
+      // We reconstruct html string here to be safe
+       let cardHtml = `
+        <div class="task-card video-task-card" id="vid-${i}" data-video-index="${video.index}">
+            <div class="task-header">
+                <span class="task-type">Video Ad</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span class="task-reward">₦${reward}</span>
+                    <span class="xp-badge">+${xp} XP</span>
+                </div>
+            </div>
+            <div class="video-card-thumbnail" style="background-image: url('${video.thumbnail}');" onclick="openVideoModal(${video.index})" title="Click to watch video">
+                <div class="video-card-play-icon">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                </div>
+            </div>
+            <div class="task-body">
+                <div class="task-title">${video.title}</div>
+                <div class="task-meta">⏱ <span class="video-duration" data-video-index="${video.index}">Loading...</span> • HD</div>
+                <div class="progress-container"><div class="progress-bar" id="prog-vid-${video.index}"></div></div>
+                <button class="btn btn-primary" onclick="openVideoModal(${video.index})">Watch Now</button>
+            </div>
+        </div>`;
+        
       const wrapper = document.createElement('div');
       wrapper.innerHTML = cardHtml;
       container.appendChild(wrapper.firstElementChild);
@@ -658,7 +586,7 @@ function checkDailyLimit() {
     const storedDate = localStorage.getItem('earnova_last_watch_date');
     let watchedToday = parseInt(localStorage.getItem('earnova_daily_watch_count')) || 0;
 
-    // Reset if it's a new day
+    // Reset if it's a new day (Standard check on load)
     if (storedDate !== today) {
         watchedToday = 0;
         localStorage.setItem('earnova_last_watch_date', today);
@@ -756,9 +684,11 @@ function isVideoCompleted(videoId) {
 
 // Open video modal
 function openVideoModal(videoIndex) {
-  if (!VIDEO_DATA.videos.length) return;
-  if (videoIndex < 0 || videoIndex >= VIDEO_DATA.videos.length) return;
-  const video = VIDEO_DATA.videos[videoIndex];
+  // Find correct video object from global data based on index
+  const video = VIDEO_DATA.videos.find(v => v.index === videoIndex);
+  
+  if (!video) return;
+
   // Centralized strict checks for disabled state
   if (isVideoCompleted(video.videoId)) {
     alert('You have already watched this video.');
@@ -768,10 +698,12 @@ function openVideoModal(videoIndex) {
   const limit = getDailyVideoLimit(currentXP);
   const watchedToday = checkDailyLimit();
   if (watchedToday >= limit) {
-    alert(`Daily Limit Reached! Level ${getLevel(currentXP)} allows ${limit} video(s) per day.`);
+    alert(`Daily Limit Reached! Level ${getLevel(currentXP)} allows ${limit} video(s) per day. Wait for the timer to reset.`);
     return;
   }
-  VIDEO_DATA.currentIndex = videoIndex;
+  
+  VIDEO_DATA.currentIndex = video.index;
+  
   // Prefer persisted reward for this video so modal matches the card and is permanent
   let reward = getStoredRewardByVideo(video);
   if (!reward) {
@@ -780,7 +712,7 @@ function openVideoModal(videoIndex) {
       const used = collectUsedRewardKeys();
       let attempts = 0;
       do {
-        reward = getVideoReward(videoIndex);
+        reward = getVideoReward(video.index);
         const key = `${reward.amount.toFixed(1)}|${reward.xp.toFixed(1)}`;
         if (!used.has(key)) {
           used.add(key);
@@ -789,11 +721,11 @@ function openVideoModal(videoIndex) {
         }
         attempts++;
       } while (attempts < 50);
-      if (!reward) reward = getVideoReward(videoIndex);
+      if (!reward) reward = getVideoReward(video.index);
       try { storeRewardForVideo(video, reward); } catch (e) {}
     } else {
       // Duration unknown — show temporary values (these will be persisted later when duration becomes known)
-      reward = getVideoReward(videoIndex);
+      reward = getVideoReward(video.index);
     }
   }
 
@@ -806,7 +738,7 @@ function openVideoModal(videoIndex) {
 
   // Update title, info, and reward
   titleEl.textContent = video.title;
-  infoEl.textContent = `Video ${videoIndex + 1} of ${VIDEO_DATA.videos.length}`;
+  infoEl.textContent = `Video ${video.index + 1} of ${VIDEO_DATA.videos.length}`;
   rewardEl.textContent = `₦${reward.amount} + ${reward.xp} XP`;
 
   // Clear previous content
@@ -854,7 +786,7 @@ function openVideoModal(videoIndex) {
               rewardGiven = true;
               // Add reward to balance and XP
               try {
-                window.addFunds && window.addFunds(reward.amount, 'Video', `Video Task #${videoIndex + 1}`, reward.xp);
+                window.addFunds && window.addFunds(reward.amount, 'Video', `Video Task #${video.index + 1}`, reward.xp);
                 
                 // --- NEW LOGIC START ---
                 // 1. Mark historically completed
@@ -981,11 +913,16 @@ function updateVideoCardStates() {
     const watchedToday = checkDailyLimit();
     const isLimitReached = watchedToday >= limit;
 
-    VIDEO_DATA.videos.forEach((video, index) => {
-        const card = document.querySelector(`.video-task-card[data-video-index="${index}"]`);
-        if (!card) return;
+    // Iterate over all displayed cards
+    document.querySelectorAll('.video-task-card').forEach((card) => {
+        const index = parseInt(card.getAttribute('data-video-index'));
+        const video = VIDEO_DATA.videos.find(v => v.index === index);
+        
+        if (!video) return;
+        
         const btn = card.querySelector('.btn');
         const isDone = isVideoCompleted(video.videoId);
+
         // Only update visual state, not event/click logic
         if (isDone) {
             card.classList.add('completed');
@@ -997,7 +934,8 @@ function updateVideoCardStates() {
                 btn.style.cursor = 'not-allowed';
             }
         } else if (isLimitReached) {
-            card.classList.add('completed');
+            // Daily limit reached: Disable card temporarily
+            card.classList.add('completed'); // Reuse completed style for dimming
             card.style.opacity = '0.5';
             card.style.cursor = 'not-allowed';
             if (btn) {
@@ -1006,6 +944,7 @@ function updateVideoCardStates() {
                 btn.style.cursor = 'not-allowed';
             }
         } else {
+            // Available
             card.classList.remove('completed');
             card.style.opacity = '';
             card.style.cursor = '';
@@ -1020,23 +959,24 @@ function updateVideoCardStates() {
 
 // Update all video card thumbnails with real thumbnails from YouTube
 function updateVideoCardThumbnails() {
-  VIDEO_DATA.videos.forEach((video, index) => {
-    const card = document.querySelector(`.video-task-card[data-video-index="${index}"]`);
-    if (card) {
-      const thumbnail = card.querySelector('.video-card-thumbnail');
-      if (thumbnail && video.thumbnail) {
-        // Preload the image for smooth transition
-        const img = new Image();
-        img.onload = () => {
-          thumbnail.style.backgroundImage = `url('${video.thumbnail}')`;
-        };
-        img.onerror = () => {
-          // Fallback gradient if image fails to load
-          thumbnail.style.backgroundImage = 'linear-gradient(135deg, #1E3A8A 0%, #F97316 100%)';
-        };
-        img.src = video.thumbnail;
+  document.querySelectorAll('.video-task-card').forEach((card) => {
+      const index = parseInt(card.getAttribute('data-video-index'));
+      const video = VIDEO_DATA.videos.find(v => v.index === index);
+      if (video) {
+        const thumbnail = card.querySelector('.video-card-thumbnail');
+        if (thumbnail && video.thumbnail) {
+          // Preload the image for smooth transition
+          const img = new Image();
+          img.onload = () => {
+            thumbnail.style.backgroundImage = `url('${video.thumbnail}')`;
+          };
+          img.onerror = () => {
+            // Fallback gradient if image fails to load
+            thumbnail.style.backgroundImage = 'linear-gradient(135deg, #1E3A8A 0%, #F97316 100%)';
+          };
+          img.src = video.thumbnail;
+        }
       }
-    }
   });
 }
 
@@ -1052,7 +992,7 @@ function getVideoThumbnail(index) {
 // Compute reward (amount in ₦ and xp) based on video duration
 function getVideoReward(videoIndex) {
   // If duration not yet known, fall back to a safe default
-  const vid = VIDEO_DATA.videos[videoIndex];
+  const vid = VIDEO_DATA.videos.find(v => v.index === videoIndex);
   if (!vid || typeof vid.duration !== 'number' || !isFinite(vid.duration) || vid.duration <= 0) {
     // maintain previous static behaviour as a graceful fallback
     const rewards = [
@@ -1164,9 +1104,11 @@ function updateVideoCardRewards() {
   // Start with any persisted rewards reserved
   const used = collectUsedRewardKeys();
 
-  VIDEO_DATA.videos.forEach((video, index) => {
-    const card = document.querySelector(`.video-task-card[data-video-index="${index}"]`);
-    if (!card) return;
+  document.querySelectorAll('.video-task-card').forEach((card) => {
+    const index = parseInt(card.getAttribute('data-video-index'));
+    const video = VIDEO_DATA.videos.find(v => v.index === index);
+    
+    if (!video) return;
 
     // Prefer persisted value if available
     let reward = getStoredRewardByVideo(video);
@@ -1243,8 +1185,12 @@ async function fetchAndPopulateDurations() {
   try {
     await loadYouTubeAPI();
 
-    VIDEO_DATA.videos.forEach((video, index) => {
-      const placeholder = document.querySelector(`.video-duration[data-video-index="${index}"]`);
+    document.querySelectorAll('.video-task-card').forEach((card) => {
+      const index = parseInt(card.getAttribute('data-video-index'));
+      const video = VIDEO_DATA.videos.find(v => v.index === index);
+      if (!video) return;
+
+      const placeholder = card.querySelector('.video-duration');
       if (!placeholder) return;
 
       // create an offscreen container for a temporary player
@@ -1274,13 +1220,13 @@ async function fetchAndPopulateDurations() {
                 placeholder.textContent = formatDuration(dur);
                 // store duration in minutes for reward calculation
                 try {
-                  VIDEO_DATA.videos[index].duration = (typeof dur === 'number' && isFinite(dur) && dur > 0) ? (dur / 60) : null;
+                    video.duration = (typeof dur === 'number' && isFinite(dur) && dur > 0) ? (dur / 60) : null;
                 } catch (e) {}
                 // update rewards now that duration is known
                 try { updateVideoCardRewards(); } catch (e) {}
               } catch (e) {
                 placeholder.textContent = 'N/A';
-                try { VIDEO_DATA.videos[index].duration = null; } catch (e) {}
+                try { video.duration = null; } catch (e) {}
                 try { updateVideoCardRewards(); } catch (err) {}
               }
               // cleanup
@@ -1289,7 +1235,7 @@ async function fetchAndPopulateDurations() {
             },
             onError: function() {
               placeholder.textContent = 'N/A';
-              try { VIDEO_DATA.videos[index].duration = null; } catch (e) {}
+              try { video.duration = null; } catch (e) {}
               try { updateVideoCardRewards(); } catch (err) {}
               try { if (player && player.destroy) player.destroy(); } catch (e) {}
               if (div && div.parentNode) div.parentNode.removeChild(div);
@@ -1448,34 +1394,6 @@ function markQuestionCardCompleted(survey) {
     setCompletedQuestionCards(arr);
   }
   // Immediately update the UI for the completed card
-  var card = document.getElementById('question-card-' + survey.id);
-  if (card) {
-    card.classList.add('completed');
-    card.style.opacity = '0.5';
-    card.style.cursor = 'not-allowed';
-    var btn = card.querySelector('button');
-    if (btn) {
-      btn.textContent = 'Completed';
-      btn.removeAttribute('disabled');
-      btn.style.opacity = '0.5';
-      btn.style.cursor = 'not-allowed';
-      btn.onclick = function() { alert('You have already answered this question.'); };
-    }
-  }
-}
-
-function markQuestionCardCompleted(survey) {
-  if (!survey || !survey.id) return;
-  try {
-    let completed = JSON.parse(localStorage.getItem('completedQuestionCards') || '[]');
-    if (!completed.includes(survey.id)) {
-      completed.push(survey.id);
-      localStorage.setItem('completedQuestionCards', JSON.stringify(completed));
-    }
-  } catch (e) {}
-
-  // Immediately update the UI for the completed card
-  // Assumes each card has id="question-card-<survey.id>"
   var card = document.getElementById('question-card-' + survey.id);
   if (card) {
     card.classList.add('completed');

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lan>g="en">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -1220,6 +1220,24 @@
              .header { height: 50px; }
              .sidebar { padding-top: 60px; } /* Ensure header doesn't block sidebar top */
         }
+        /* Responsive font size for timer */
+/* Responsive font size for reset timer and label */
+.daily-reset-timer {
+    font-weight: 600;
+    color: var(--accent-secondary);
+    font-size: 1.7rem; /* Base size for large screens */
+    line-height: 1;
+}
+@media (max-width: 900px) {
+    .daily-reset-timer{
+        font-size: 1.2rem;
+    }
+}
+@media (max-width: 600px) {
+    .daily-reset-timer{
+        font-size: 0.9rem;
+    }
+}
     </style>
 </head>
 <body>
@@ -1291,9 +1309,9 @@
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 </button>
                 <!-- Daily Reset Countdown Timer -->
-                <div id="daily-reset-timer" style="margin-left:20px; font-weight:600; color:var(--accent-secondary); font-size:15px;">
-                  Next reset in: <span id="reset-countdown">--:--:--</span>
-                </div>
+                                <div class="daily-reset-timer" id="daily-reset-timer">
+                                    Reset: <span class="reset-countdown" id="reset-countdown">--:--:--</span>
+                                </div>
             </div>
 
             <div class="header-actions">
@@ -1854,11 +1872,38 @@
         }
 
         const qContainer = document.getElementById('question-task-list');
-        // Check if SURVEY_DATA exists (from script.js) before rendering
-        if (typeof SURVEY_DATA !== 'undefined' && Array.isArray(SURVEY_DATA)) {
-            SURVEY_DATA.forEach((survey, index) => {
-                qContainer.innerHTML += createQuestionCard(index, survey);
-            });
+        // Render exactly 25 question cards, recycling survey data if needed
+        qContainer.innerHTML = '';
+        if (typeof SURVEY_DATA !== 'undefined' && Array.isArray(SURVEY_DATA) && SURVEY_DATA.length > 0) {
+            for (let i = 0; i < 25; i++) {
+                const survey = SURVEY_DATA[i % SURVEY_DATA.length];
+                // Inline card HTML (mirroring createQuestionCard, but with required attributes and handler)
+                let reward = null;
+                if (typeof getStoredRewardByQuestionCard === "function") {
+                    reward = getStoredRewardByQuestionCard(survey);
+                }
+                if (!reward && typeof getQuestionCardReward === "function") {
+                    reward = getQuestionCardReward(survey, i);
+                }
+                if (!reward) reward = { amount: 150, xp: 10 };
+                qContainer.innerHTML += `
+                <div class="task-card" id="q-card-${i}" data-survey-id="${survey.id}">
+                    <div class="task-header">
+                        <span class="task-type">Survey</span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span class="task-reward">₦${reward.amount}</span>
+                            <span class="xp-badge">+${reward.xp} XP</span>
+                        </div>
+                    </div>
+                    <div class="task-body">
+                        <div class="task-title">${survey.title}</div>
+                        <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Complete this survey to earn rewards.</p>
+                        <button class="btn btn-primary" style="margin-top:auto" onclick="handleQuestionClick(${i}, '${survey.id}')">Perform Task</button>
+                    </div>
+                </div>`;
+            }
+            // Immediately update UI after rendering cards
+            if (typeof updateQuestionUI === 'function') { updateQuestionUI(); }
         }
 
      // After all video cards are rendered, update durations
@@ -1904,19 +1949,47 @@
     }
 
     function createQuestionCard(index, survey) {
+        // Get persistent reward from scripts.js logic
+        let reward = null;
+        if (typeof getStoredRewardByQuestionCard === "function") {
+            reward = getStoredRewardByQuestionCard(survey);
+        }
+        if (!reward && typeof getQuestionCardReward === "function") {
+            reward = getQuestionCardReward(survey, index);
+        }
+        if (!reward) reward = { amount: 150, xp: 10 };
+
+        // Check if completed
+        let completed = false;
+        if (typeof isQuestionCardCompleted === "function") {
+            completed = isQuestionCardCompleted(survey);
+        }
+
+        // Always render a clickable button, but visually inactive if completed
+        let btnAttrs = '';
+        let btnText = '';
+        let btnStyle = 'margin-top:auto';
+        if (completed) {
+            btnText = 'Completed';
+            btnStyle += ';opacity:0.5;cursor:not-allowed;';
+            btnAttrs = `onclick=\"alert('You have already answered this question.')\"`;
+        } else {
+            btnText = 'Perform Task';
+            btnAttrs = `onclick=\"openSurveyModal(${index})\"`;
+        }
         return `
-        <div class="task-card">
+        <div class="task-card${completed ? ' completed' : ''}" id="question-card-${survey.id}"${completed ? ' style=\"opacity:0.5;cursor:not-allowed;\"' : ''}>
             <div class="task-header">
                 <span class="task-type">Survey</span>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <span class="task-reward">₦150</span>
-                    <span class="xp-badge">+10 XP</span>
+                    <span class="task-reward">₦${reward.amount}</span>
+                    <span class="xp-badge">+${reward.xp} XP</span>
                 </div>
             </div>
             <div class="task-body">
                 <div class="task-title">${survey.title}</div>
                 <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Complete this survey to earn rewards.</p>
-                <button class="btn btn-primary" style="margin-top:auto" onclick="openSurveyModal(${index})">Perform Task</button>
+                <button class="btn btn-primary" style="${btnStyle}" ${btnAttrs}>${btnText}</button>
             </div>
         </div>`;
     }
