@@ -1082,6 +1082,87 @@ async function loadSurveyData() {
 // 3. Run the fetch function
 loadSurveyData();
 
+// =============================
+// QUESTION CARD REWARD SYSTEM
+// =============================
+
+// Reward categories for question cards
+const QUESTION_REWARD_CATEGORIES = [
+  { name: 'Very Small', minQ: 1, maxQ: 3, minPrice: 5, maxPrice: 20, minXP: 2, maxXP: 8 },
+  { name: 'Small', minQ: 4, maxQ: 7, minPrice: 20, maxPrice: 60, minXP: 8, maxXP: 25 },
+  { name: 'Medium', minQ: 8, maxQ: 15, minPrice: 60, maxPrice: 120, minXP: 25, maxXP: 50 },
+  { name: 'Large', minQ: 16, maxQ: 22, minPrice: 120, maxPrice: 180, minXP: 50, maxXP: 80 },
+  { name: 'Very Large', minQ: 23, maxQ: 30, minPrice: 180, maxPrice: 250, minXP: 80, maxXP: 120 }
+];
+
+// Get reward for a question card (by survey object)
+function getQuestionCardReward(survey, index) {
+  if (!survey || !Array.isArray(survey.questions)) return { amount: 5, xp: 2 };
+  const qCount = survey.questions.length;
+  // Find category
+  let cat = QUESTION_REWARD_CATEGORIES.find(c => qCount >= c.minQ && qCount <= c.maxQ);
+  if (!cat) cat = QUESTION_REWARD_CATEGORIES[0];
+  // Linear scaling within category
+  const denom = (cat.maxQ - cat.minQ) || 1;
+  let qPercent = (qCount - cat.minQ) / denom;
+  qPercent = Math.max(0, Math.min(1, qPercent));
+  // Interpolate
+  let basePrice = cat.minPrice + qPercent * (cat.maxPrice - cat.minPrice);
+  let baseXP = cat.minXP + qPercent * (cat.maxXP - cat.minXP);
+  // Add decimal uniqueness: use index and qCount
+  const dec = ((index + 1) * 0.01) + (qCount * 0.001);
+  let price = basePrice + dec;
+  let xp = baseXP + dec;
+  // Clamp
+  price = Math.max(cat.minPrice, Math.min(cat.maxPrice, price));
+  xp = Math.max(cat.minXP, Math.min(cat.maxXP, xp));
+  // Round to 2 decimals for uniqueness
+  price = Math.round(price * 100) / 100;
+  xp = Math.round(xp * 100) / 100;
+  return { amount: price, xp: xp };
+}
+
+// Persistent storage helpers for per-question-card rewards
+function getStoredRewardByQuestionCard(survey) {
+  if (!survey || !survey.id) return null;
+  try {
+    const p = localStorage.getItem('questionPrice_' + survey.id);
+    const x = localStorage.getItem('questionXP_' + survey.id);
+    if (p === null || x === null) return null;
+    const amount = parseFloat(p);
+    const xp = parseFloat(x);
+    if (isNaN(amount) || isNaN(xp)) return null;
+    return { amount: amount, xp: xp };
+  } catch (e) { return null; }
+}
+
+function storeRewardForQuestionCard(survey, reward) {
+  if (!survey || !survey.id || !reward) return;
+  try {
+    localStorage.setItem('questionPrice_' + survey.id, String(reward.amount));
+    localStorage.setItem('questionXP_' + survey.id, String(reward.xp));
+  } catch (e) {}
+}
+
+// Ensure all question cards have unique, persistent rewards
+function updateQuestionCardRewards() {
+  if (!Array.isArray(SURVEY_DATA) || !SURVEY_DATA.length) return;
+  SURVEY_DATA.forEach((survey, index) => {
+    let reward = getStoredRewardByQuestionCard(survey);
+    if (!reward) {
+      reward = getQuestionCardReward(survey, index);
+      storeRewardForQuestionCard(survey, reward);
+    }
+  });
+}
+
+// On load, ensure rewards are assigned and persistent
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', updateQuestionCardRewards);
+} else {
+  updateQuestionCardRewards();
+}
+
 // Open Survey Modal with Specific Form Dataies
 window.openSurveyModal = function(index) {
   if (index < 0 || index >= SURVEY_DATA.length) return;

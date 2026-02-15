@@ -1904,13 +1904,24 @@
     }
 
     function createQuestionCard(index, survey) {
+        // Get persistent reward from scripts.js logic
+        let reward = null;
+        if (typeof getStoredRewardByQuestionCard === "function") {
+            reward = getStoredRewardByQuestionCard(survey);
+        }
+        if (!reward && typeof getQuestionCardReward === "function") {
+            reward = getQuestionCardReward(survey, index);
+        }
+        // Fallback if still missing
+        if (!reward) reward = { amount: 150, xp: 10 };
+
         return `
         <div class="task-card">
             <div class="task-header">
                 <span class="task-type">Survey</span>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <span class="task-reward">₦150</span>
-                    <span class="xp-badge">+10 XP</span>
+                    <span class="task-reward">₦${reward.amount}</span>
+                    <span class="xp-badge">+${reward.xp} XP</span>
                 </div>
             </div>
             <div class="task-body">
