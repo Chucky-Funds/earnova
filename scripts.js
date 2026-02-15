@@ -98,7 +98,7 @@ function updateQuestionUI() {
       card.style.opacity = '0.5';
       card.style.cursor = 'not-allowed';
       if (btn) {
-        btn.disabled = true;
+        // btn.disabled = true; // Do NOT disable, keep enabled for alert
         btn.innerText = 'Completed';
         btn.style.opacity = '0.5';
         btn.style.cursor = 'not-allowed';
@@ -111,7 +111,7 @@ function updateQuestionUI() {
       card.style.opacity = '0.5';
       card.style.cursor = 'not-allowed';
       if (btn) {
-        btn.disabled = true;
+        // btn.disabled = true; // Do NOT disable, keep enabled for alert
         btn.innerText = 'Daily Limit';
         btn.style.opacity = '0.5';
         btn.style.cursor = 'not-allowed';

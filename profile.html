@@ -1884,6 +1884,8 @@
                     </div>
                 </div>`;
             }
+            // Immediately update UI after rendering cards
+            if (typeof updateQuestionUI === 'function') { updateQuestionUI(); }
         }
 
      // After all video cards are rendered, update durations
