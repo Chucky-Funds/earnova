@@ -1868,47 +1868,17 @@
     }
 
     function renderAllTasks() {
-        // Video Tab is handled by renderVideoTabOnLoad in scripts.js to ensure consistent state
-        // We will defer to that function if it exists, otherwise do nothing here for videos
+        // Video Tab
         if (typeof renderVideoTabOnLoad === 'function') {
              renderVideoTabOnLoad();
         }
 
-        const qContainer = document.getElementById('question-task-list');
-        // Render exactly 25 question cards, recycling survey data if needed
-        qContainer.innerHTML = '';
-        if (typeof SURVEY_DATA !== 'undefined' && Array.isArray(SURVEY_DATA) && SURVEY_DATA.length > 0) {
-            for (let i = 0; i < 25; i++) {
-                const survey = SURVEY_DATA[i % SURVEY_DATA.length];
-                // Inline card HTML (mirroring createQuestionCard, but with required attributes and handler)
-                let reward = null;
-                if (typeof getStoredRewardByQuestionCard === "function") {
-                    reward = getStoredRewardByQuestionCard(survey);
-                }
-                if (!reward && typeof getQuestionCardReward === "function") {
-                    reward = getQuestionCardReward(survey, i);
-                }
-                if (!reward) reward = { amount: 150, xp: 10 };
-                qContainer.innerHTML += `
-                <div class="task-card" id="q-card-${i}" data-survey-id="${survey.id}">
-                    <div class="task-header">
-                        <span class="task-type">Survey</span>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <span class="task-reward">₦${reward.amount}</span>
-                            <span class="xp-badge">+${reward.xp} XP</span>
-                        </div>
-                    </div>
-                    <div class="task-body">
-                        <div class="task-title">${survey.title}</div>
-                        <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Complete this survey to earn rewards.</p>
-                        <button class="btn btn-primary" style="margin-top:auto" onclick="handleQuestionClick(${i}, '${survey.id}')">Perform Task</button>
-                    </div>
-                </div>`;
-            }
-            // Immediately update UI after rendering cards
-            if (typeof updateQuestionUI === 'function') { updateQuestionUI(); }
+        // Question Tab: Use the dynamic loader from scripts.js instead of inline loop
+        if (typeof renderQuestionTabOnLoad === 'function') {
+            renderQuestionTabOnLoad();
         }
 
+        // Website Tab
         const webContainer = document.getElementById('website-task-list');
         fetch('websites.json')
             .then(res => res.json())
@@ -1977,7 +1947,7 @@
             btnAttrs = `onclick=\"openSurveyModal(${index})\"`;
         }
         return `
-        <div class="task-card${completed ? ' completed' : ''}" id="question-card-${survey.id}"${completed ? ' style=\"opacity:0.5;cursor:not-allowed;\"' : ''}>
+        <div class="task-card${completed ? ' completed' : ''}" id="question-card-${survey.id}"${completed ? ' style=\"opacity:0.5;cursor:not-allowed;\"' : ''} data-survey-id="${survey.id}">
             <div class="task-header">
                 <span class="task-type">Survey</span>
                 <div style="display: flex; gap: 8px; align-items: center;">

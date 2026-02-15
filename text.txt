@@ -143,54 +143,68 @@ So money stays controlled.
 
 
 
-i want to add this full feature to my survey profile dashboard video tab section'
+i want to add this full feature to my survey profile dashboard question tab section'
 Daily Limit by Level:
 
-Each user can only watch a certain number of videos per day (e.g., Level 1 = 1 video/day).
+Each user can only answer a certain number of questions per day (e.g., Level 1 = 1 question/day).
 After Watching Daily Limit:
 
-Once you reach your daily video limit, all video tasks are disabled (you cannot watch any more videos that day).
+Once you reach your daily video limit, all question tasks are disabled (you cannot answer any more questions that day).
 Daily Reset Timer:
 
-There is a countdown timer. When it finishes (the next day starts), your daily video limit resets.
-Replacing Watched Videos:
+There is a countdown timer in the header. When it finishes (the next day starts), your daily question limit resets.
+Replacing answered questions:
 
-After the timer resets, the videos you already watched are removed from your list.
-New, unwatched videos are loaded to replace them, so you always see a fresh set of videos you haven’t watched before.
+After the timer resets, the questions you already answered are removed from your list.
+New, unanswered questions are loaded to replace them, so you always see a fresh set of questions you haven't answered before.
 Continuous Process:
 
 This cycle repeats:
 Watch up to your daily limit
 Wait for the timer
-Watched videos are replaced with new ones
+answered questions are replaced with new ones
 Repeat
 '
+
 okay this part is already working right 
 'Daily Limit by Level:
 
-Each user can only watch a certain number of videos per day (e.g., Level 1 = 1 video/day).
+Each user can only answer a certain number of questions per day (e.g., Level 1 = 1 question/day).
 After Watching Daily Limit:
 
-Once you reach your daily video limit, all video tasks are disabled (you cannot watch any more videos that day). '
+Once you reach your daily video limit, all question tasks are disabled (you cannot answer any more questions that day).'
 
 okay see the part you are to work on 
 'Daily Reset Timer:
 
-There is a countdown timer. When it finishes (the next day starts), your daily video limit resets.
-Replacing Watched Videos:
+There is a countdown timer in the header. When it finishes (the next day starts), your daily question limit resets.
+Replacing answered questions:
 
-After the timer resets, the videos tasks are enabled again and the videos you already watched are removed from your list.
-New, unwatched videos are loaded to replace them, so you always see a fresh set of videos you haven’t watched before.
+After the timer resets, the questions you already answered are removed from your list.
+New, unanswered questions are loaded to replace them, so you always see a fresh set of questions you haven't answered before.
 Continuous Process:
 
 This cycle repeats:
 Watch up to your daily limit
-Wait for the timer. videos are enabled
-Watched videos are replaced with new ones
+Wait for the timer
+answered questions are replaced with new ones
 Repeat'
 
-please apply this feature this is only funtionality there is no redesigning of any element here except for disabling and enabling no feature already ther i smeant to be deleted just add this feature and give me back may full updated profile.html and scripts.js code to copy. remember this is only functionality there is no designing here add the feature and give me back may full updated profile.html and scripts.js code to copy
+please apply this feature the video tab has this type of feature but we dont need to touch the video tab this is only funtionality for the question tab there is no redesigning of any element here except for disabling and enabling no feature already ther i smeant to be deleted just add this feature and give me back may full updated profile.html and scripts.js code to copy. remember this is only functionality there is no designing here add the feature and give me back may full updated profile.html and scripts.js code to copy
 
 temporary refreshing:
 localStorage.setItem('earnova_daily_watch_count', 0);
 refreshVideoTabForNewDay();
+
+
+full temporary refreshing video + question :
+// --- Reset Videos ---
+localStorage.setItem('earnova_daily_watch_count', 0);
+refreshVideoTabForNewDay();
+
+// --- Reset Questions ---
+localStorage.setItem('earnova_daily_question_count', 0);
+localStorage.setItem('earnova_last_question_date', new Date().toLocaleDateString());
+renderQuestionTabOnLoad();
+
+console.log("Dashboard manually refreshed!");

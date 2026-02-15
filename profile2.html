@@ -220,6 +220,25 @@
             color: var(--text-primary);
         }
 
+        /* --- NEW: Daily Reset Timer Styles --- */
+        .daily-reset-timer {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 13px;
+            background: var(--bg-primary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .reset-countdown {
+            color: var(--accent-secondary);
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+        }
+
         .header-actions { display: flex; align-items: center; gap: 20px; }
 
         /* Theme Toggle */
@@ -1186,8 +1205,6 @@
         @media (max-width: 768px) {
             :root { --header-height: 60px; --container-padding: 16px; }
             
-        
-            
             .header { padding: 0 16px; }
             
             .dashboard-grid { grid-template-columns: 1fr; gap: 16px; }
@@ -1201,6 +1218,9 @@
             .card { padding: 16px; }
             
             .form-grid { grid-template-columns: 1fr; }
+            
+            /* Show timer on mobile header if possible, or hide label */
+            .daily-reset-timer { display: flex; font-size: 11px; padding: 4px 8px; }
         }
 
         /* Small Mobile (iPhone SE, Foldable cover screens) */
@@ -1213,6 +1233,8 @@
             
             /* Stack buttons */
             .btn { padding: 10px; font-size: 13px; }
+            .daily-reset-timer { flex-direction: column; }
+            
         }
 
         /* Height-based queries for small landscape phones */
@@ -1220,24 +1242,6 @@
              .header { height: 50px; }
              .sidebar { padding-top: 60px; } /* Ensure header doesn't block sidebar top */
         }
-        /* Responsive font size for timer */
-/* Responsive font size for reset timer and label */
-.daily-reset-timer {
-    font-weight: 600;
-    color: var(--accent-secondary);
-    font-size: 1.7rem; /* Base size for large screens */
-    line-height: 1;
-}
-@media (max-width: 900px) {
-    .daily-reset-timer{
-        font-size: 1.2rem;
-    }
-}
-@media (max-width: 600px) {
-    .daily-reset-timer{
-        font-size: 0.9rem;
-    }
-}
     </style>
 </head>
 <body>
@@ -1309,9 +1313,9 @@
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 </button>
                 <!-- Daily Reset Countdown Timer -->
-                                <div class="daily-reset-timer" id="daily-reset-timer">
-                                    Reset: <span class="reset-countdown" id="reset-countdown">--:--:--</span>
-                                </div>
+                <div class="daily-reset-timer">
+                    Reset: <span class="reset-countdown" id="reset-countdown">--:--:--</span>
+                </div>
             </div>
 
             <div class="header-actions">
@@ -1864,11 +1868,10 @@
     }
 
     function renderAllTasks() {
-        const vidContainer = document.getElementById('video-task-list');
-        // Create video cards for all available videos (show exactly 10)
-        for(let i=0; i<10; i++) {
-            const reward = getVideoReward(i);
-            vidContainer.innerHTML += createVideoCard(i, Math.floor(Math.random() * 5) + 1, reward.amount, reward.xp);
+        // Video Tab is handled by renderVideoTabOnLoad in scripts.js to ensure consistent state
+        // We will defer to that function if it exists, otherwise do nothing here for videos
+        if (typeof renderVideoTabOnLoad === 'function') {
+             renderVideoTabOnLoad();
         }
 
         const qContainer = document.getElementById('question-task-list');
@@ -1906,10 +1909,6 @@
             if (typeof updateQuestionUI === 'function') { updateQuestionUI(); }
         }
 
-     // After all video cards are rendered, update durations
-     if (typeof fetchAndPopulateDurations === 'function') {
-          fetchAndPopulateDurations();
-     }
         const webContainer = document.getElementById('website-task-list');
         fetch('websites.json')
             .then(res => res.json())

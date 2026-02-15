@@ -73,12 +73,16 @@ function updateQuestionUI() {
   const limit = getDailyQuestionLimit(currentXP);
   const answeredToday = checkDailyQuestionLimit();
   const isLimitReached = answeredToday >= limit;
-  for (let i = 0; i < 25; i++) {
-    const card = document.getElementById(`q-card-${i}`);
-    if (!card) continue;
+  
+  // We check existing DOM elements. The IDs are q-card-{i} from render function.
+  // Note: Since we render dynamic count, we just queryAll
+  const cards = document.querySelectorAll('.task-card[id^="q-card-"]');
+  
+  cards.forEach(card => {
     const surveyId = card.getAttribute('data-survey-id');
     const btn = card.querySelector('button');
-    // Reset state
+    
+    // Reset state first
     card.classList.remove('completed');
     card.style.opacity = '';
     card.style.cursor = '';
@@ -88,34 +92,32 @@ function updateQuestionUI() {
       btn.style.opacity = '';
       btn.style.cursor = '';
     }
-    // Completed
+    
+    // Check Completed State (shouldn't happen often if we filter them out on load, but good for safety)
     if (completedArr.includes(surveyId)) {
       card.classList.add('completed');
       card.style.opacity = '0.5';
       card.style.cursor = 'not-allowed';
       if (btn) {
-        // btn.disabled = true; // Do NOT disable, keep enabled for alert
         btn.innerText = 'Completed';
         btn.style.opacity = '0.5';
         btn.style.cursor = 'not-allowed';
       }
-      continue;
+      return;
     }
-    // Daily limit reached (not completed)
+    
+    // Check Daily Limit State
     if (isLimitReached) {
-      card.classList.add('completed');
+      card.classList.add('completed'); // use class for styling
       card.style.opacity = '0.5';
       card.style.cursor = 'not-allowed';
       if (btn) {
-        // btn.disabled = true; // Do NOT disable, keep enabled for alert
         btn.innerText = 'Daily Limit';
         btn.style.opacity = '0.5';
         btn.style.cursor = 'not-allowed';
       }
-      continue;
     }
-    // Available (already reset above)
-  }
+  });
 }
 
 // Call updateQuestionUI on page load
@@ -335,8 +337,8 @@ if (document.readyState === 'loading') {
     const profileSection = document.getElementById('profile');
     if(profileSection){
       const inputs = profileSection.querySelectorAll('input');
+      if(inputs.length > 0) inputs[1].value = current.email;
       if(inputs.length > 0) inputs[0].value = current.name;
-      if(inputs.length > 1) inputs[1].value = current.email;
     }
   }
 
@@ -396,12 +398,17 @@ if (document.readyState === 'loading') {
       if (diff <= 0) {
         // --- DAILY RESET TRIGGERED ---
         
-        // 1. Reset Counter immediately
+        // 1. Reset Counters immediately
         localStorage.setItem('earnova_daily_watch_count', 0);
         localStorage.setItem('earnova_last_watch_date', new Date().toLocaleDateString());
         
-        // 2. Refresh the video tab contents (Load new videos, remove old watched ones)
-        refreshVideoTabForNewDay();
+        // Reset Question Counter
+        localStorage.setItem('earnova_daily_question_count', 0);
+        localStorage.setItem('earnova_last_question_date', new Date().toLocaleDateString());
+        
+        // 2. Refresh the tabs contents (Load new videos/questions, remove old ones)
+        if (typeof refreshVideoTabForNewDay === 'function') refreshVideoTabForNewDay();
+        if (typeof renderQuestionTabOnLoad === 'function') renderQuestionTabOnLoad();
         
         // Reset diff for visual timer to start counting 24h again immediately
         diff = 24 * 60 * 60 * 1000;
@@ -1273,8 +1280,8 @@ async function loadSurveyData() {
     SURVEY_DATA = await response.json();
     console.log("Survey data loaded successfully!");
     // Render question cards after data is loaded
-    if (typeof renderAllTasks === "function") {
-      renderAllTasks();
+    if (typeof renderQuestionTabOnLoad === "function") {
+      renderQuestionTabOnLoad();
     }
   } catch (error) {
     console.error("Error loading questions.json:", error);
@@ -1283,6 +1290,70 @@ async function loadSurveyData() {
 
 // 3. Run the fetch function
 loadSurveyData();
+
+// RENDER QUESTION TAB DYNAMICALLY (Replenishment Logic)
+function renderQuestionTabOnLoad() {
+    const container = document.getElementById('question-task-list');
+    if (!container) return;
+    
+    // Ensure data exists
+    if (!SURVEY_DATA || SURVEY_DATA.length === 0) return;
+
+    // 1. Get History (Completed questions)
+    const completed = getCompletedQuestionCards();
+
+    // 2. Filter out questions that have been permanently completed
+    const available = SURVEY_DATA.filter(q => !completed.includes(q.id));
+    
+    // 3. Select subset to show (e.g. 25 fresh ones)
+    const toShow = available.slice(0, 25);
+    
+    // 4. Render
+    container.innerHTML = '';
+    if (toShow.length === 0) {
+        container.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">No more questions available right now. Please check back later.</p>';
+        return;
+    }
+    
+    toShow.forEach((survey, index) => {
+        // inline logic for card creation (to match profile.html style)
+        let reward = null;
+        if (typeof getStoredRewardByQuestionCard === "function") {
+            reward = getStoredRewardByQuestionCard(survey);
+        }
+        if (!reward && typeof getQuestionCardReward === "function") {
+            reward = getQuestionCardReward(survey, index);
+        }
+        if (!reward) reward = { amount: 150, xp: 10 };
+
+        // Even though we filtered available, double check state for button attributes
+        let completedState = false; // By definition of filter, these should be false
+        let btnText = 'Perform Task';
+        let btnAttrs = `onclick=\"openSurveyModal(${index})\"`;
+        let btnStyle = 'margin-top:auto';
+        
+        const cardHtml = `
+        <div class="task-card" id="q-card-${index}" data-survey-id="${survey.id}">
+            <div class="task-header">
+                <span class="task-type">Survey</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span class="task-reward">₦${reward.amount}</span>
+                    <span class="xp-badge">+${reward.xp} XP</span>
+                </div>
+            </div>
+            <div class="task-body">
+                <div class="task-title">${survey.title}</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Complete this survey to earn rewards.</p>
+                <button class="btn btn-primary" style="${btnStyle}" ${btnAttrs}>${btnText}</button>
+            </div>
+        </div>`;
+        
+        container.insertAdjacentHTML('beforeend', cardHtml);
+    });
+    
+    // 5. Update UI States (Check Daily Limits)
+    updateQuestionUI();
+}
 
 // =============================
 // QUESTION CARD REWARD SYSTEM
@@ -1394,7 +1465,11 @@ function markQuestionCardCompleted(survey) {
     setCompletedQuestionCards(arr);
   }
   // Immediately update the UI for the completed card
-  var card = document.getElementById('question-card-' + survey.id);
+  var card = document.getElementById('q-card-' + survey.id); // Note: render uses q-card-{index}, fix selection logic below
+  
+  // Refined selection to handle generated IDs or data attributes
+  card = document.querySelector(`.task-card[data-survey-id="${survey.id}"]`);
+  
   if (card) {
     card.classList.add('completed');
     card.style.opacity = '0.5';
