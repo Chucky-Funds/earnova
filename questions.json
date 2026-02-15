@@ -1,6 +1,6 @@
 [
   {"id":1,
-    "title": "Football Fanatic Survey",
+    "title": "Football Fanatic",
     "questions": [
       {"id":1,"question":"Who is your favorite football player?","type":"text","placeholder":""},
       {"id":2,"question":"Which team do you support most?","type":"text","placeholder":""},
@@ -23,7 +23,7 @@
     ]
   },
   {"id":3,
-    "title": "Tech & Gadgets Survey",
+    "title": "Tech & Gadgets",
     "questions": [
       {"id":1,"question":"What phone do you currently use?","type":"text","placeholder":""},
       {"id":2,"question":"Do you prefer Android or iOS?","type":"radio","options":["Android","iOS","Other"]},
@@ -43,7 +43,7 @@
     ]
   },
   {"id":4,
-    "title": "Movie Night Survey",
+    "title": "Movie Night",
     "questions": [
       {"id":1,"question":"Favorite movie of all time?","type":"text","placeholder":""},
       {"id":2,"question":"Preferred genre for movies?","type":"select","options":["Action","Comedy","Drama","Horror","Romance","Sci-Fi"]},
@@ -56,7 +56,7 @@
       ]
     },
   {"id":5,
-    "title": "Home & Family Survey",
+    "title": "Home & Family Life",
     "questions": [
       {"id":1,"question":"How many people live in your house?","type":"number","placeholder":"Enter number"},
       {"id":2,"question":"Do you have any pets?","type":"radio","options":["Yes","No"]},
@@ -68,7 +68,7 @@
     ]
   },
   {"id":6,
-    "title": "Social Life & Friends",
+    "title": "Social Life & Friends (A)",
     "questions": [
       {"id":1,"question":"How often do you hang out with friends?","type":"select","options":["Daily","Weekly","Monthly","Rarely"]},
       {"id":2,"question":"Favorite activity with friends?","type":"text","placeholder":""},
@@ -78,7 +78,7 @@
     ]
   },
   {"id":7,
-    "title": "Pet Survey",
+    "title": "About Your Pet",
     "questions": [
       {"id":1,"question":"Do you have a dog or cat?","type":"radio","options":["Dog","Cat","Both","None"]},
       {"id":2,"question":"How often do you walk your pet?","type":"number","placeholder":"Enter times per week"},
@@ -86,13 +86,13 @@
     ]
   },
   {"id":8,
-    "title": "Favorite Color Survey",
+    "title": "Favorite Color",
     "questions": [
       {"id":1,"question":"What is your favorite color?","type":"text","placeholder":""}
     ]
   },
   {"id":9,
-    "title": "Phone Habits Survey",
+    "title": "Phone Habits",
     "questions": [
       {"id":1,"question":"How long have you had your current phone?","type":"number","placeholder":"Enter months/years"},
       {"id":2,"question":"Do you mostly use your phone for social media, games, or work?","type":"select","options":["Social media","Games","Work","Mixed"]},
@@ -100,7 +100,7 @@
     ]
   },
   {"id":10,
-    "title": "Laptop Usage Survey",
+    "title": "Laptop Usage (Short)",
     "questions": [
       {"id":1,"question":"How often do you use your laptop?","type":"radio","options":["Daily","Weekly","Rarely"]},
       {"id":2,"question":"Favorite software or app on your laptop?","type":"text","placeholder":""},
@@ -110,7 +110,7 @@
     ]
   },
   {"id":11,
-    "title": "Laptop Usage Survey",
+    "title": "Laptop Usage (Extended)",
     "questions": [
       {"id":1,"question":"How often do you use your laptop?","type":"radio","options":["Daily","Weekly","Rarely"]},
       {"id":2,"question":"Favorite software or app on your laptop?","type":"text","placeholder":""},
@@ -130,7 +130,7 @@
     ]
   },
   {"id":12,
-    "title": "Food & Diet Survey",
+    "title": "Food & Diet (General)",
     "questions": [
       {"id":1,"question":"Favorite meal of the day?","type":"select","options":["Breakfast","Lunch","Dinner","Snack"]},
       {"id":2,"question":"Do you prefer homemade or restaurant food?","type":"radio","options":["Homemade","Restaurant","Both"]},
@@ -142,7 +142,7 @@
     ]
   },
   {"id":13,
-    "title": "Food & Diet Survey",
+    "title": "Food & Diet (Personal)",
     "questions": [
       {"id":1,"question":"Favorite meal of the day?","type":"select","options":["Breakfast","Lunch","Dinner","Snack"]},
       {"id":2,"question":"Do you prefer homemade or restaurant food?","type":"radio","options":["Homemade","Restaurant","Both"]},
@@ -154,7 +154,7 @@
     ]
   },
   {"id":14,
-    "title": "Pet Survey",
+    "title": "Pet Lifestyle Details",
     "questions": [
       {"id":1,"question":"Do you have a dog or cat?","type":"radio","options":["Dog","Cat","Both","None"]},
       {"id":2,"question":"How often do you walk your pet?","type":"number","placeholder":"Enter times per week"},
@@ -164,7 +164,7 @@
     ]
   },
   {"id":15,
-    "title": "Home & Family Survey",
+    "title": "About My Home",
     "questions":[
       {"id":1,"question":"How many people live in your house?","type":"number","placeholder":"Enter number"},
       {"id":2,"question":"Do you have any pets?","type":"radio","options":["Yes","No"]},
@@ -176,7 +176,7 @@
     ]
   },
   {"id":16,
-    "title": "Social Life & Friends",
+    "title": "Social Life & Friends (B)",
     "questions":[
       {"id":1,"question":"How often do you hang out with friends?","type":"select","options":["Daily","Weekly","Monthly","Rarely"]},
       {"id":2,"question":"Favorite activity with friends?","type":"text","placeholder":""},
@@ -186,7 +186,7 @@
     ]
   },
   {"id":17,
-    "title": "Pet Survey",
+    "title": "Pet Questions",
     "questions":[
       {"id":1,"question":"Do you have a dog or cat?","type":"radio","options":["Dog","Cat","Both","None"]},
       {"id":2,"question":"How often do you walk your pet?","type":"number","placeholder":"Enter times per week"},
@@ -194,13 +194,13 @@
     ]
   },
   {"id":18,
-    "title": "Favorite Color Survey",
+    "title": "Favorite Color",
     "questions":[
       {"id":1,"question":"What is your favorite color?","type":"text","placeholder":""}
     ]
   },
   {"id":19,
-    "title": "Phone Habits Survey",
+    "title": "Phone Habits",
     "questions":[
       {"id":1,"question":"How long have you had your current phone?","type":"number","placeholder":"Enter months/years"},
       {"id":2,"question":"Do you mostly use your phone for social media, games, or work?","type":"select","options":["Social media","Games","Work","Mixed"]},
@@ -208,7 +208,7 @@
     ]
   },
   {"id":20,
-    "title": "Laptop Usage Survey",
+    "title": "Laptop Usage",
     "questions":[
       {"id":1,"question":"How often do you use your laptop?","type":"radio","options":["Daily","Weekly","Rarely"]},
       {"id":2,"question":"Favorite software or app on your laptop?","type":"text","placeholder":""},
@@ -228,14 +228,14 @@
     ]
   },
   {"id":21,
-    "title": "Weekend Activities Survey",
+    "title": "Weekend Activities",
     "questions": [
       {"id":1,"question":"How do you usually spend your weekends?","type":"textarea","placeholder":""},
       {"id":2,"question":"Do you prefer indoor or outdoor activities on weekends?","type":"radio","options":["Indoor","Outdoor","Both"]}
     ]
   },
   {"id":22,
-    "title": "School & Learning Survey",
+    "title": "School & Learning",
     "questions": [
       {"id":1,"question":"What is your favorite subject at school?","type":"text","placeholder":""},
       {"id":2,"question":"How many hours do you study daily?","type":"number","placeholder":"Enter hours"},
@@ -256,7 +256,7 @@
     ]
   },
   {"id":23,
-    "title": "Food & Cooking Survey",
+    "title": "Food & Cooking",
     "questions": [
       {"id":1,"question":"Favorite cuisine?","type":"text","placeholder":""},
       {"id":2,"question":"How often do you cook at home?","type":"number","placeholder":"Times per week"},
@@ -286,7 +286,7 @@
     ]
   },
   {"id":24,
-    "title": "Social Media Usage Survey",
+    "title": "Social Media Usage",
     "questions": [
       {"id":1,"question":"Which social media platforms do you use?","type":"checkbox","options":["Instagram","TikTok","X","YouTube","Facebook","Snapchat"]},
       {"id":2,"question":"How many hours per day do you spend online?","type":"number","placeholder":"Enter hours"},
@@ -308,7 +308,7 @@
     ]
   },
   {"id":25,
-    "title": "Daily Fitness & Exercise Survey",
+    "title": "Daily Fitness & Exercise",
     "questions": [
       {"id":1,"question":"Do you exercise regularly?","type":"radio","options":["Yes","No","Sometimes"]},
       {"id":2,"question":"Favorite type of exercise?","type":"select","options":["Running","Yoga","Gym","Sports","Other"]},
@@ -333,7 +333,7 @@
     ]
   },
   {"id":26,
-    "title": "Movie & TV Marathon Survey",
+    "title": "Movie & TV Marathon",
     "questions": [
       {"id":1,"question":"Favorite movie genre?","type":"select","options":["Action","Comedy","Drama","Horror","Romance","Sci-Fi"]},
       {"id":2,"question":"Do you watch movies in theaters or online?","type":"radio","options":["Theater","Online","Both"]},
@@ -368,7 +368,7 @@
     ]
   },
   {"id":27,
-    "title": "Pet Care & Habits Survey",
+    "title": "Pet Care & Habits",
     "questions": [
       {"id":1,"question":"Do you own a pet?","type":"radio","options":["Yes","No"]},
       {"id":2,"question":"Type of pet?","type":"select","options":["Dog","Cat","Bird","Other"]},
@@ -386,5 +386,241 @@
       {"id":14,"question":"Do you have multiple pets?","type":"radio","options":["Yes","No"]},
       {"id":15,"question":"Share a training tip for pets.","type":"textarea","placeholder":""}
     ]
-  }
+  },
+  {"id":28,
+    "title":"Spiderman Movie",
+    "questions":[
+    {"id":1,"question":"Which Spider-Man movie is your favorite?","type":"select","options":["Spider-Man (2002)","Spider-Man 2 (2004)","Spider-Man 3 (2007)","The Amazing Spider-Man (2012)","The Amazing Spider-Man 2 (2014)","Spider-Man: Homecoming (2017)","Spider-Man: Far From Home (2019)","Spider-Man: No Way Home (2021)","Spider-Man: Into the Spider-Verse (2018)","Spider-Man: Across the Spider-Verse (2023)"]},
+    {"id":2,"question":"Who is your favorite Spider-Man actor?","type":"select","options":["Tobey Maguire","Andrew Garfield","Tom Holland","Shameik Moore (Voice)"]},
+    {"id":3,"question":"How many times have you watched your favorite Spider-Man movie?","type":"number","placeholder":"Enter number of times"},
+    {"id":4,"question":"Do you prefer live-action or animated Spider-Man movies?","type":"radio","options":["Live-action","Animated","Both equally"]},
+    {"id":5,"question":"Which villain do you like the most?","type":"select","options":["Green Goblin","Doctor Octopus","Venom","Sandman","Electro","Mysterio","Vulture","Other"]},
+    {"id":6,"question":"Do you enjoy crossover/multiverse storylines?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":7,"question":"How would you rate the action scenes?","type":"select","options":["Excellent","Good","Average","Below Average","Poor"]},
+    {"id":8,"question":"Which supporting character do you like the most?","type":"select","options":["Mary Jane","Gwen Stacy","MJ (Michelle Jones)","Ned","Aunt May","Happy Hogan"]},
+    {"id":9,"question":"Do you think Spider-Man movies stay true to the comics?","type":"radio","options":["Yes","No","Not sure"]},
+    {"id":10,"question":"How important is humor in a Spider-Man movie?","type":"select","options":["Very important","Somewhat important","Not important"]},
+    {"id":11,"question":"Have you watched all the Spider-Man movies?","type":"radio","options":["Yes","No","Most of them"]},
+    {"id":12,"question":"Would you watch a new Spider-Man movie in theaters?","type":"radio","options":["Definitely","Maybe","No"]},
+    {"id":13,"question":"Which Spider-Man suit design is your favorite?","type":"select","options":["Classic Red and Blue","Black Suit","Iron Spider","Amazing Spider-Man Suit","Spider-Verse Suit"]},
+    {"id":14,"question":"How excited are you for future Spider-Man movies?","type":"select","options":["Very excited","Somewhat excited","Neutral","Not very excited","Not excited at all"]}
+    ]
+    },
+    {"id":29,
+    "title":"Apple Company",
+    "questions":[
+    {"id":1,"question":"Which Apple product do you use the most?","type":"select","options":["iPhone","iPad","MacBook","Apple Watch","AirPods","None"]},
+    {"id":2,"question":"How satisfied are you with Apple products?","type":"select","options":["Very satisfied","Satisfied","Neutral","Dissatisfied","Very dissatisfied"]},
+    {"id":3,"question":"How long have you been using Apple products?","type":"number","placeholder":"Enter number of years"},
+    {"id":4,"question":"Do you think Apple products are worth their price?","type":"radio","options":["Yes","No","Not sure"]},
+    {"id":5,"question":"Would you recommend Apple products to others?","type":"radio","options":["Definitely","Maybe","No"]}
+    ]
+    },
+    {"id":30,
+    "title":"Watermelon",
+    "questions":[
+    {"id":1,"question":"How often do you eat watermelon?","type":"select","options":["Very often","Sometimes","Rarely","Never"]},
+    {"id":2,"question":"Do you prefer watermelon with seeds or seedless?","type":"radio","options":["With seeds","Seedless","No preference"]}
+    ]
+    },
+    {"id":31,
+    "title":"Your Life",
+    "questions":[
+    {"id":1,"question":"How would you describe your current life stage?","type":"select","options":["Student","Working","Between jobs","Other"]},
+    {"id":2,"question":"Are you satisfied with your daily routine?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":3,"question":"How many hours do you sleep on average per night?","type":"number","placeholder":"Enter hours"},
+    {"id":4,"question":"Do you exercise regularly?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":5,"question":"What is your biggest current goal?","type":"textarea","placeholder":""},
+    {"id":6,"question":"How often do you feel stressed?","type":"select","options":["Very often","Sometimes","Rarely","Never"]},
+    {"id":7,"question":"Do you feel supported by friends or family?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":8,"question":"How satisfied are you with your education or skills?","type":"select","options":["Very satisfied","Satisfied","Neutral","Dissatisfied"]},
+    {"id":9,"question":"Do you manage your time effectively?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":10,"question":"How often do you try new things?","type":"select","options":["Very often","Sometimes","Rarely","Never"]},
+    {"id":11,"question":"Do you have a clear plan for your future?","type":"radio","options":["Yes","No","Working on it"]},
+    {"id":12,"question":"How would you rate your work-life balance?","type":"select","options":["Excellent","Good","Average","Poor"]},
+    {"id":13,"question":"Do you save money regularly?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":14,"question":"How important is personal growth to you?","type":"select","options":["Very important","Somewhat important","Not important"]},
+    {"id":15,"question":"Do you feel confident in yourself?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":16,"question":"How often do you spend time with friends?","type":"select","options":["Very often","Sometimes","Rarely","Never"]},
+    {"id":17,"question":"Do you enjoy your hobbies?","type":"radio","options":["Yes","No","Somewhat"]},
+    {"id":18,"question":"How would you rate your overall happiness?","type":"select","options":["Very happy","Happy","Neutral","Unhappy"]},
+    {"id":19,"question":"Do you set personal goals?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":20,"question":"How often do you reflect on your life decisions?","type":"select","options":["Very often","Sometimes","Rarely","Never"]},
+    {"id":21,"question":"Do you feel motivated most days?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":22,"question":"How satisfied are you with your social life?","type":"select","options":["Very satisfied","Satisfied","Neutral","Dissatisfied"]},
+    {"id":23,"question":"Do you prioritize your mental health?","type":"radio","options":["Yes","No","Trying to"]},
+    {"id":24,"question":"How often do you feel grateful?","type":"select","options":["Very often","Sometimes","Rarely","Never"]},
+    {"id":25,"question":"Do you handle challenges well?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":26,"question":"How optimistic are you about your future?","type":"select","options":["Very optimistic","Somewhat optimistic","Neutral","Not optimistic"]},
+    {"id":27,"question":"What is one thing you would like to improve in your life?","type":"textarea","placeholder":""}
+    ]
+    },
+    {"id":32,
+    "title":"Explain Your School",
+    "questions":[
+    {"id":1,"question":"Please explain your school, including what you like and what could be improved.","type":"textarea","placeholder":""}
+    ]
+    },
+    {"id":33,
+    "title":"Your Family",
+    "questions":[
+    {"id":1,"question":"How many people are in your family?","type":"number","placeholder":"Enter number of family members"},
+    {"id":2,"question":"Do you live with your entire family?","type":"radio","options":["Yes","No","Partially"]},
+    {"id":3,"question":"How often do you spend quality time with your family?","type":"select","options":["Very often","Sometimes","Rarely","Never"]},
+    {"id":4,"question":"Who are you closest to in your family?","type":"textarea","placeholder":""},
+    {"id":5,"question":"Do you feel supported by your family?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":6,"question":"How would you describe your family environment?","type":"select","options":["Very positive","Positive","Neutral","Challenging"]},
+    {"id":7,"question":"What is your favorite family tradition or activity?","type":"textarea","placeholder":""}
+    ]
+    },
+    {"id":34,
+    "title":"Our School Uniform",
+    "questions":[
+    {"id":1,"question":"Do you like your school uniform?","type":"radio","options":["Yes","No","Not sure"]},
+    {"id":2,"question":"How comfortable is your school uniform?","type":"select","options":["Very comfortable","Comfortable","Neutral","Uncomfortable"]},
+    {"id":3,"question":"Do you think the uniform looks good?","type":"radio","options":["Yes","No","It’s okay"]},
+    {"id":4,"question":"How practical is the uniform for daily school activities?","type":"select","options":["Very practical","Somewhat practical","Not practical"]},
+    {"id":5,"question":"Would you prefer having no school uniform?","type":"radio","options":["Yes","No","Maybe"]},
+    {"id":6,"question":"Does the uniform represent the school well?","type":"radio","options":["Yes","No","Not sure"]},
+    {"id":7,"question":"How affordable do you think the uniform is?","type":"select","options":["Very affordable","Affordable","Expensive","Very expensive"]},
+    {"id":8,"question":"Do you feel confident wearing your school uniform?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":9,"question":"Should students be allowed small modifications to the uniform?","type":"radio","options":["Yes","No","Maybe"]},
+    {"id":10,"question":"How many sets of uniform do you own?","type":"number","placeholder":"Enter number of sets"},
+    {"id":11,"question":"Does the uniform fit properly?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":12,"question":"What would you change about the school uniform?","type":"textarea","placeholder":""}
+    ]
+    },
+    {"id":35,
+    "title":"Batman vs Ironman",
+    "questions":[
+    {"id":1,"question":"Who do you think is stronger overall?","type":"select","options":["Batman","Ironman","Both are equal","Not sure"]},
+    {"id":2,"question":"Which hero’s gadgets or tech do you prefer?","type":"select","options":["Batman","Ironman","Both equally","Neither"]}
+    ]
+    },
+    {"id":36,
+    "title":"DC Superheroes vs Marvel Superheroes",
+    "questions":[
+    {"id":1,"question":"Which universe do you prefer overall?","type":"select","options":["DC","Marvel","Both equally","Not sure"]},
+    {"id":2,"question":"Who is your favorite DC superhero?","type":"select","options":["Superman","Batman","Wonder Woman","Flash","Aquaman","Other"]},
+    {"id":3,"question":"Who is your favorite Marvel superhero?","type":"select","options":["Spider-Man","Iron Man","Captain America","Thor","Black Panther","Other"]},
+    {"id":4,"question":"Which superhero team do you like more?","type":"select","options":["Justice League (DC)","Avengers (Marvel)","Both equally","Neither"]},
+    {"id":5,"question":"Do you prefer DC movies or Marvel movies?","type":"select","options":["DC","Marvel","Both equally","Not sure"]},
+    {"id":6,"question":"Which superhero’s powers do you admire the most?","type":"select","options":["DC superhero","Marvel superhero","Both equally","Neither"]},
+    {"id":7,"question":"Do you read DC or Marvel comics?","type":"radio","options":["DC","Marvel","Both","None"]},
+    {"id":8,"question":"Which superhero would you like to have as a friend?","type":"select","options":["DC superhero","Marvel superhero","Both","Neither"]},
+    {"id":9,"question":"Do you prefer animated superhero series or live-action movies?","type":"radio","options":["Animated","Live-action","Both equally","Neither"]},
+    {"id":10,"question":"Who would win in a battle: Batman or Iron Man?","type":"select","options":["Batman","Iron Man","Depends on scenario","Not sure"]}
+    ]
+    },
+    {"id":37,
+    "title":"MrBeast",
+    "questions":[
+    {"id":1,"question":"How did you first hear about MrBeast?","type":"select","options":["YouTube","Social media","Friends/Family","Other"]},
+    {"id":2,"question":"Which type of MrBeast videos do you enjoy the most?","type":"select","options":["Challenges","Philanthropy/Donations","Stunts","Other"]},
+    {"id":3,"question":"How often do you watch MrBeast videos?","type":"select","options":["Daily","Weekly","Sometimes","Rarely","Never"]},
+    {"id":4,"question":"Would you participate in a MrBeast challenge if given the chance?","type":"radio","options":["Yes","No","Maybe"]},
+    {"id":5,"question":"How much do you admire MrBeast as a content creator?","type":"select","options":["A lot","Somewhat","Neutral","Not much","Not at all"]}
+    ]
+    },
+    {"id":38,
+    "title":"Disney PJ Masks",
+    "questions":[
+    {"id":1,"question":"Who is your favorite PJ Masks character?","type":"select","options":["Catboy","Owlette","Gekko","Romeo","Luna Girl","Night Ninja"]},
+    {"id":2,"question":"How often do you watch PJ Masks episodes?","type":"select","options":["Daily","Several times a week","Once a week","Rarely","Never"]},
+    {"id":3,"question":"Which PJ Masks villain do you like the most?","type":"select","options":["Romeo","Luna Girl","Night Ninja","Other"]},
+    {"id":4,"question":"Do you prefer watching PJ Masks on TV or online platforms?","type":"radio","options":["TV","Online","Both"]},
+    {"id":5,"question":"Do you have PJ Masks toys or merchandise?","type":"radio","options":["Yes","No","Some"]},
+    {"id":6,"question":"Who is the funniest character in PJ Masks?","type":"select","options":["Catboy","Owlette","Gekko","Romeo","Luna Girl","Night Ninja"]},
+    {"id":7,"question":"Do you enjoy PJ Masks songs and music?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":8,"question":"Which PJ Masks episode is your favorite?","type":"textarea","placeholder":""},
+    {"id":9,"question":"Do you like the teamwork between PJ Masks heroes?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":10,"question":"How much do you know about PJ Masks characters’ powers?","type":"select","options":["A lot","Some","Little","None"]},
+    {"id":11,"question":"Do you prefer watching PJ Masks alone or with friends/family?","type":"radio","options":["Alone","With friends/family","Either"]},
+    {"id":12,"question":"Which PJ Masks vehicle do you like the most?","type":"select","options":["Cat-Car","Owl-Glider","Gekko-Mobile","Other"]},
+    {"id":13,"question":"Do you like PJ Masks comic books or storybooks?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":14,"question":"How would you rate PJ Masks animation quality?","type":"select","options":["Excellent","Good","Average","Poor"]},
+    {"id":15,"question":"Do you enjoy PJ Masks themed games or apps?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":16,"question":"Which PJ Masks team-up episode do you like the most?","type":"textarea","placeholder":""},
+    {"id":17,"question":"Do you like the moral lessons in PJ Masks episodes?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":18,"question":"How often do you discuss PJ Masks with friends or online communities?","type":"select","options":["Very often","Sometimes","Rarely","Never"]},
+    {"id":19,"question":"Do you enjoy PJ Masks spin-offs or specials?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":20,"question":"Which PJ Masks character would you want as your friend?","type":"select","options":["Catboy","Owlette","Gekko","Other"]},
+    {"id":21,"question":"Do you like PJ Masks merchandise like clothes or backpacks?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":22,"question":"Which PJ Masks season is your favorite?","type":"select","options":["Season 1","Season 2","Season 3","Season 4","Season 5"]},
+    {"id":23,"question":"What do you like most about PJ Masks?","type":"textarea","placeholder":""}
+    ]
+    },
+    {"id":39,
+    "title":"DreamWorks",
+    "questions":[
+    {"id":1,"question":"Which DreamWorks movie is your favorite?","type":"select","options":["Shrek","Kung Fu Panda","How to Train Your Dragon","Madagascar","Other"]},
+    {"id":2,"question":"Who is your favorite DreamWorks character?","type":"select","options":["Shrek","Po","Hiccup","Alex the Lion","Other"]},
+    {"id":3,"question":"How often do you watch DreamWorks movies?","type":"select","options":["Very often","Sometimes","Rarely","Never"]},
+    {"id":4,"question":"Do you enjoy DreamWorks animated series as well?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":5,"question":"Which DreamWorks movie genre do you prefer?","type":"select","options":["Comedy","Adventure","Action","Fantasy","Other"]},
+    {"id":6,"question":"Do you collect DreamWorks merchandise or toys?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":7,"question":"Which DreamWorks villain do you find most interesting?","type":"select","options":["Lord Farquaad","Tai Lung","Drago","Other"]},
+    {"id":8,"question":"How would you rate the animation quality of DreamWorks movies?","type":"select","options":["Excellent","Good","Average","Poor"]},
+    {"id":9,"question":"Do you prefer DreamWorks movies over other animation studios?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":10,"question":"Who is your favorite DreamWorks hero?","type":"select","options":["Shrek","Po","Hiccup","Other"]},
+    {"id":11,"question":"Do you enjoy the humor in DreamWorks movies?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":12,"question":"Do you watch DreamWorks movies alone or with family/friends?","type":"radio","options":["Alone","With family/friends","Either"]},
+    {"id":13,"question":"Which DreamWorks soundtrack do you like the most?","type":"textarea","placeholder":""},
+    {"id":14,"question":"Do you follow new DreamWorks movie releases?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":15,"question":"What do you like most about DreamWorks movies?","type":"textarea","placeholder":""}
+    ]
+    },
+    {"id":40,
+    "title":"Disney",
+    "questions":[
+    {"id":1,"question":"Which Disney movie is your favorite?","type":"select","options":["The Lion King","Frozen","Aladdin","Moana","Other"]},
+    {"id":2,"question":"Who is your favorite Disney character?","type":"select","options":["Mickey Mouse","Elsa","Simba","Ariel","Other"]},
+    {"id":3,"question":"How often do you watch Disney movies?","type":"select","options":["Very often","Sometimes","Rarely","Never"]},
+    {"id":4,"question":"Do you enjoy Disney theme parks?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":5,"question":"Which Disney princess or hero do you like the most?","type":"select","options":["Cinderella","Mulan","Aladdin","Moana","Other"]},
+    {"id":6,"question":"Do you have Disney merchandise or toys?","type":"radio","options":["Yes","No","Some"]},
+    {"id":7,"question":"Do you enjoy Disney songs and music?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":8,"question":"Which Disney movie sequel do you prefer?","type":"textarea","placeholder":""},
+    {"id":9,"question":"Do you prefer classic Disney movies or modern ones?","type":"radio","options":["Classic","Modern","Both"]},
+    {"id":10,"question":"Do you read Disney books or comics?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":11,"question":"Do you enjoy Disney animated series?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":12,"question":"What do you like most about Disney movies?","type":"textarea","placeholder":""}
+    ]
+    },
+    {"id":41,
+    "title":"Dream Works Kung Fu Panda",
+    "questions":[
+    {"id":1,"question":"Who is your favorite Kung Fu Panda character?","type":"select","options":["Po","Shifu","Tigress","Monkey","Viper","Crane","Mantis","Other"]},
+    {"id":2,"question":"How many Kung Fu Panda movies have you watched?","type":"number","placeholder":"Enter number of movies"},
+    {"id":3,"question":"Which movie is your favorite?","type":"select","options":["Kung Fu Panda","Kung Fu Panda 2","Kung Fu Panda 3","Kung Fu Panda 4","Other"]},
+    {"id":4,"question":"Who is your favorite villain in Kung Fu Panda?","type":"select","options":["Tai Lung","Lord Shen","Kai","Other"]},
+    {"id":5,"question":"Do you enjoy the humor in Kung Fu Panda?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":6,"question":"Which Kung Fu Panda fighting style do you like the most?","type":"select","options":["Tai Chi","Drunken Fist","Tiger Style","Other"]},
+    {"id":7,"question":"Do you like Kung Fu Panda spin-offs or series?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":8,"question":"Do you prefer the original movies or the spin-offs?","type":"radio","options":["Original movies","Spin-offs","Both equally"]},
+    {"id":9,"question":"How often do you watch Kung Fu Panda movies?","type":"select","options":["Very often","Sometimes","Rarely","Never"]},
+    {"id":10,"question":"Do you collect Kung Fu Panda toys or merchandise?","type":"radio","options":["Yes","No","Some"]},
+    {"id":11,"question":"Which lesson from Kung Fu Panda do you like the most?","type":"textarea","placeholder":""},
+    {"id":12,"question":"Do you prefer Kung Fu Panda for its action or comedy?","type":"select","options":["Action","Comedy","Both equally"]},
+    {"id":13,"question":"Who is your favorite mentor character?","type":"select","options":["Shifu","Master Oogway","Other"]},
+    {"id":14,"question":"Do you enjoy Kung Fu Panda music and songs?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":15,"question":"Which panda is your favorite besides Po?","type":"select","options":["Li Shan","Other"]},
+    {"id":16,"question":"Do you like the animation style of Kung Fu Panda movies?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":17,"question":"Which battle scene is the most exciting?","type":"textarea","placeholder":""},
+    {"id":18,"question":"Do you think Kung Fu Panda teaches good moral values?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":19,"question":"Do you prefer watching Kung Fu Panda alone or with friends/family?","type":"radio","options":["Alone","With friends/family","Either"]},
+    {"id":20,"question":"Which supporting character do you like the most?","type":"select","options":["Tigress","Monkey","Viper","Crane","Mantis","Other"]},
+    {"id":21,"question":"Do you enjoy Kung Fu Panda comics or storybooks?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":22,"question":"Do you like the villain’s backstory in Kung Fu Panda?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":23,"question":"Which Kung Fu Panda sequel do you like the most?","type":"select","options":["Kung Fu Panda 2","Kung Fu Panda 3","Other"]},
+    {"id":24,"question":"Do you play Kung Fu Panda games or apps?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":25,"question":"Do you enjoy the humor and quotes from Po?","type":"radio","options":["Yes","No","Sometimes"]},
+    {"id":26,"question":"Which Kung Fu Panda location do you like the most?","type":"select","options":["Valley of Peace","Wu Dang","Other"]},
+    {"id":27,"question":"Do you think Kung Fu Panda movies are suitable for all ages?","type":"radio","options":["Yes","No","Not sure"]},
+    {"id":28,"question":"Which dragon warrior lesson inspired you the most?","type":"textarea","placeholder":""},
+    {"id":29,"question":"Would you recommend Kung Fu Panda to friends?","type":"radio","options":["Yes","No","Maybe"]},
+    {"id":30,"question":"What do you like most about Kung Fu Panda movies?","type":"textarea","placeholder":""}
+    ]
+    }
+
 ]
