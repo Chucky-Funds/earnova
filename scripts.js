@@ -291,15 +291,16 @@ function refreshVideoTabForNewDay() {
   if (container) {
     container.innerHTML = '';
     videosToShow.forEach((video, i) => {
-      const card = document.createElement('div');
-      card.className = 'video-task-card';
-      card.dataset.videoIndex = i;
-      card.innerHTML = `
-        <div class="video-card-thumbnail" style="background-image:url('${video.thumbnail}')"></div>
-        <div class="task-title">${video.title}</div>
-        <button class="btn">Watch Now</button>
-      `;
-      container.appendChild(card);
+      // Use full createVideoCard function for rendering
+      let mins = video.duration || 0;
+      let rewardObj = getStoredRewardByVideo(video) || getVideoReward(i);
+      let reward = rewardObj.amount;
+      let xp = rewardObj.xp;
+      // Replace thumbnail placeholder with actual thumbnail
+      let cardHtml = createVideoCard(i, mins, reward, xp).replace('https://img.youtube.com/vi/placeholder/hqdefault.jpg', video.thumbnail).replace('Video Task #' + (i + 1), video.title);
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = cardHtml;
+      container.appendChild(wrapper.firstElementChild);
     });
     setTimeout(updateVideoCardStates, 100);
   }
@@ -313,15 +314,16 @@ function renderVideoTabOnLoad() {
   if (container) {
     container.innerHTML = '';
     videosToShow.forEach((video, i) => {
-      const card = document.createElement('div');
-      card.className = 'video-task-card';
-      card.dataset.videoIndex = i;
-      card.innerHTML = `
-        <div class="video-card-thumbnail" style="background-image:url('${video.thumbnail}')"></div>
-        <div class="task-title">${video.title}</div>
-        <button class="btn">Watch Now</button>
-      `;
-      container.appendChild(card);
+      // Use full createVideoCard function for rendering
+      let mins = video.duration || 0;
+      let rewardObj = getStoredRewardByVideo(video) || getVideoReward(i);
+      let reward = rewardObj.amount;
+      let xp = rewardObj.xp;
+      // Replace thumbnail placeholder with actual thumbnail
+      let cardHtml = createVideoCard(i, mins, reward, xp).replace('https://img.youtube.com/vi/placeholder/hqdefault.jpg', video.thumbnail).replace('Video Task #' + (i + 1), video.title);
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = cardHtml;
+      container.appendChild(wrapper.firstElementChild);
     });
     setTimeout(updateVideoCardStates, 100);
   }

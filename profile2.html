@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lan>g="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -50,15 +50,8 @@
         .video-task-card.completed * {
             cursor: not-allowed !important;
             opacity: 0.5;
-            /* pointer-events: none;  <-- REMOVE THIS LINE */
         }
-        /* Add to your CSS */
-        .video-task-card.completed,
-        .video-task-card.completed * {
-            cursor: not-allowed !important;
-            opacity: 0.5;
-            /* pointer-events: none;  <-- REMOVE THIS LINE */
-        }
+        
         /* ------------------------------------------------------------
            2. RESET & BASE STYLES
         ------------------------------------------------------------ */
@@ -79,7 +72,7 @@
         a { text-decoration: none; color: inherit; }
         ul { list-style: none; }
         button { cursor: pointer; border: none; font-family: inherit; background: none; }
-        input, select { font-family: inherit; }
+        input, select, textarea { font-family: inherit; }
         img, svg { max-width: 100%; display: block; }
         
         /* Scrollbar styling */
@@ -226,8 +219,6 @@
             align-items: center; justify-content: center;
             color: var(--text-primary);
         }
-
-
 
         .header-actions { display: flex; align-items: center; gap: 20px; }
 
@@ -569,6 +560,31 @@
             white-space: nowrap;
         }
 
+        /* NEW STYLES FOR LEVEL INFO TABLE */
+        .level-pill {
+            background: rgba(30, 58, 138, 0.1);
+            color: var(--accent-primary);
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            min-width: 40px;
+            text-align: center;
+            font-size: 12px;
+        }
+        .limit-badge {
+            background: rgba(249, 115, 22, 0.1);
+            color: var(--accent-secondary);
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        [data-theme="dark"] .level-pill {
+            background: rgba(30, 58, 138, 0.3);
+            color: #93C5FD;
+        }
+
         /* RESPONSIVE: LEVEL & XP SYSTEM */
         @media (max-width: 1024px) {
             .level-card {
@@ -742,17 +758,6 @@
             to {
                 opacity: 1;
                 transform: scale(1) translateY(0);
-            }
-        }
-
-        @keyframes modalSlideOut {
-            from {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: scale(0.95) translateY(20px);
             }
         }
 
@@ -944,6 +949,64 @@
             fill: var(--accent-secondary);
             margin-left: 2px;
         }
+        
+        /* ============================================================
+           SURVEY / QUESTION MODAL STYLES
+        ============================================================ */
+        .survey-modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
+            z-index: 1550; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .survey-modal-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .survey-modal-container {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 100%; max-width: 700px;
+            max-height: 90vh;
+            display: flex; flex-direction: column;
+            transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .survey-modal-overlay.active .survey-modal-container { transform: scale(1); }
+        
+        .survey-modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .survey-form-group { margin-bottom: 20px; }
+        .survey-question-label { display: block; font-weight: 600; font-size: 15px; margin-bottom: 10px; color: var(--text-primary); }
+        
+        .survey-input, .survey-select, .survey-textarea {
+            width: 100%; padding: 12px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        .survey-textarea { min-height: 100px; resize: vertical; }
+        .survey-input:focus, .survey-select:focus, .survey-textarea:focus {
+            border-color: var(--accent-primary); outline: none; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+        
+        .survey-radio-group, .survey-checkbox-group { display: flex; flex-direction: column; gap: 8px; }
+        .survey-option-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: var(--text-primary); }
+        .survey-option-input { width: 16px; height: 16px; accent-color: var(--accent-primary); cursor: pointer; }
+
+        .survey-modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex; justify-content: flex-end;
+            background-color: var(--bg-secondary);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+        }
 
         /* Disable scroll when modal is open */
         body.modal-open {
@@ -951,7 +1014,8 @@
         }
 
         /* Dark Theme Modal Adjustments */
-        [data-theme="dark"] .video-modal-overlay {
+        [data-theme="dark"] .video-modal-overlay,
+        [data-theme="dark"] .survey-modal-overlay {
             background: rgba(0, 0, 0, 0.7);
         }
 
@@ -1199,10 +1263,6 @@
                     <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
                     <span>Websites</span>
                 </div>
-                <div class="nav-item" data-target="social">
-                    <svg class="nav-icon" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                    <span>Social</span>
-                </div>
             </div>
 
             <div class="nav-group">
@@ -1230,6 +1290,10 @@
                 <button class="hamburger" onclick="toggleSidebar()">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 </button>
+                <!-- Daily Reset Countdown Timer -->
+                <div id="daily-reset-timer" style="margin-left:20px; font-weight:600; color:var(--accent-secondary); font-size:15px;">
+                  Next reset in: <span id="reset-countdown">--:--:--</span>
+                </div>
             </div>
 
             <div class="header-actions">
@@ -1302,6 +1366,7 @@
                         </div>
                     </div>
 
+                    
                     <!-- STAT CARDS GRID -->
                     <div class="dashboard-grid">
                         <div class="card">
@@ -1334,6 +1399,134 @@
                             <canvas id="tasksChart"></canvas>
                         </div>
                     </div>
+                    <!-- LEVEL PROGRESSION TABLE (NOW ONLY IN DASHBOARD, FULL WIDTH) -->
+                    <div class="card" style="margin-bottom: 32px; width: 100%;">
+                        <div class="section-header" style="margin-bottom: 16px;">
+                            <h3 class="task-title">Level Progression & Limits</h3>
+                            <p class="page-subtitle">XP requirements and daily video watch limits per level.</p>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Level</th>
+                                        <th>XP Required</th>
+                                        <th>Daily Video Limit</th>
+                                        <th>Daily Question Limit</th>
+                                        <th>Daily Website Limit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 1</span></td>
+                                        <td>0 - 500 XP</td>
+                                        <td><span class="limit-badge">1 Video</span></td>
+                                        <td><span class="limit-badge">1 Question</span></td>
+                                        <td><span class="limit-badge">1 Website</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 2</span></td>
+                                        <td>500 - 750 XP</td>
+                                        <td><span class="limit-badge">1 Video</span></td>
+                                        <td><span class="limit-badge">2 Questions</span></td>
+                                        <td><span class="limit-badge">2 Websites</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 3</span></td>
+                                        <td>750 - 1,125 XP</td>
+                                        <td><span class="limit-badge">1 Video</span></td>
+                                        <td><span class="limit-badge">3 Questions</span></td>
+                                        <td><span class="limit-badge">3 Websites</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 4</span></td>
+                                        <td>1,125 - 1,688 XP</td>
+                                        <td><span class="limit-badge">2 Videos</span></td>
+                                        <td><span class="limit-badge">4 Questions</span></td>
+                                        <td><span class="limit-badge">5 Websites</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 5</span></td>
+                                        <td>1,688 - 2,532 XP</td>
+                                        <td><span class="limit-badge">2 Videos</span></td>
+                                        <td><span class="limit-badge">6 Questions</span></td>
+                                        <td><span class="limit-badge">5 Websites</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 6</span></td>
+                                        <td>2,532 - 3,798 XP</td>
+                                        <td><span class="limit-badge">2 Videos</span></td>
+                                        <td><span class="limit-badge">7 Questions</span></td>
+                                        <td><span class="limit-badge">5 Websites</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 7</span></td>
+                                        <td>3,798 - 5,697 XP</td>
+                                        <td><span class="limit-badge">2 Videos</span></td>
+                                        <td><span class="limit-badge">6 Questions</span></td>
+                                        <td><span class="limit-badge">7 Websites</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 8</span></td>
+                                        <td>5,697 - 8,546 XP</td>
+                                        <td><span class="limit-badge">3 Videos</span></td>
+                                        <td><span class="limit-badge">9 Questions</span></td>
+                                        <td><span class="limit-badge">9 Websites</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 9</span></td>
+                                        <td>8,546 - 12,819 XP</td>
+                                        <td><span class="limit-badge">3 Videos</span></td>
+                                        <td><span class="limit-badge">9 Questions</span></td>
+                                        <td><span class="limit-badge">10 Websites</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 10</span></td>
+                                        <td>12,819 - 19,229 XP</td>
+                                        <td><span class="limit-badge">3 Videos</span></td>
+                                        <td><span class="limit-badge">12 Questions</span></td>
+                                        <td><span class="limit-badge">10 Websites</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 11</span></td>
+                                        <td>19,229 - 28,844 XP</td>
+                                        <td><span class="limit-badge">4 Videos</span></td>
+                                        <td><span class="limit-badge">13 Questions</span></td>
+                                        <td><span class="limit-badge">12 Websites</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 12</span></td>
+                                        <td>28,844 - 43,266 XP</td>
+                                        <td><span class="limit-badge">4 Videos</span></td>
+                                        <td><span class="limit-badge">16 Questions</span></td>
+                                        <td><span class="limit-badge">13 Websites</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 13</span></td>
+                                        <td>43,266 - 64,899 XP</td>
+                                        <td><span class="limit-badge">5 Videos</span></td>
+                                        <td><span class="limit-badge">18 Questions</span></td>
+                                        <td><span class="limit-badge">15 Websites</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 14</span></td>
+                                        <td>64,899 - 97,349 XP</td>
+                                        <td><span class="limit-badge">6 Videos</span></td>
+                                        <td><span class="limit-badge">21 Questions</span></td>
+                                        <td><span class="limit-badge">17 Websites</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="level-pill">Lvl 15</span></td>
+                                        <td>97,349 XP+</td>
+                                        <td><span class="limit-badge">6 Videos</span></td>
+                                        <td><span class="limit-badge">24 Questions</span></td>
+                                        <td><span class="limit-badge">20 Websites</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    </div>
                 </section>
 
                 <!-- ANALYTICS -->
@@ -1346,6 +1539,8 @@
                          <div class="card chart-container"><canvas id="typeChart"></canvas></div>
                     </div>
                 </section>
+
+                <!-- LEVEL PROGRESSION TABLE (ADDED HERE) -->
 
                 <!-- VIDEO TASKS -->
                 <section id="videos" class="content-section">
@@ -1376,13 +1571,6 @@
                     <div class="task-grid" id="website-task-list"></div>
                 </section>
 
-                <!-- SOCIAL TASKS -->
-                <section id="social" class="content-section">
-                    <div class="section-header">
-                        <h1 class="page-title">Social Engagement</h1>
-                    </div>
-                    <div class="task-grid" id="social-task-list"></div>
-                </section>
 
                 <!-- TRANSACTIONS -->
                 <section id="transactions" class="content-section">
@@ -1666,10 +1854,17 @@
         }
 
         const qContainer = document.getElementById('question-task-list');
-        for(let i=1; i<=4; i++) {
-            qContainer.innerHTML += createQuestionCard(i);
+        // Check if SURVEY_DATA exists (from script.js) before rendering
+        if (typeof SURVEY_DATA !== 'undefined' && Array.isArray(SURVEY_DATA)) {
+            SURVEY_DATA.forEach((survey, index) => {
+                qContainer.innerHTML += createQuestionCard(index, survey);
+            });
         }
 
+     // After all video cards are rendered, update durations
+     if (typeof fetchAndPopulateDurations === 'function') {
+          fetchAndPopulateDurations();
+     }
         const webContainer = document.getElementById('website-task-list');
         fetch('websites.json')
             .then(res => res.json())
@@ -1680,31 +1875,6 @@
                 }
             });
 
-        const socContainer = document.getElementById('social-task-list');
-        for(let i=1; i<=4; i++) {
-            socContainer.innerHTML += createSocialCard(i);
-        }
-        // Assign URLs to Perform Task buttons from social.json
-        fetch('social.json')
-            .then(res => res.json())
-            .then(socialURLs => {
-                const buttons = socContainer.querySelectorAll('.task-card button');
-                buttons.forEach((btn, idx) => {
-                    if (socialURLs[idx]) {
-                        btn.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            window.open(socialURLs[idx], '_blank');
-                        });
-                    } else {
-                        btn.disabled = true;
-                    }
-                });
-            })
-            .catch(() => {
-                // If fetch fails, disable all buttons
-                const buttons = socContainer.querySelectorAll('.task-card button');
-                buttons.forEach(btn => btn.disabled = true);
-            });
     }
 
     // --- Components ---
@@ -1733,7 +1903,7 @@
         </div>`;
     }
 
-    function createQuestionCard(id) {
+    function createQuestionCard(index, survey) {
         return `
         <div class="task-card">
             <div class="task-header">
@@ -1744,9 +1914,9 @@
                 </div>
             </div>
             <div class="task-body">
-                <div class="task-title">Consumer Preference Survey</div>
-                <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Answer 5 quick questions about shopping habits.</p>
-                <button class="btn btn-outline" style="margin-top:auto" onclick="addFunds(150, 'Survey', 'Market Survey Completed', 10)">Start Survey</button>
+                <div class="task-title">${survey.title}</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Complete this survey to earn rewards.</p>
+                <button class="btn btn-primary" style="margin-top:auto" onclick="openSurveyModal(${index})">Perform Task</button>
             </div>
         </div>`;
     }
@@ -1987,6 +2157,29 @@
         <div class="video-modal-footer" id="video-modal-footer">
             <div class="video-modal-info" id="video-modal-info">Video Task • Watch to earn</div>
             <div class="video-modal-reward" id="video-modal-reward">₦50 + 8 XP</div>
+        </div>
+    </div>
+</div>
+
+<!-- SURVEY / QUESTION MODAL -->
+<div class="survey-modal-overlay" id="survey-modal-overlay">
+    <div class="survey-modal-container" id="survey-modal-container">
+        <div class="video-modal-header">
+            <h2 class="video-modal-title" id="survey-modal-title">Survey</h2>
+            <button class="video-modal-close" id="survey-modal-close" type="button" title="Close (Esc)" onclick="closeSurveyModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="survey-modal-body">
+            <form id="survey-form-content">
+                <!-- Form content injected by JS -->
+            </form>
+        </div>
+        <div class="survey-modal-footer">
+            <button class="btn btn-primary" type="button" style="width: auto;">End Rewards</button>
         </div>
     </div>
 </div>
