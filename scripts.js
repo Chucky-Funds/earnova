@@ -42,27 +42,34 @@ function incrementDailyQuestion() {
 window.handleQuestionClick = function(index, surveyId) {
   // Defensive: ensure SURVEY_DATA exists
   if (!Array.isArray(SURVEY_DATA) || SURVEY_DATA.length === 0) return;
+  
   const completedArr = getCompletedQuestionCards();
   const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
   const limit = getDailyQuestionLimit(currentXP);
   const answeredToday = checkDailyQuestionLimit();
+  
   // Check 1: Already completed
   if (completedArr.includes(surveyId)) {
     alert('You have already answered this question.');
     return;
   }
+  
   // Check 2: Daily limit
   if (answeredToday >= limit) {
     alert(`Daily Question Limit Reached! Level ${getLevel(currentXP)} allows ${limit} questions per day.`);
     return;
   }
+  
   // Success: open modal for the correct survey
   // Find the correct index in SURVEY_DATA
   let surveyIdx = -1;
   for (let i = 0; i < SURVEY_DATA.length; i++) {
     if (SURVEY_DATA[i].id == surveyId) { surveyIdx = i; break; }
   }
+  
+  // Fallback if ID lookup fails
   if (surveyIdx === -1) surveyIdx = index % SURVEY_DATA.length;
+  
   if (typeof openSurveyModal === 'function') openSurveyModal(surveyIdx);
 };
 
@@ -1329,7 +1336,8 @@ function renderQuestionTabOnLoad() {
         // Even though we filtered available, double check state for button attributes
         let completedState = false; // By definition of filter, these should be false
         let btnText = 'Perform Task';
-        let btnAttrs = `onclick=\"openSurveyModal(${index})\"`;
+        // FIX: Using handleQuestionClick instead of openSurveyModal
+        let btnAttrs = `onclick=\"handleQuestionClick(${index}, '${survey.id}')\"`;
         let btnStyle = 'margin-top:auto';
         
         const cardHtml = `

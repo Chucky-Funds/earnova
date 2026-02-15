@@ -1944,7 +1944,8 @@
             btnAttrs = `onclick=\"alert('You have already answered this question.')\"`;
         } else {
             btnText = 'Perform Task';
-            btnAttrs = `onclick=\"openSurveyModal(${index})\"`;
+            // FIX: Using handleQuestionClick instead of openSurveyModal
+            btnAttrs = `onclick=\"handleQuestionClick(${index}, '${survey.id}')\"`;
         }
         return `
         <div class="task-card${completed ? ' completed' : ''}" id="question-card-${survey.id}"${completed ? ' style=\"opacity:0.5;cursor:not-allowed;\"' : ''} data-survey-id="${survey.id}">
