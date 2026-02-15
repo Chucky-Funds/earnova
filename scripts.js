@@ -758,25 +758,19 @@ function isVideoCompleted(videoId) {
 function openVideoModal(videoIndex) {
   if (!VIDEO_DATA.videos.length) return;
   if (videoIndex < 0 || videoIndex >= VIDEO_DATA.videos.length) return;
-
   const video = VIDEO_DATA.videos[videoIndex];
-  
-  // 1. Check if already completed historically
+  // Centralized strict checks for disabled state
   if (isVideoCompleted(video.videoId)) {
-    alert('You have already completed this task.');
+    alert('You have already watched this video.');
     return;
   }
-
-  // 2. Check Daily Limit
   const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
   const limit = getDailyVideoLimit(currentXP);
   const watchedToday = checkDailyLimit();
-
   if (watchedToday >= limit) {
-    alert(`Daily Limit Reached! Level ${getLevel(currentXP)} allows ${limit} video(s) per day. Come back tomorrow!`);
+    alert(`Daily Limit Reached! Level ${getLevel(currentXP)} allows ${limit} video(s) per day.`);
     return;
   }
-
   VIDEO_DATA.currentIndex = videoIndex;
   // Prefer persisted reward for this video so modal matches the card and is permanent
   let reward = getStoredRewardByVideo(video);
@@ -990,68 +984,35 @@ function updateVideoCardStates() {
     VIDEO_DATA.videos.forEach((video, index) => {
         const card = document.querySelector(`.video-task-card[data-video-index="${index}"]`);
         if (!card) return;
-        
         const btn = card.querySelector('.btn');
         const isDone = isVideoCompleted(video.videoId);
-
-        // Remove old listeners to prevent stacking alerts
-        // Simple cloning to strip listeners
-        const newCard = card.cloneNode(true); 
-        card.parentNode.replaceChild(newCard, card);
-        
-        // Re-query the button from the new card
-        const newBtn = newCard.querySelector('.btn');
-        const newThumb = newCard.querySelector('.video-card-thumbnail');
-
-        // Re-attach modal opener if allowed
-        const clickHandler = (e) => {
-             // Logic checked inside openVideoModal, but specific alerts handled here for better UX
-             if (newCard.classList.contains('completed')) {
-                 e.stopPropagation();
-                 if (isDone) {
-                     alert('You have already watched this video.');
-                 } else if (isLimitReached) {
-                     alert(`Daily Limit Reached! Level ${getLevel(currentXP)} allows ${limit} video(s) per day.`);
-                 }
-                 return;
-             }
-             openVideoModal(index);
-        };
-
+        // Only update visual state, not event/click logic
         if (isDone) {
-            // Case 1: Already watched (Forever disabled)
-            newCard.classList.add('completed');
-            newCard.style.opacity = '0.5';
-            newCard.style.cursor = 'not-allowed';
-            if(newBtn) {
-                newBtn.disabled = true;
-                newBtn.innerText = "Completed";
+            card.classList.add('completed');
+            card.style.opacity = '0.5';
+            card.style.cursor = 'not-allowed';
+            if (btn) {
+                btn.innerText = "Completed";
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'not-allowed';
             }
-            newCard.addEventListener('click', clickHandler); // For alert
-        } 
-        else if (isLimitReached) {
-            // Case 2: Daily Limit Hit (Disabled for today)
-            newCard.classList.add('completed'); // Re-using completed class for visual style
-            newCard.style.opacity = '0.5';
-            newCard.style.cursor = 'not-allowed';
-            if(newBtn) {
-                newBtn.disabled = true;
-                newBtn.innerText = "Daily Limit";
+        } else if (isLimitReached) {
+            card.classList.add('completed');
+            card.style.opacity = '0.5';
+            card.style.cursor = 'not-allowed';
+            if (btn) {
+                btn.innerText = "Daily Limit";
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'not-allowed';
             }
-            newCard.addEventListener('click', clickHandler); // For alert
-        } 
-        else {
-            // Case 3: Available
-            newCard.classList.remove('completed');
-            newCard.style.opacity = '';
-            newCard.style.cursor = '';
-            if(newBtn) {
-                newBtn.disabled = false;
-                newBtn.innerText = "Watch Now";
-                newBtn.onclick = () => openVideoModal(index);
-            }
-            if(newThumb) {
-                newThumb.onclick = () => openVideoModal(index);
+        } else {
+            card.classList.remove('completed');
+            card.style.opacity = '';
+            card.style.cursor = '';
+            if (btn) {
+                btn.innerText = "Watch Now";
+                btn.style.opacity = '';
+                btn.style.cursor = '';
             }
         }
     });
@@ -1319,7 +1280,7 @@ async function fetchAndPopulateDurations() {
                 try { updateVideoCardRewards(); } catch (e) {}
               } catch (e) {
                 placeholder.textContent = 'N/A';
-                try { VIDEO_DATA.videos[index].duration = null; } catch (ee) {}
+                try { VIDEO_DATA.videos[index].duration = null; } catch (e) {}
                 try { updateVideoCardRewards(); } catch (err) {}
               }
               // cleanup
