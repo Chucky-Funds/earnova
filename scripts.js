@@ -1202,9 +1202,10 @@ function markQuestionCardCompleted(survey) {
     var btn = card.querySelector('button');
     if (btn) {
       btn.textContent = 'Completed';
-      btn.disabled = true;
+      btn.removeAttribute('disabled');
       btn.style.opacity = '0.5';
       btn.style.cursor = 'not-allowed';
+      btn.onclick = function() { alert('You have already answered this question.'); };
     }
   }
 }
@@ -1224,12 +1225,15 @@ function markQuestionCardCompleted(survey) {
   var card = document.getElementById('question-card-' + survey.id);
   if (card) {
     card.classList.add('completed');
+    card.style.opacity = '0.5';
+    card.style.cursor = 'not-allowed';
     var btn = card.querySelector('button');
     if (btn) {
       btn.textContent = 'Completed';
-      btn.disabled = true;
+      btn.removeAttribute('disabled');
       btn.style.opacity = '0.5';
       btn.style.cursor = 'not-allowed';
+      btn.onclick = function() { alert('You have already answered this question.'); };
     }
   }
 }

@@ -1920,39 +1920,33 @@
             completed = isQuestionCardCompleted(survey);
         }
 
+        // Always render a clickable button, but visually inactive if completed
+        let btnAttrs = '';
+        let btnText = '';
+        let btnStyle = 'margin-top:auto';
         if (completed) {
-            return `
-            <div class="task-card completed" id="question-card-${survey.id}" style="opacity:0.5; cursor:not-allowed;">
-                <div class="task-header">
-                    <span class="task-type">Survey</span>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <span class="task-reward">₦${reward.amount}</span>
-                        <span class="xp-badge">+${reward.xp} XP</span>
-                    </div>
-                </div>
-                <div class="task-body">
-                    <div class="task-title">${survey.title}</div>
-                    <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Complete this survey to earn rewards.</p>
-                    <button class="btn btn-primary" style="margin-top:auto; opacity:0.5; cursor:not-allowed;" disabled>Completed</button>
-                </div>
-            </div>`;
+            btnText = 'Completed';
+            btnStyle += ';opacity:0.5;cursor:not-allowed;';
+            btnAttrs = `onclick=\"alert('You have already answered this question.')\"`;
         } else {
-            return `
-            <div class="task-card" id="question-card-${survey.id}">
-                <div class="task-header">
-                    <span class="task-type">Survey</span>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <span class="task-reward">₦${reward.amount}</span>
-                        <span class="xp-badge">+${reward.xp} XP</span>
-                    </div>
-                </div>
-                <div class="task-body">
-                    <div class="task-title">${survey.title}</div>
-                    <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Complete this survey to earn rewards.</p>
-                    <button class="btn btn-primary" style="margin-top:auto" onclick="openSurveyModal(${index})">Perform Task</button>
-                </div>
-            </div>`;
+            btnText = 'Perform Task';
+            btnAttrs = `onclick=\"openSurveyModal(${index})\"`;
         }
+        return `
+        <div class="task-card${completed ? ' completed' : ''}" id="question-card-${survey.id}"${completed ? ' style=\"opacity:0.5;cursor:not-allowed;\"' : ''}>
+            <div class="task-header">
+                <span class="task-type">Survey</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span class="task-reward">₦${reward.amount}</span>
+                    <span class="xp-badge">+${reward.xp} XP</span>
+                </div>
+            </div>
+            <div class="task-body">
+                <div class="task-title">${survey.title}</div>
+                <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Complete this survey to earn rewards.</p>
+                <button class="btn btn-primary" style="${btnStyle}" ${btnAttrs}>${btnText}</button>
+            </div>
+        </div>`;
     }
 
     function createWebCard(id, url) {
