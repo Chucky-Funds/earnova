@@ -1707,3 +1707,120 @@ function initSurveyModalSystem() {
     e.stopPropagation();
   });
 }
+
+// ===================================================================
+// WEBSITE TASK SYSTEM
+// ===================================================================
+
+async function renderWebsiteTabOnLoad() {
+    const container = document.getElementById('website-task-list');
+    if (!container) return;
+    
+    // Fetch website data
+    let websites = [];
+    try {
+        const response = await fetch('websites.json');
+        if (!response.ok) throw new Error('Failed to load website data');
+        const data = await response.json();
+        // Limit to 20 websites as per requirement
+        websites = data.slice(0, 20);
+    } catch (error) {
+        console.error("Error loading websites.json:", error);
+        container.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">Unable to load websites.</p>';
+        return;
+    }
+    
+    // Clear container
+    container.innerHTML = '';
+    
+    // Check completed websites from local storage
+    const completedWebsites = JSON.parse(localStorage.getItem('completedWebsites') || '[]');
+    
+    websites.forEach((site, index) => {
+        // Calculate reward based on seconds: ~₦0.5 per second capped somewhat, XP ~0.1 per second
+        const rewardAmount = Math.max(5, Math.floor(site.seconds * 0.1)); 
+        const rewardXP = Math.max(1, Math.floor(site.seconds * 0.05));
+        
+        const isCompleted = completedWebsites.includes(site.link);
+        
+        let btnAttrs = `onclick="handleWebsiteVisit(this, '${site.link}', ${site.seconds}, ${rewardAmount}, ${rewardXP})"`;
+        let btnText = "Visit Site";
+        let cardStyle = "";
+        let btnStyle = "margin-top:auto";
+        
+        if (isCompleted) {
+            btnText = "Completed";
+            btnAttrs = `onclick="alert('You have already visited this website.')"`;
+            cardStyle = "opacity:0.5; cursor:not-allowed;";
+            btnStyle += "; opacity:0.5; cursor:not-allowed;";
+        }
+        
+        const cardHtml = `
+        <div class="task-card ${isCompleted ? 'completed' : ''}" style="${cardStyle}" data-website-link="${site.link}">
+            <div class="task-header">
+                <span class="task-type">Website Visit</span>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span class="task-reward">₦${rewardAmount}</span>
+                    <span class="xp-badge">+${rewardXP} XP</span>
+                </div>
+            </div>
+            <div class="task-body">
+                <div class="task-title">${site.title}</div>
+                <div class="task-meta">⏱ ${site.seconds} Seconds Required</div>
+                <button class="btn btn-primary" style="${btnStyle}" ${btnAttrs}>${btnText}</button>
+            </div>
+        </div>`;
+        
+        container.insertAdjacentHTML('beforeend', cardHtml);
+    });
+}
+
+function handleWebsiteVisit(btnElement, url, seconds, rewardAmount, rewardXP) {
+    // Open link in new tab
+    window.open(url, '_blank');
+    
+    // Disable button and start countdown
+    btnElement.disabled = true;
+    let timeLeft = seconds;
+    
+    const timer = setInterval(() => {
+        btnElement.innerText = `Wait ${timeLeft}s...`;
+        timeLeft--;
+        
+        if (timeLeft < 0) {
+            clearInterval(timer);
+            
+            // Mark as completed
+            markWebsiteCompleted(url);
+            
+            // Add funds
+            if (typeof addFunds === 'function') {
+                addFunds(rewardAmount, 'Website Visit', `Visit to ${url}`, rewardXP);
+            }
+            
+            // Update button visual state
+            btnElement.innerText = "Completed";
+            btnElement.style.opacity = '0.5';
+            btnElement.style.cursor = 'not-allowed';
+            btnElement.style.backgroundColor = "var(--success)";
+            
+            // Update card visual state
+            const card = btnElement.closest('.task-card');
+            if (card) {
+                card.classList.add('completed');
+                card.style.opacity = '0.5';
+            }
+            
+            // Update onclick to prevent re-running
+            btnElement.onclick = function() { alert('You have already visited this website.'); };
+        }
+    }, 1000);
+}
+
+function markWebsiteCompleted(url) {
+    const completedWebsites = JSON.parse(localStorage.getItem('completedWebsites') || '[]');
+    if (!completedWebsites.includes(url)) {
+        completedWebsites.push(url);
+        localStorage.setItem('completedWebsites', JSON.stringify(completedWebsites));
+    }
+}

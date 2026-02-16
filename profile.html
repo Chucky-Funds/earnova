@@ -1878,17 +1878,10 @@
             renderQuestionTabOnLoad();
         }
 
-        // Website Tab
-        const webContainer = document.getElementById('website-task-list');
-        fetch('websites.json')
-            .then(res => res.json())
-            .then(websites => {
-                const count = Math.max(8, Math.min(8, websites.length));
-                for(let i=0; i<count; i++) {
-                    webContainer.innerHTML += createWebCard(i, websites[i]);
-                }
-            });
-
+        // Website Tab: Use the dynamic loader from scripts.js
+        if (typeof renderWebsiteTabOnLoad === 'function') {
+             renderWebsiteTabOnLoad();
+        }
     }
 
     // --- Components ---
@@ -1965,6 +1958,8 @@
     }
 
     function createWebCard(id, url) {
+        // This function is now deprecated in favor of renderWebsiteTabOnLoad in scripts.js,
+        // but kept for reference if needed.
         return `
         <div class="task-card" data-web-index="${id}">
             <div class="task-header">
