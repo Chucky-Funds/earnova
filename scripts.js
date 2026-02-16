@@ -1744,44 +1744,48 @@ async function renderWebsiteTabOnLoad() {
       { name: 'Very Large', min: 1800, max: 3000, minPrice: 60, maxPrice: 100, minXP: 40, maxXP: 60 }
     ];
 
-    const usedRewards = {};
+    // Persistent reward storage
+    function getStoredWebsiteReward(link) {
+      try {
+        const all = JSON.parse(localStorage.getItem('website_rewards') || '{}');
+        return all[link] || null;
+      } catch (e) { return null; }
+    }
+    function storeWebsiteReward(link, price, xp) {
+      try {
+        const all = JSON.parse(localStorage.getItem('website_rewards') || '{}');
+        all[link] = { price, xp };
+        localStorage.setItem('website_rewards', JSON.stringify(all));
+      } catch (e) {}
+    }
 
     websites.forEach((site, index) => {
-      let cat = categories.find(c => site.seconds >= c.min && site.seconds <= c.max);
-      if (!cat) cat = categories[0];
-      
-      const durationPercent = (site.seconds - cat.min) / (cat.max - cat.min);
-      let price = cat.minPrice + durationPercent * (cat.maxPrice - cat.minPrice);
-      let xp = cat.minXP + durationPercent * (cat.maxXP - cat.minXP);
-      
-      function randomInRange(min, max) { return Math.random() * (max - min) + min; }
-      price += randomInRange(-1, 1);
-      xp += randomInRange(-0.5, 0.5);
-      price = Math.max(cat.minPrice, Math.min(cat.maxPrice, price));
-      xp = Math.max(cat.minXP, Math.min(cat.maxXP, xp));
-      price = Math.round(price * 10) / 10;
-      xp = Math.round(xp * 10) / 10;
-      
-      let key = `${price}_${xp}`;
-      let tries = 0;
-      while (usedRewards[key] && tries < 10) {
-        price += randomInRange(-0.2, 0.2);
-        xp += randomInRange(-0.1, 0.1);
+      let reward = getStoredWebsiteReward(site.link);
+      let price, xp;
+      if (reward) {
+        price = reward.price;
+        xp = reward.xp;
+      } else {
+        let cat = categories.find(c => site.seconds >= c.min && site.seconds <= c.max);
+        if (!cat) cat = categories[0];
+        const durationPercent = (site.seconds - cat.min) / (cat.max - cat.min);
+        price = cat.minPrice + durationPercent * (cat.maxPrice - cat.minPrice);
+        xp = cat.minXP + durationPercent * (cat.maxXP - cat.minXP);
+        price = Math.max(cat.minPrice, Math.min(cat.maxPrice, price));
+        xp = Math.max(cat.minXP, Math.min(cat.maxXP, xp));
         price = Math.round(price * 10) / 10;
         xp = Math.round(xp * 10) / 10;
-        key = `${price}_${xp}`;
-        tries++;
+        price = Math.min(100, Math.max(0.5, price));
+        xp = Math.min(60, Math.max(1, xp));
+        storeWebsiteReward(site.link, price, xp);
       }
-      usedRewards[key] = true;
-      price = Math.min(100, Math.max(1, price));
-      xp = Math.min(60, Math.max(1, xp));
 
       const isCompleted = completedWebsites.includes(site.link);
       let btnAttrs = `onclick="initiateWebsiteTask('${site.link}', ${site.seconds}, ${price}, ${xp}, 'web-btn-${index}')"`;
       let btnText = "Visit Site";
       let cardStyle = "";
       let btnStyle = "margin-top:auto";
-      
+
       if (isCompleted) {
         btnText = "Completed";
         btnAttrs = `onclick="alert('You have already visited this website.')"`;
