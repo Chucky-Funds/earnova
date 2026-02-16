@@ -1709,20 +1709,18 @@ function initSurveyModalSystem() {
 }
 
 // ===================================================================
-// WEBSITE TASK SYSTEM
+// WEBSITE TASK SYSTEM (HIDDEN TAB LOGIC)
 // ===================================================================
 
 async function renderWebsiteTabOnLoad() {
     const container = document.getElementById('website-task-list');
     if (!container) return;
     
-    // Fetch website data
     let websites = [];
     try {
         const response = await fetch('websites.json');
         if (!response.ok) throw new Error('Failed to load website data');
         const data = await response.json();
-        // Limit to 20 websites as per requirement
         websites = data.slice(0, 20);
     } catch (error) {
         console.error("Error loading websites.json:", error);
@@ -1730,14 +1728,14 @@ async function renderWebsiteTabOnLoad() {
         return;
     }
     
-    // Clear container
     container.innerHTML = '';
-    
-    // Check completed websites from local storage
     const completedWebsites = JSON.parse(localStorage.getItem('completedWebsites') || '[]');
     
-    // --- Website Task Reward Calculation ---
-    // Category definitions
+    // Check if there is a pending task to restore UI state
+    const activeTaskStr = localStorage.getItem('earnova_active_web_task');
+    let activeTask = activeTaskStr ? JSON.parse(activeTaskStr) : null;
+
+    // --- Reward Calculation ---
     const categories = [
       { name: 'Very Small', min: 5, max: 30, minPrice: 1, maxPrice: 3, minXP: 1, maxXP: 3 },
       { name: 'Small', min: 30, max: 120, minPrice: 3, maxPrice: 8, minXP: 3, maxXP: 8 },
@@ -1746,62 +1744,54 @@ async function renderWebsiteTabOnLoad() {
       { name: 'Very Large', min: 1800, max: 3000, minPrice: 60, maxPrice: 100, minXP: 40, maxXP: 60 }
     ];
 
-    // Used values for uniqueness
     const usedRewards = {};
 
     websites.forEach((site, index) => {
-      // Find category
       let cat = categories.find(c => site.seconds >= c.min && site.seconds <= c.max);
-      if (!cat) {
-        // If below min, treat as Very Small
-        cat = categories[0];
-      }
-      // Calculate duration_percent
+      if (!cat) cat = categories[0];
+      
       const durationPercent = (site.seconds - cat.min) / (cat.max - cat.min);
-      // Linear interpolation
       let price = cat.minPrice + durationPercent * (cat.maxPrice - cat.minPrice);
       let xp = cat.minXP + durationPercent * (cat.maxXP - cat.minXP);
-      // Random variation
-      function randomInRange(min, max) {
-        return Math.random() * (max - min) + min;
-      }
+      
+      function randomInRange(min, max) { return Math.random() * (max - min) + min; }
       price += randomInRange(-1, 1);
       xp += randomInRange(-0.5, 0.5);
-      // Clamp to category range
       price = Math.max(cat.minPrice, Math.min(cat.maxPrice, price));
       xp = Math.max(cat.minXP, Math.min(cat.maxXP, xp));
-      // Round to 1 decimal
       price = Math.round(price * 10) / 10;
       xp = Math.round(xp * 10) / 10;
-      // Uniqueness enforcement
+      
       let key = `${price}_${xp}`;
       let tries = 0;
       while (usedRewards[key] && tries < 10) {
         price += randomInRange(-0.2, 0.2);
         xp += randomInRange(-0.1, 0.1);
-        price = Math.max(cat.minPrice, Math.min(cat.maxPrice, price));
-        xp = Math.max(cat.minXP, Math.min(cat.maxXP, xp));
         price = Math.round(price * 10) / 10;
         xp = Math.round(xp * 10) / 10;
         key = `${price}_${xp}`;
         tries++;
       }
       usedRewards[key] = true;
-      // Final constraints
-      price = Math.min(100, price);
-      xp = Math.min(60, xp);
-      // Completed state
+      price = Math.min(100, Math.max(1, price));
+      xp = Math.min(60, Math.max(1, xp));
+
       const isCompleted = completedWebsites.includes(site.link);
-      let btnAttrs = `onclick="handleWebsiteVisit(this, '${site.link}', ${site.seconds}, ${price}, ${xp})"`;
+      let btnAttrs = `onclick="initiateWebsiteTask('${site.link}', ${site.seconds}, ${price}, ${xp}, 'web-btn-${index}')"`;
       let btnText = "Visit Site";
       let cardStyle = "";
       let btnStyle = "margin-top:auto";
+      
       if (isCompleted) {
         btnText = "Completed";
         btnAttrs = `onclick="alert('You have already visited this website.')"`;
         cardStyle = "opacity:0.5; cursor:not-allowed;";
         btnStyle += "; opacity:0.5; cursor:not-allowed;";
+      } else if (activeTask && activeTask.url === site.link) {
+          btnText = "Visit in Progress...";
+          btnAttrs = `onclick="alert('This task is currently active. Please switch tabs to continue the timer.')"`;
       }
+
       const cardHtml = `
       <div class="task-card ${isCompleted ? 'completed' : ''}" style="${cardStyle}" data-website-link="${site.link}">
         <div class="task-header">
@@ -1814,59 +1804,116 @@ async function renderWebsiteTabOnLoad() {
         <div class="task-body">
           <div class="task-title">${site.title}</div>
           <div class="task-meta">⏱ ${site.seconds} Seconds Required</div>
-          <button class="btn btn-primary" style="${btnStyle}" ${btnAttrs}>${btnText}</button>
+          <button id="web-btn-${index}" class="btn btn-primary" style="${btnStyle}" ${btnAttrs}>${btnText}</button>
         </div>
       </div>`;
       container.insertAdjacentHTML('beforeend', cardHtml);
     });
 }
 
-function handleWebsiteVisit(btnElement, url, seconds, rewardAmount, rewardXP) {
-    // Open link in new tab
+// 1. User clicks button -> Opens Window -> Starts "Active Task" in storage
+function initiateWebsiteTask(url, seconds, reward, xp, btnId) {
+    // Check if another task is already running
+    if (localStorage.getItem('earnova_active_web_task')) {
+        alert("You already have a website task running. Please complete or cancel it first.");
+        return;
+    }
+
+    // Open the URL
     window.open(url, '_blank');
-    
-    // Disable button and start countdown
-    btnElement.disabled = true;
-    let timeLeft = seconds;
-    
-    const timer = setInterval(() => {
-        btnElement.innerText = `Wait ${timeLeft}s...`;
-        timeLeft--;
-        
-        if (timeLeft < 0) {
-            clearInterval(timer);
-            
-            // Mark as completed
-            markWebsiteCompleted(url);
-            
-            // Add funds
-            if (typeof addFunds === 'function') {
-                addFunds(rewardAmount, 'Website Visit', `Visit to ${url}`, rewardXP);
-            }
-            
-            // Update button visual state
-            btnElement.innerText = "Completed";
-            btnElement.style.opacity = '0.5';
-            btnElement.style.cursor = 'not-allowed';
-            btnElement.style.backgroundColor = "var(--success)";
-            
-            // Update card visual state
-            const card = btnElement.closest('.task-card');
-            if (card) {
-                card.classList.add('completed');
-                card.style.opacity = '0.5';
-            }
-            
-            // Update onclick to prevent re-running
-            btnElement.onclick = function() { alert('You have already visited this website.'); };
-        }
-    }, 1000);
+
+    // Create task object. Start Time is set to NOW.
+    // The logic: time counts as long as activeTask exists.
+    // When user returns, we check (Now - StartTime).
+    const task = {
+        url: url,
+        seconds: seconds,
+        reward: reward,
+        xp: xp,
+        startTime: Date.now(),
+        targetTime: Date.now() + (seconds * 1000)
+    };
+
+    localStorage.setItem('earnova_active_web_task', JSON.stringify(task));
+
+    // Update UI immediately
+    const btn = document.getElementById(btnId);
+    if (btn) {
+        btn.innerText = "Visit in Progress...";
+        btn.onclick = function() { alert('Task is running. Switch tabs to continue timer.'); };
+    }
+
+    // Inform user
+    // We don't alert here because window.open might be blocked if we alert first.
+    // The visual change on the button acts as feedback.
 }
 
-function markWebsiteCompleted(url) {
-    const completedWebsites = JSON.parse(localStorage.getItem('completedWebsites') || '[]');
-    if (!completedWebsites.includes(url)) {
-        completedWebsites.push(url);
-        localStorage.setItem('completedWebsites', JSON.stringify(completedWebsites));
+// 2. Logic to check task status when the user is LOOKING at the page (Visible or Load)
+function checkWebsiteTaskStatus() {
+    const taskStr = localStorage.getItem('earnova_active_web_task');
+    if (!taskStr) return; // No active task
+
+    const task = JSON.parse(taskStr);
+    const now = Date.now();
+
+    if (now >= task.targetTime) {
+        // --- SUCCESS CASE ---
+        // Time has elapsed (whether browser was closed, tab hidden, or refreshed)
+        
+        // 1. Add Funds
+        if (typeof addFunds === 'function') {
+            addFunds(task.reward, 'Website Visit', `Visit to ${task.url}`, task.xp);
+        }
+
+        // 2. Mark as completed in history
+        const completedWebsites = JSON.parse(localStorage.getItem('completedWebsites') || '[]');
+        if (!completedWebsites.includes(task.url)) {
+            completedWebsites.push(task.url);
+            localStorage.setItem('completedWebsites', JSON.stringify(completedWebsites));
+        }
+
+        // 3. Clear active task
+        localStorage.removeItem('earnova_active_web_task');
+
+        // 4. Alert User
+        alert("You have claimed your reward!");
+
+        // 5. Refresh UI
+        renderWebsiteTabOnLoad();
+
+    } else {
+        // --- FAILURE CASE (Too Early) ---
+        // User came back to the tab before targetTime
+        
+        // 1. Clear active task (Reset)
+        localStorage.removeItem('earnova_active_web_task');
+
+        // 2. Alert User
+        alert("You have come back too early! You have not completed your stay on the site. Therefore you will not claim your reward.");
+
+        // 3. Refresh UI (Reset button text)
+        renderWebsiteTabOnLoad();
     }
 }
+
+// 3. Event Listeners for Hidden/Visible logic
+
+// Check on Page Load (in case they refreshed while task was running)
+window.addEventListener('load', () => {
+    // If the page loads and there is an active task, it effectively means
+    // the user is "viewing" the page. So we run the check.
+    checkWebsiteTaskStatus();
+});
+
+// Check on Visibility Change (Tab switch)
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // Tab is hidden. 
+        // We don't need to do anything here because the task was saved to localStorage 
+        // with a specific start time. Time is strictly linear.
+        // As long as they are away, (Date.now()) is increasing towards targetTime.
+    } else {
+        // Tab is visible (User came back)
+        checkWebsiteTaskStatus();
+    }
+});

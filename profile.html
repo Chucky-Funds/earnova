@@ -1588,7 +1588,7 @@
                 <section id="websites" class="content-section">
                     <div class="section-header">
                         <h1 class="page-title">Website Visits</h1>
-                        <p class="page-subtitle">Visit partner sites and stay for the duration.</p>
+                        <p class="page-subtitle">Visit partner sites and stay away from this tab to earn.</p>
                     </div>
                     <div class="task-grid" id="website-task-list"></div>
                 </section>
@@ -1819,7 +1819,7 @@
     }
 
     function addFunds(amount, type, desc, xpAmount) {
-        if (amount < 5 || amount > 1000) return alert('Error: Invalid reward amount detected.');
+        if (amount < 0.1 || amount > 100) return alert('Error: Invalid reward amount detected.');
         STATE.balance += amount;
         STATE.completedTasks++;
         // XP logic
@@ -1957,26 +1957,6 @@
         </div>`;
     }
 
-    function createWebCard(id, url) {
-        // This function is now deprecated in favor of renderWebsiteTabOnLoad in scripts.js,
-        // but kept for reference if needed.
-        return `
-        <div class="task-card" data-web-index="${id}">
-            <div class="task-header">
-                <span class="task-type">Visit</span>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <span class="task-reward">₦50</span>
-                    <span class="xp-badge">+5 XP</span>
-                </div>
-            </div>
-            <div class="task-body">
-                <div class="task-title">Visit Partner Site</div>
-                <div class="task-meta">⏱ 30 Seconds Required</div>
-                <button class="btn btn-primary" style="margin-top:auto" onclick="startTimerTask(this, 50, 5, 'Website Visit', 5); window.open('${url}', '_blank');">Visit Link</button>
-            </div>
-        </div>`;
-    }
-
     function createSocialCard(id) {
         return `
         <div class="task-card">
@@ -2028,21 +2008,6 @@
         }, 200);
     }
 
-    function startTimerTask(btn, amount, seconds, type, xpAmount) {
-        const originalText = btn.innerText;
-        btn.disabled = true;
-        let left = seconds;
-        const timer = setInterval(() => {
-            btn.innerText = `Wait ${left}s...`;
-            left--;
-            if(left < 0) {
-                clearInterval(timer);
-                addFunds(amount, 'Visit', type, xpAmount);
-                btn.innerText = "Claimed";
-                btn.style.background = "var(--success)";
-            }
-        }, 1000);
-    }
     // XP/Level UI update
     function updateXPUI() {
         // Header XP
