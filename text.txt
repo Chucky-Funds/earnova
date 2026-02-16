@@ -413,3 +413,23 @@ localStorage.setItem('earnova_last_question_date', new Date().toLocaleDateString
 renderQuestionTabOnLoad();
 
 console.log("Dashboard manually refreshed!");
+
+
+
+
+// 1. Reset Video Limits & Rotate
+localStorage.setItem('earnova_daily_watch_count', 0);
+localStorage.removeItem('earnova_last_video_set');
+refreshVideoTabForNewDay();
+
+// 2. Reset Question Limits & Rotate
+localStorage.setItem('earnova_daily_question_count', 0);
+localStorage.removeItem('earnova_last_question_set');
+renderQuestionTabOnLoad();
+
+// 3. Reset Website Limits & Rotate
+localStorage.setItem('earnova_daily_website_count', 0);
+localStorage.removeItem('earnova_last_website_set');
+renderWebsiteTabOnLoad();
+
+console.log("✅ Daily Reset Complete: Counts are 0 and Tasks have rotated.");

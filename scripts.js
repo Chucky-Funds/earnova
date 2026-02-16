@@ -409,14 +409,24 @@ if (document.readyState === 'loading') {
         localStorage.setItem('earnova_last_watch_date', new Date().toLocaleDateString());
         // Remove last video set so new set is generated
         localStorage.removeItem('earnova_last_video_set');
+        
         // Reset Question Counter
         localStorage.setItem('earnova_daily_question_count', 0);
         localStorage.setItem('earnova_last_question_date', new Date().toLocaleDateString());
         // Remove last question set so new set is generated
         localStorage.removeItem('earnova_last_question_set');
-        // 2. Refresh the tabs contents (Load new videos/questions, remove old ones)
+        
+        // Reset Website Counter
+        localStorage.setItem('earnova_daily_website_count', 0);
+        localStorage.setItem('earnova_last_website_date', new Date().toLocaleDateString());
+        // Remove last website set so new set is generated
+        localStorage.removeItem('earnova_last_website_set');
+
+        // 2. Refresh the tabs contents (Load new videos/questions/websites, remove old ones)
         if (typeof refreshVideoTabForNewDay === 'function') refreshVideoTabForNewDay();
         if (typeof renderQuestionTabOnLoad === 'function') renderQuestionTabOnLoad();
+        if (typeof renderWebsiteTabOnLoad === 'function') renderWebsiteTabOnLoad();
+        
         // Reset diff for visual timer to start counting 24h again immediately
         diff = 24 * 60 * 60 * 1000;
       }
@@ -1709,8 +1719,46 @@ function initSurveyModalSystem() {
 }
 
 // ===================================================================
-// WEBSITE TASK SYSTEM (HIDDEN TAB LOGIC)
+// WEBSITE TASK SYSTEM (HIDDEN TAB LOGIC + DAILY LIMITS + ROTATION)
 // ===================================================================
+
+// Daily Limit Calculation for Websites
+function getDailyWebsiteLimit(xp) {
+  if (xp < 500) return 1;     // Level 1
+  if (xp < 750) return 2;     // Level 2
+  if (xp < 1125) return 3;    // Level 3
+  if (xp < 1688) return 5;    // Level 4
+  if (xp < 2532) return 5;    // Level 5
+  if (xp < 3798) return 5;    // Level 6
+  if (xp < 5697) return 7;    // Level 7
+  if (xp < 8546) return 9;    // Level 8
+  if (xp < 12819) return 10;  // Level 9
+  if (xp < 19229) return 10;  // Level 10
+  if (xp < 28844) return 12;  // Level 11
+  if (xp < 43266) return 13;  // Level 12
+  if (xp < 64899) return 15;  // Level 13
+  if (xp < 97349) return 17;  // Level 14
+  return 20;                  // Level 15 (Final)
+}
+
+function checkDailyWebsiteLimit() {
+  const today = new Date().toLocaleDateString();
+  const storedDate = localStorage.getItem('earnova_last_website_date');
+  let visitedToday = parseInt(localStorage.getItem('earnova_daily_website_count')) || 0;
+  if (storedDate !== today) {
+    visitedToday = 0;
+    localStorage.setItem('earnova_last_website_date', today);
+    localStorage.setItem('earnova_daily_website_count', 0);
+  }
+  return visitedToday;
+}
+
+function incrementDailyWebsite() {
+  let visitedToday = checkDailyWebsiteLimit();
+  visitedToday++;
+  localStorage.setItem('earnova_daily_website_count', visitedToday);
+  localStorage.setItem('earnova_last_website_date', new Date().toLocaleDateString());
+}
 
 async function renderWebsiteTabOnLoad() {
     const container = document.getElementById('website-task-list');
@@ -1721,7 +1769,8 @@ async function renderWebsiteTabOnLoad() {
         const response = await fetch('websites.json');
         if (!response.ok) throw new Error('Failed to load website data');
         const data = await response.json();
-        websites = data.slice(0, 20);
+        // Just load raw data here, filter later based on limits/completion
+        websites = data;
     } catch (error) {
         console.error("Error loading websites.json:", error);
         container.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">Unable to load websites.</p>';
@@ -1731,7 +1780,44 @@ async function renderWebsiteTabOnLoad() {
     container.innerHTML = '';
     const completedWebsites = JSON.parse(localStorage.getItem('completedWebsites') || '[]');
     
-    // Check if there is a pending task to restore UI state
+    // Check Limits
+    const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
+    const limit = getDailyWebsiteLimit(currentXP);
+    const visitedToday = checkDailyWebsiteLimit();
+    const isLimitReached = visitedToday >= limit;
+
+    // Determine Logic: Show stored set (if limit reached) or fresh set (if new day)
+    let toShow = [];
+    if (isLimitReached) {
+        // Limit reached: Retrieve the set stored when day started/limit hit
+        let lastSet = localStorage.getItem('earnova_last_website_set');
+        if (lastSet) {
+            try {
+                // Filter main list by matching URLs in stored set
+                const lastSetUrls = JSON.parse(lastSet);
+                toShow = websites.filter(site => lastSetUrls.includes(site.link));
+            } catch(e) { toShow = []; }
+        }
+        // Fallback if storage fails
+        if (!toShow.length) {
+             const available = websites.filter(site => !completedWebsites.includes(site.link));
+             toShow = available.slice(0, 20);
+        }
+    } else {
+        // Limit not reached: Show fresh unvisited sites
+        const available = websites.filter(site => !completedWebsites.includes(site.link));
+        // Take top 20 to fill grid
+        toShow = available.slice(0, 20);
+        // Persist this specific set for the day
+        localStorage.setItem('earnova_last_website_set', JSON.stringify(toShow.map(s => s.link)));
+    }
+
+    if (toShow.length === 0) {
+        container.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">No more websites available right now. Please check back later.</p>';
+        return;
+    }
+
+    // Check active task to restore UI state
     const activeTaskStr = localStorage.getItem('earnova_active_web_task');
     let activeTask = activeTaskStr ? JSON.parse(activeTaskStr) : null;
 
@@ -1759,7 +1845,7 @@ async function renderWebsiteTabOnLoad() {
       } catch (e) {}
     }
 
-    websites.forEach((site, index) => {
+    toShow.forEach((site, index) => {
       let reward = getStoredWebsiteReward(site.link);
       let price, xp;
       if (reward) {
@@ -1791,13 +1877,21 @@ async function renderWebsiteTabOnLoad() {
         btnAttrs = `onclick="alert('You have already visited this website.')"`;
         cardStyle = "opacity:0.5; cursor:not-allowed;";
         btnStyle += "; opacity:0.5; cursor:not-allowed;";
+      } else if (isLimitReached) {
+        btnText = "Daily Limit";
+        btnAttrs = `onclick="alert('Daily Website Limit Reached! Level ${getLevel(currentXP)} allows ${limit} websites per day.')"`;
+        cardStyle = "opacity:0.5; cursor:not-allowed;";
+        btnStyle += "; opacity:0.5; cursor:not-allowed;";
       } else if (activeTask && activeTask.url === site.link) {
           btnText = "Visit in Progress...";
           btnAttrs = `onclick="alert('This task is currently active. Please switch tabs to continue the timer.')"`;
       }
 
+      // Add special class if completed to match styling logic
+      const completedClass = isCompleted || isLimitReached ? 'completed' : '';
+
       const cardHtml = `
-      <div class="task-card ${isCompleted ? 'completed' : ''}" style="${cardStyle}" data-website-link="${site.link}">
+      <div class="task-card ${completedClass}" style="${cardStyle}" data-website-link="${site.link}">
         <div class="task-header">
           <span class="task-type">Website Visit</span>
           <div style="display: flex; gap: 8px; align-items: center;">
@@ -1817,6 +1911,15 @@ async function renderWebsiteTabOnLoad() {
 
 // 1. User clicks button -> Opens Window -> Starts "Active Task" in storage
 function initiateWebsiteTask(url, seconds, reward, xp, btnId) {
+    // Check Limits before starting
+    const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
+    const limit = getDailyWebsiteLimit(currentXP);
+    const visitedToday = checkDailyWebsiteLimit();
+    if (visitedToday >= limit) {
+        alert(`Daily Website Limit Reached! Level ${getLevel(currentXP)} allows ${limit} websites per day.`);
+        return;
+    }
+
     // Check if another task is already running
     if (localStorage.getItem('earnova_active_web_task')) {
         alert("You already have a website task running. Please complete or cancel it first.");
@@ -1876,13 +1979,16 @@ function checkWebsiteTaskStatus() {
             localStorage.setItem('completedWebsites', JSON.stringify(completedWebsites));
         }
 
-        // 3. Clear active task
+        // 3. Increment Daily Count
+        incrementDailyWebsite();
+
+        // 4. Clear active task
         localStorage.removeItem('earnova_active_web_task');
 
-        // 4. Alert User
+        // 5. Alert User
         alert("You have claimed your reward!");
 
-        // 5. Refresh UI
+        // 6. Refresh UI
         renderWebsiteTabOnLoad();
 
     } else {
