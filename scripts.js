@@ -30,7 +30,7 @@ window.toggleView = function(target) {
   }
 };
 // Paystack Public Key
-const PAYSTACK_PUBLIC_KEY = 'pk_test_335a79da994d7c1777f46c1ef44abf7f4535491a';
+const PAYSTACK_PUBLIC_KEY = 'pk_live_8ee6bf2733a29f68c0bc8bb70a7e115362594676';
 
 // Level table for daily question limit
 function getDailyQuestionLimit(xp) {

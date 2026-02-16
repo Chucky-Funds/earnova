@@ -99,7 +99,7 @@ function showError(inputId, msgId) {
 
 // Initialize Paystack Payment
 function initPaystackPayment() {
-    const paystackPublicKey = 'pk_test_335a79da994d7c1777f46c1ef44abf7f4535491a';
+    const paystackPublicKey = 'pk_live_8ee6bf2733a29f68c0bc8bb70a7e115362594676';
     
     const handler = PaystackPop.setup({
         key: paystackPublicKey,
