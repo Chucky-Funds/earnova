@@ -1,3 +1,34 @@
+// Enforce single account per device: block signup if account exists
+window.toggleView = function(target) {
+  if (target === 'signup') {
+    // Check for existing account in localStorage (earnova_user or accounts)
+    const singleUser = localStorage.getItem('earnova_user');
+    let hasAccount = false;
+    if (singleUser) {
+      hasAccount = true;
+    } else {
+      // Also check for multi-account array (if used)
+      const accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+      if (Array.isArray(accounts) && accounts.length > 0) {
+        hasAccount = true;
+      }
+    }
+    if (hasAccount) {
+      alert('You already have an account on this device. Please log in.');
+      return;
+    }
+  }
+  // Switch views
+  const loginView = document.getElementById('login-view');
+  const signupView = document.getElementById('signup-view');
+  if (target === 'signup') {
+    loginView.style.display = 'none';
+    signupView.style.display = 'block';
+  } else {
+    signupView.style.display = 'none';
+    loginView.style.display = 'block';
+  }
+};
 // Paystack Public Key
 const PAYSTACK_PUBLIC_KEY = 'pk_test_335a79da994d7c1777f46c1ef44abf7f4535491a';
 
