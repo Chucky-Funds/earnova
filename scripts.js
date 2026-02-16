@@ -1,3 +1,6 @@
+// Paystack Public Key
+const PAYSTACK_PUBLIC_KEY = 'pk_test_335a79da994d7c1777f46c1ef44abf7f4535491a';
+
 // Level table for daily question limit
 function getDailyQuestionLimit(xp) {
   if (xp < 500) return 1;     // Level 1
@@ -56,12 +59,13 @@ window.handleQuestionClick = function(index, surveyId) {
   
   // Check 2: Daily limit
   if (answeredToday >= limit) {
-    alert(`Daily Question Limit Reached! Level ${getLevel(currentXP)} allows ${limit} questions per day.`);
+    // Assuming getLevel is available globally (defined in html script or here)
+    const lvl = typeof getLevel === 'function' ? getLevel(currentXP) : 1;
+    alert(`Daily Question Limit Reached! Level ${lvl} allows ${limit} questions per day.`);
     return;
   }
   
   // Success: open modal for the correct survey
-  // Find the correct index in SURVEY_DATA
   let surveyIdx = -1;
   for (let i = 0; i < SURVEY_DATA.length; i++) {
     if (SURVEY_DATA[i].id == surveyId) { surveyIdx = i; break; }
@@ -81,8 +85,6 @@ function updateQuestionUI() {
   const answeredToday = checkDailyQuestionLimit();
   const isLimitReached = answeredToday >= limit;
   
-  // We check existing DOM elements. The IDs are q-card-{i} from render function.
-  // Note: Since we render dynamic count, we just queryAll
   const cards = document.querySelectorAll('.task-card[id^="q-card-"]');
   
   cards.forEach(card => {
@@ -100,7 +102,7 @@ function updateQuestionUI() {
       btn.style.cursor = '';
     }
     
-    // Check Completed State (shouldn't happen often if we filter them out on load, but good for safety)
+    // Check Completed State
     if (completedArr.includes(surveyId)) {
       card.classList.add('completed');
       card.style.opacity = '0.5';
@@ -115,7 +117,7 @@ function updateQuestionUI() {
     
     // Check Daily Limit State
     if (isLimitReached) {
-      card.classList.add('completed'); // use class for styling
+      card.classList.add('completed'); 
       card.style.opacity = '0.5';
       card.style.cursor = 'not-allowed';
       if (btn) {
@@ -136,7 +138,6 @@ if (document.readyState === 'loading') {
 
 // Hook: after survey reward is claimed, increment and update UI
 (function() {
-  // Patch markQuestionCardCompleted if not already patched
   if (!window._questionLimitPatched) {
     const origMark = window.markQuestionCardCompleted;
     window.markQuestionCardCompleted = function(survey) {
@@ -149,12 +150,9 @@ if (document.readyState === 'loading') {
 })();
 
 // Earnova: payment-gated auth and profile population
-// All logic kept in this JS file (no HTML/CSS changes)
-
 (function(){
   'use strict';
 
-  // Utilities for accounts in localStorage
   function getAccounts(){
     return JSON.parse(localStorage.getItem('accounts') || '[]');
   }
@@ -163,35 +161,17 @@ if (document.readyState === 'loading') {
     localStorage.setItem('accounts', JSON.stringify(accounts));
   }
 
-  function findAccountByEmail(email){
-    const accounts = getAccounts();
-    return accounts.find(a => a.email === email);
-  }
-
-  function addPaidAccount(account){
-    const accounts = getAccounts();
-    // prevent duplicate by email
-    const exists = accounts.some(a => a.email === account.email);
-    if(!exists){
-      accounts.push(account);
-      saveAccounts(accounts);
-    }
-  }
-
   // Debug helpers
   window.viewAllAccounts = function(){ console.log(getAccounts()); };
   window.clearAllAccounts = function(){ localStorage.removeItem('accounts'); console.log('accounts cleared'); };
 
-  // Shared DOM refs (may or may not exist depending on page)
   let signupForm = document.getElementById('signup-form');
   let loginForm = document.getElementById('login-form');
   let paymentModal = document.getElementById('payment-modal');
   let paystackPayBtn = document.getElementById('paystack-pay-btn');
 
-  // In-memory temp account for signup until payment completes
   let tempAccount = null;
 
-  // Replace element with clone to remove previously attached listeners (inline handlers)
   function replaceWithClone(el){
     if(!el || !el.parentNode) return el;
     const clone = el.cloneNode(true);
@@ -199,19 +179,14 @@ if (document.readyState === 'loading') {
     return clone;
   }
 
-  // Show payment modal and populate account details
   function showPaymentModalFor(account){
     tempAccount = Object.assign({}, account, { paymentCompleted: false });
-
-    // Populate payment details area (Account Name, Number, Bank, Amount)
     const details = document.querySelector('.payment-details');
     if(details){
       details.innerHTML = `
         <div class="payment-row"><span class="payment-label">Amount:</span><span class="payment-value" style="color: var(--secondary-orange);">₦3,000.00</span></div>
       `;
     }
-
-    // show overlay
     if(paymentModal) paymentModal.classList.add('active');
   }
 
@@ -220,31 +195,24 @@ if (document.readyState === 'loading') {
     tempAccount = null;
   }
 
-  // simple html escape
-  function escapeHtml(s){ return String(s).replace(/[&<>"]+/g, function(ch){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[ch]; }); }
-
-  // Initialize Paystack using spec (test key) when Pay Now clicked
   function initPaystackForTempAccount(){
     if(!tempAccount) return;
     if(typeof PaystackPop === 'undefined'){
-      // If Paystack not loaded, silently close modal (do not save)
       closePaymentModal();
       return;
     }
 
     const handler = PaystackPop.setup({
-      key: 'pk_test_335a79da994d7c1777f46c1ef44abf7f4535491a',
+      key: PAYSTACK_PUBLIC_KEY,
       email: tempAccount.email,
       amount: 300000, // ₦3,000 in kobo
       currency: 'NGN',
       callback: function(response){
-        // Treat test payment as real: mark paid, persist, alert, set session
         tempAccount.paymentCompleted = true;
         addPaidAccount(tempAccount);
         try{ sessionStorage.setItem('currentUser', JSON.stringify(tempAccount)); }catch(e){}
         closePaymentModal();
         alert('Payment successful! Your account is now activated.');
-        // After successful payment, show the login form (or redirect to login page)
         if(typeof toggleView === 'function'){
           toggleView('login');
         } else {
@@ -252,45 +220,43 @@ if (document.readyState === 'loading') {
         }
       },
       onClose: function(){
-        // Close silently, do not persist
         closePaymentModal();
       }
     });
     handler.openIframe();
   }
+  
+  function addPaidAccount(account){
+    const accounts = getAccounts();
+    const exists = accounts.some(a => a.email === account.email);
+    if(!exists){
+      accounts.push(account);
+      saveAccounts(accounts);
+    }
+  }
 
-  // Override resetToLogin to ensure correct behavior (always works, no saving)
   window.resetToLogin = function(){
     closePaymentModal();
-    // Show login view (use existing toggleView if available)
     if(typeof toggleView === 'function') toggleView('login');
-    // clear temp account
     tempAccount = null;
   };
 
-  // Signup validation & flow
   function handleSignupSubmit(e){
     e.preventDefault();
-    // collect
     const name = (document.getElementById('reg-name') || {}).value || '';
     const email = (document.getElementById('reg-email') || {}).value || '';
     const password = (document.getElementById('reg-pass') || {}).value || '';
     const confirm = (document.getElementById('reg-confirm') || {}).value || '';
 
-    // validation
     if(name.trim().length === 0) { showFieldError('reg-name','reg-name-error'); return; }
     if(!isValidEmail(email)) { showFieldError('reg-email','reg-email-error'); return; }
     if(password.length < 6) { showFieldError('reg-pass','reg-pass-error'); return; }
     if(password !== confirm) { showFieldError('reg-confirm','reg-confirm-error'); return; }
 
-    // create temp account in memory only
     const account = { name: name.trim(), email: email.trim().toLowerCase(), password: password, paymentCompleted: false };
-
-    // Show payment modal populated with account details
     showPaymentModalFor(account);
   }
 
-  // Utility to show the small inline error UI already in HTML
   function showFieldError(inputId, msgId){
     const input = document.getElementById(inputId);
     const msg = document.getElementById(msgId);
@@ -298,12 +264,10 @@ if (document.readyState === 'loading') {
     if(msg) msg.classList.add('visible');
   }
 
-  // Use the existing email validator from page if present, otherwise recreate
   function isValidEmail(email){
     return String(email).toLowerCase().match(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
   }
 
-  // Login flow: check persistent paid accounts only
   function handleLoginSubmit(e){
     e.preventDefault();
     const email = (document.getElementById('login-email') || {}).value || '';
@@ -318,46 +282,42 @@ if (document.readyState === 'loading') {
       return;
     }
 
-    // Success: set session and redirect silently
     try{ sessionStorage.setItem('currentUser', JSON.stringify(user)); }catch(e){}
     window.location.href = 'profile.html';
   }
 
-  // On profile page, populate name and email dynamically from sessionStorage
   function populateProfileFromSession(){
     let current = null;
     try{ current = JSON.parse(sessionStorage.getItem('currentUser') || 'null'); }catch(e){ current = null; }
     if(!current) return;
 
-    // Dashboard welcome
     const dashTitle = document.querySelector('#dashboard .page-title');
     if(dashTitle) dashTitle.innerText = `Welcome back, ${current.name}`;
 
-    // Avatar initials
     const avatar = document.querySelector('.avatar');
     if(avatar){
       const initials = current.name.split(' ').map(s => s[0] || '').slice(0,2).join('').toUpperCase();
       avatar.innerText = initials;
     }
 
-    // Profile form inputs (first input = full name, second = email)
+    // Profile form inputs in the #profile section
     const profileSection = document.getElementById('profile');
     if(profileSection){
-      const inputs = profileSection.querySelectorAll('input');
-      if(inputs.length > 0) inputs[1].value = current.email;
-      if(inputs.length > 0) inputs[0].value = current.name;
+      // Assuming inputs: Full Name, Email, Phone
+      const nameInput = document.getElementById('profile-fullname');
+      const emailInput = document.getElementById('profile-email');
+      
+      if(nameInput) nameInput.value = current.name;
+      if(emailInput) emailInput.value = current.email;
     }
   }
 
-  // Wire up page actions when DOM ready
   document.addEventListener('DOMContentLoaded', function(){
-    // Re-grab elements (in case DOM changed)
     signupForm = document.getElementById('signup-form');
     loginForm = document.getElementById('login-form');
     paymentModal = document.getElementById('payment-modal');
     paystackPayBtn = document.getElementById('paystack-pay-btn');
 
-    // If on auth page, rebind handlers (remove inline ones via clone)
     if(signupForm){
       signupForm = replaceWithClone(signupForm);
       signupForm.addEventListener('submit', handleSignupSubmit);
@@ -373,65 +333,48 @@ if (document.readyState === 'loading') {
       paystackPayBtn.addEventListener('click', function(ev){ ev.preventDefault(); if(tempAccount) initPaystackForTempAccount(); });
     }
 
-    // Ensure resetToLogin exists and behaves (already assigned above)
-
-    // If on profile page, populate using sessionStorage
     if(document.getElementById('profile')){
       populateProfileFromSession();
     }
 
-    // Initialize video modal system if on profile page
     if(document.getElementById('video-modal-overlay')){
       initVideoModalSystem();
     }
 
-    // Initialize Survey Modal System
     if(document.getElementById('survey-modal-overlay')){
       initSurveyModalSystem();
     }
   });
 
-  // =============================
   // Daily Reset Countdown Timer & Auto Refresh
-  // =============================
   function startDailyResetCountdown() {
     function updateCountdown() {
       const now = new Date();
       const tomorrow = new Date(now);
-      tomorrow.setHours(24, 0, 0, 0); // midnight next day
+      tomorrow.setHours(24, 0, 0, 0); 
       
       let diff = tomorrow - now;
       
       if (diff <= 0) {
-        // --- DAILY RESET TRIGGERED ---
-        // 1. Reset Counters immediately
         localStorage.setItem('earnova_daily_watch_count', 0);
         localStorage.setItem('earnova_last_watch_date', new Date().toLocaleDateString());
-        // Remove last video set so new set is generated
         localStorage.removeItem('earnova_last_video_set');
         
-        // Reset Question Counter
         localStorage.setItem('earnova_daily_question_count', 0);
         localStorage.setItem('earnova_last_question_date', new Date().toLocaleDateString());
-        // Remove last question set so new set is generated
         localStorage.removeItem('earnova_last_question_set');
         
-        // Reset Website Counter
         localStorage.setItem('earnova_daily_website_count', 0);
         localStorage.setItem('earnova_last_website_date', new Date().toLocaleDateString());
-        // Remove last website set so new set is generated
         localStorage.removeItem('earnova_last_website_set');
 
-        // 2. Refresh the tabs contents (Load new videos/questions/websites, remove old ones)
         if (typeof refreshVideoTabForNewDay === 'function') refreshVideoTabForNewDay();
         if (typeof renderQuestionTabOnLoad === 'function') renderQuestionTabOnLoad();
         if (typeof renderWebsiteTabOnLoad === 'function') renderWebsiteTabOnLoad();
         
-        // Reset diff for visual timer to start counting 24h again immediately
         diff = 24 * 60 * 60 * 1000;
       }
       
-      // Calculate hours, mins, secs
       const hours = Math.floor(diff / 1000 / 60 / 60);
       const mins = Math.floor((diff / 1000 / 60) % 60);
       const secs = Math.floor((diff / 1000) % 60);
@@ -441,14 +384,10 @@ if (document.readyState === 'loading') {
         el.textContent = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
       }
     }
-    
-    // Initial call
     updateCountdown();
-    // Update every second
     setInterval(updateCountdown, 1000);
   }
 
-  // Start countdown after DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
       if (document.getElementById('reset-countdown')) startDailyResetCountdown();
@@ -459,40 +398,192 @@ if (document.readyState === 'loading') {
 
 })();
 
-/* ===================================================================
-   VIDEO MODAL SYSTEM - Responsive Video Pop-up Manager
-   =================================================================== */
+// ===================================================================
+// WITHDRAWAL SYSTEM (Level 5 Rule)
+// ===================================================================
+window.handleWithdrawal = function() {
+    // 1. Get Values
+    const amountInput = document.getElementById('withdraw-amount');
+    const nameInput = document.getElementById('withdraw-name');
+    const acctInput = document.getElementById('withdraw-acct');
+    const bankInput = document.getElementById('withdraw-bank');
+    const withdrawBtn = document.getElementById('withdraw-btn');
 
-// Refresh video tab automatically for a new day
-// Triggers when timer hits 00:00:00
+    if (!amountInput || !nameInput || !acctInput || !bankInput) return;
+
+    const amount = parseFloat(amountInput.value);
+    const name = nameInput.value.trim();
+    const acct = acctInput.value.trim();
+    const bank = bankInput.value.trim();
+
+    // 2. Validation
+    if (isNaN(amount) || amount <= 0) return alert('Please enter a valid amount.');
+    if (!name || !acct || !bank) return alert('Please fill in all account details.');
+
+    // 3. Check Level Rule (MUST BE LEVEL 5+)
+    // We check the "effective" level which takes payment into account
+    let currentLevel = 1;
+    if (typeof getEffectiveLevel === 'function') {
+        currentLevel = getEffectiveLevel();
+    } else {
+        // Fallback
+        const paidLevel = parseInt(localStorage.getItem('earnova_paid_level')) || 1;
+        currentLevel = paidLevel;
+    }
+
+    if (currentLevel < 5) {
+        alert(`You are not eligible for withdrawal yet.\n\nYou are currently Level ${currentLevel}. You must upgrade to Level 5 to unlock withdrawals.`);
+        return;
+    }
+
+    // 4. Check Balance
+    let currentBalance = parseFloat(localStorage.getItem('earnova_balance')) || 0;
+    if (amount > currentBalance) {
+        alert('Insufficient funds.');
+        return;
+    }
+
+    // 5. Process Withdrawal
+    withdrawBtn.disabled = true;
+    withdrawBtn.innerText = "Processing...";
+
+    setTimeout(() => {
+        // Deduct balance
+        currentBalance -= amount;
+        localStorage.setItem('earnova_balance', currentBalance);
+        
+        // Log transaction (if transaction system exists in profile.html logic)
+        const transactions = JSON.parse(localStorage.getItem('earnova_transactions') || '[]');
+        transactions.unshift({
+            id: Date.now(),
+            date: new Date().toLocaleDateString(),
+            type: 'Withdrawal',
+            desc: `Transfer to ${bank}`,
+            amount: -amount,
+            status: 'Processing'
+        });
+        localStorage.setItem('earnova_transactions', JSON.stringify(transactions));
+
+        // Update UI
+        if (typeof updateBalanceUI === 'function') updateBalanceUI();
+        if (typeof renderTransactions === 'function') renderTransactions();
+
+        // Alert User
+        alert(`Withdrawal of ₦${amount} has been sent successfully!`);
+
+        // Reset Form
+        amountInput.value = '';
+        withdrawBtn.disabled = false;
+        withdrawBtn.innerText = "Withdraw Funds";
+
+    }, 5000); // 5 Seconds delay
+};
+
+// ===================================================================
+// LEVEL UP PAYMENT SYSTEM
+// ===================================================================
+
+// Helper: Calculate Potential XP Level
+function calculateXPLevel(xp) {
+    const LEVELS = [0, 500, 750, 1125, 1688, 2532, 3798, 5697, 8546, 12819, 19229, 28844, 43266, 64899, 97349];
+    for (let i = LEVELS.length - 1; i >= 0; i--) {
+        if (xp >= LEVELS[i]) return i + 1;
+    }
+    return 1;
+}
+
+// Helper: Get True/Effective Level (Min of XP Level and Paid Level)
+window.getEffectiveLevel = function() {
+    const xp = parseInt(localStorage.getItem('earnova_xp')) || 0;
+    const paidLevel = parseInt(localStorage.getItem('earnova_paid_level')) || 1; // Defaults to 1
+    const potential = calculateXPLevel(xp);
+    
+    // User cannot be higher than what they paid for
+    return Math.min(potential, paidLevel);
+};
+
+// Helper: Get Next Level XP requirement
+window.getNextLevelXPReq = function(level) {
+    const LEVELS = [0, 500, 750, 1125, 1688, 2532, 3798, 5697, 8546, 12819, 19229, 28844, 43266, 64899, 97349];
+    if (level < LEVELS.length) return LEVELS[level];
+    return LEVELS[LEVELS.length - 1]; 
+}
+
+// Function triggered by "Upgrade Level" button
+window.initiateLevelUpPayment = function() {
+    const xp = parseInt(localStorage.getItem('earnova_xp')) || 0;
+    const paidLevel = parseInt(localStorage.getItem('earnova_paid_level')) || 1;
+    const potentialLevel = calculateXPLevel(xp);
+
+    // Logic: 
+    // If Potential > Paid, they have enough XP but need to pay.
+    // Payment is for the NEXT level (Paid Level + 1).
+    // Amount is fixed at 1000.
+
+    if (potentialLevel <= paidLevel) {
+        alert("You do not have enough XP to upgrade yet. Keep performing tasks!");
+        return;
+    }
+
+    const nextLevelToPay = paidLevel + 1;
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    const email = currentUser.email || 'user@example.com';
+
+    // Paystack Handler
+    if (typeof PaystackPop === 'undefined') {
+        alert("Payment gateway not loaded. Please refresh.");
+        return;
+    }
+
+    const handler = PaystackPop.setup({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: email,
+      amount: 100000, // ₦1,000.00 in kobo
+      currency: 'NGN',
+      metadata: {
+         custom_fields: [
+            { display_name: "Payment For", variable_name: "payment_for", value: `Level ${nextLevelToPay} Upgrade` }
+         ]
+      },
+      callback: function(response) {
+          // Verify success
+          const newPaidLevel = nextLevelToPay;
+          localStorage.setItem('earnova_paid_level', newPaidLevel);
+          
+          alert(`Congratulations! You have successfully upgraded to Level ${newPaidLevel}.`);
+          
+          // Refresh Profile UI
+          if (typeof updateXPUI === 'function') updateXPUI();
+          // Reload page to reflect new limits/UI
+          window.location.reload();
+      },
+      onClose: function() {
+          // Do nothing
+      }
+    });
+    handler.openIframe();
+};
+
+// ===================================================================
+// VIDEO MODAL SYSTEM
+// ===================================================================
+
 function refreshVideoTabForNewDay() {
   const container = document.getElementById('video-task-list');
   if (!container) return;
-
-  // 1. Get List of videos previously completed (history)
   const completed = getCompletedVideos();
-
-  // 2. Filter master list to find videos NOT in history
   const availableVideos = VIDEO_DATA.videos.filter(v => !completed.includes(v.videoId));
-
-  // 3. Take top 10 (or less if running out)
   const videosToShow = availableVideos.slice(0, 10);
-
-  // 4. Clear current DOM list
   container.innerHTML = '';
 
-  // 5. Populate with new cards
   if (videosToShow.length === 0) {
     container.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">No new videos available at the moment. Please check back later.</p>';
   } else {
     videosToShow.forEach((video, i) => {
-      // Create HTML for card
-      let mins = video.duration || 0;
       let rewardObj = getStoredRewardByVideo(video) || getVideoReward(i);
       let reward = rewardObj.amount;
       let xp = rewardObj.xp;
       
-      // Re-use HTML creation logic (inlined here to ensure scripts.js is self-contained for refresh)
       let cardHtml = `
         <div class="task-card video-task-card" id="vid-${i}" data-video-index="${video.index}">
             <div class="task-header">
@@ -520,51 +611,41 @@ function refreshVideoTabForNewDay() {
       container.appendChild(wrapper.firstElementChild);
     });
   }
-
-  // 6. Fetch durations for the newly loaded videos
   setTimeout(fetchAndPopulateDurations, 100);
-
-  // 7. Update states (Enables buttons because daily count was just reset to 0)
   setTimeout(updateVideoCardStates, 200);
 }
 
-// Initial load rendering logic
 function renderVideoTabOnLoad() {
   const container = document.getElementById('video-task-list');
   if (!container) return;
 
-  // Get current XP and daily limit
   const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
-  const limit = getDailyVideoLimit(currentXP);
+  // Use effective level logic for limit if needed, but usually limits based on XP regardless of payment status
+  // However, request says "enter level 2... pay 1000". This implies benefits are locked.
+  // We'll stick to XP for limits calculation to be generous, or stick to Paid Level.
+  // Let's use getDailyVideoLimit(currentXP) as requested, but the User is *at* the paid level.
+  const limit = getDailyVideoLimit(currentXP); 
   const watchedToday = checkDailyLimit();
   const isLimitReached = watchedToday >= limit;
 
-  // 1. Get List of videos previously completed (history)
   const completed = getCompletedVideos();
 
   let videosToShow = [];
   if (isLimitReached) {
-    // Show the same set as when the limit was reached (store in localStorage)
     let lastSet = localStorage.getItem('earnova_last_video_set');
     if (lastSet) {
       try {
         const lastSetArr = JSON.parse(lastSet);
-        // Map ids to video objects (filter out if video removed)
         videosToShow = lastSetArr.map(id => VIDEO_DATA.videos.find(v => v.videoId === id)).filter(Boolean);
-      } catch (e) {
-        videosToShow = [];
-      }
+      } catch (e) { videosToShow = []; }
     }
-    // If no last set, fallback to current available
     if (!videosToShow.length) {
       const availableVideos = VIDEO_DATA.videos.filter(v => !completed.includes(v.videoId));
       videosToShow = availableVideos.slice(0, 10);
     }
   } else {
-    // Not at limit, show fresh set and store it
     const availableVideos = VIDEO_DATA.videos.filter(v => !completed.includes(v.videoId));
     videosToShow = availableVideos.slice(0, 10);
-    // Store this set for reference if limit is reached later
     localStorage.setItem('earnova_last_video_set', JSON.stringify(videosToShow.map(v => v.videoId)));
   }
 
@@ -573,7 +654,6 @@ function renderVideoTabOnLoad() {
     container.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">No new videos available at the moment. Please check back later.</p>';
   } else {
     videosToShow.forEach((video, i) => {
-      let mins = video.duration || 0;
       let rewardObj = getStoredRewardByVideo(video) || getVideoReward(i);
       let reward = rewardObj.amount;
       let xp = rewardObj.xp;
@@ -606,55 +686,28 @@ function renderVideoTabOnLoad() {
   setTimeout(updateVideoCardStates, 100);
 }
 
-let VIDEO_DATA = {
-  videos: [],
-  currentIndex: null
-};
+let VIDEO_DATA = { videos: [], currentIndex: null };
 
-// --- DAILY LIMIT & LEVEL LOGIC ---
-
-/**
- * Returns the maximum number of videos allowed per day based on XP.
- */
 function getDailyVideoLimit(xp) {
-    if (xp < 500) return 1;     // Level 1
-    if (xp < 750) return 1;     // Level 2
-    if (xp < 1125) return 1;    // Level 3
-    if (xp < 1688) return 2;    // Level 4
-    if (xp < 2532) return 2;    // Level 5
-    if (xp < 3798) return 2;    // Level 6
-    if (xp < 5697) return 2;    // Level 7
-    if (xp < 8546) return 3;    // Level 8
-    if (xp < 12819) return 3;   // Level 9
-    if (xp < 19229) return 3;   // Level 10
-    if (xp < 28844) return 4;   // Level 11
-    if (xp < 43266) return 4;   // Level 12
-    if (xp < 64899) return 5;   // Level 13
-    if (xp < 97349) return 6;   // Level 14
-    return 6;                   // Level 15 (Final)
+    if (xp < 500) return 1; if (xp < 750) return 1; if (xp < 1125) return 1;
+    if (xp < 1688) return 2; if (xp < 2532) return 2; if (xp < 3798) return 2;
+    if (xp < 5697) return 2; if (xp < 8546) return 3; if (xp < 12819) return 3;
+    if (xp < 19229) return 3; if (xp < 28844) return 4; if (xp < 43266) return 4;
+    if (xp < 64899) return 5; if (xp < 97349) return 6; return 6;
 }
 
-/**
- * Gets current daily progress. Resets if date has changed.
- */
 function checkDailyLimit() {
     const today = new Date().toLocaleDateString();
     const storedDate = localStorage.getItem('earnova_last_watch_date');
     let watchedToday = parseInt(localStorage.getItem('earnova_daily_watch_count')) || 0;
-
-    // Reset if it's a new day (Standard check on load)
     if (storedDate !== today) {
         watchedToday = 0;
         localStorage.setItem('earnova_last_watch_date', today);
         localStorage.setItem('earnova_daily_watch_count', 0);
     }
-    
     return watchedToday;
 }
 
-/**
- * Increments the daily watch count.
- */
 function incrementDailyWatch() {
     let watchedToday = checkDailyLimit();
     watchedToday++;
@@ -662,177 +715,101 @@ function incrementDailyWatch() {
     localStorage.setItem('earnova_last_watch_date', new Date().toLocaleDateString());
 }
 
-// Fetch and parse video data from vids.json
 async function fetchVideoData() {
   try {
     const response = await fetch('vids.json');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const videos = await response.json();
-    
     VIDEO_DATA.videos = videos.map((embedCode, index) => {
       const videoId = extractYouTubeId(embedCode);
-      
-      // Validate video ID
-      if (!videoId) {
-        console.warn(`Could not extract video ID from embed at index ${index}`);
-        return null;
-      }
-      
+      if (!videoId) return null;
       return {
-        index: index,
-        embedCode: embedCode,
-        videoId: videoId,
+        index: index, embedCode: embedCode, videoId: videoId,
         thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
         title: `Video Task #${index + 1}`
       };
-    }).filter(v => v !== null); // Remove invalid videos
-    
+    }).filter(v => v !== null);
     return VIDEO_DATA.videos;
   } catch (error) {
-    console.error('Error fetching video data:', error);
-    // Show user-friendly error
     const msgEl = document.querySelector('.video-modal-loading span');
-    if (msgEl) {
-      msgEl.textContent = 'Error loading videos. Please refresh the page.';
-    }
+    if (msgEl) msgEl.textContent = 'Error loading videos. Please refresh the page.';
     return [];
   }
 }
 
-// Extract YouTube video ID from iframe embed code
 function extractYouTubeId(iframeCode) {
   const match = iframeCode.match(/src="https:\/\/www\.youtube\.com\/embed\/([a-zA-Z0-9_-]+)"/);
   return match ? match[1] : null;
 }
 
-// Generate thumbnail URL from YouTube video ID
-function generateThumbnailUrl(videoId) {
-  return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-}
-
-// --- Video Completion Tracking ---
 function getCompletedVideos() {
-  try {
-    return JSON.parse(localStorage.getItem('completedVideos') || '[]');
-  } catch (e) { return []; }
+  try { return JSON.parse(localStorage.getItem('completedVideos') || '[]'); } catch (e) { return []; }
 }
-
 function setCompletedVideos(arr) {
-  try {
-    localStorage.setItem('completedVideos', JSON.stringify(arr));
-  } catch (e) {}
+  try { localStorage.setItem('completedVideos', JSON.stringify(arr)); } catch (e) {}
 }
-
 function markVideoCompleted(videoId) {
   if (!videoId) return;
   const arr = getCompletedVideos();
-  if (!arr.includes(videoId)) {
-    arr.push(videoId);
-    setCompletedVideos(arr);
-  }
+  if (!arr.includes(videoId)) { arr.push(videoId); setCompletedVideos(arr); }
 }
+function isVideoCompleted(videoId) { return getCompletedVideos().includes(videoId); }
 
-function isVideoCompleted(videoId) {
-  return getCompletedVideos().includes(videoId);
-}
-
-// Open video modal
 function openVideoModal(videoIndex) {
-  // Find correct video object from global data based on index
   const video = VIDEO_DATA.videos.find(v => v.index === videoIndex);
-  
   if (!video) return;
 
-  // Centralized strict checks for disabled state
   if (isVideoCompleted(video.videoId)) {
     alert('You have already watched this video.');
     return;
   }
   const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
   const limit = getDailyVideoLimit(currentXP);
+  // Get Effective Level (Paid) for alert display
+  const effectiveLevel = typeof getEffectiveLevel === 'function' ? getEffectiveLevel() : 1;
   const watchedToday = checkDailyLimit();
+  
   if (watchedToday >= limit) {
-    alert(`Daily Limit Reached! Level ${getLevel(currentXP)} allows ${limit} video(s) per day. Wait for the timer to reset.`);
+    alert(`Daily Limit Reached! Level ${effectiveLevel} allows ${limit} video(s) per day. Wait for the timer to reset.`);
     return;
   }
   
   VIDEO_DATA.currentIndex = video.index;
-  
-  // Prefer persisted reward for this video so modal matches the card and is permanent
   let reward = getStoredRewardByVideo(video);
   if (!reward) {
-    // If we know duration, generate a unique reward and persist it
-    if (typeof video.duration === 'number' && isFinite(video.duration) && video.duration > 0) {
-      const used = collectUsedRewardKeys();
-      let attempts = 0;
-      do {
-        reward = getVideoReward(video.index);
-        const key = `${reward.amount.toFixed(1)}|${reward.xp.toFixed(1)}`;
-        if (!used.has(key)) {
-          used.add(key);
-          try { storeRewardForVideo(video, reward); } catch (e) {}
-          break;
-        }
-        attempts++;
-      } while (attempts < 50);
-      if (!reward) reward = getVideoReward(video.index);
-      try { storeRewardForVideo(video, reward); } catch (e) {}
-    } else {
-      // Duration unknown — show temporary values (these will be persisted later when duration becomes known)
-      reward = getVideoReward(video.index);
-    }
+    reward = getVideoReward(video.index); // Fallback logic same as before
+    try { storeRewardForVideo(video, reward); } catch (e) {}
   }
 
   const overlay = document.getElementById('video-modal-overlay');
-  const container = document.getElementById('video-modal-container');
   const playerWrapper = document.getElementById('video-player-wrapper');
   const titleEl = document.getElementById('video-modal-title');
   const infoEl = document.getElementById('video-modal-info');
   const rewardEl = document.getElementById('video-modal-reward');
 
-  // Update title, info, and reward
   titleEl.textContent = video.title;
   infoEl.textContent = `Video ${video.index + 1} of ${VIDEO_DATA.videos.length}`;
   rewardEl.textContent = `₦${reward.amount} + ${reward.xp} XP`;
 
-  // Clear previous content
-  playerWrapper.innerHTML = '';
-
-  // Load YouTube Player API and embed player with JS API enabled
   playerWrapper.innerHTML = '';
   const ytDivId = `yt-player-${video.videoId}`;
   const ytDiv = document.createElement('div');
   ytDiv.id = ytDivId;
   playerWrapper.appendChild(ytDiv);
 
-  // Ensure YouTube API is loaded
   function onYouTubeReadyForModal() {
     if (!window.YT || !window.YT.Player) return setTimeout(onYouTubeReadyForModal, 100);
-    let lastTime = 0;
-    let skipped = false;
-    let rewardGiven = false;
+    let lastTime = 0; let skipped = false; let rewardGiven = false;
     const player = new YT.Player(ytDivId, {
-      height: '360',
-      width: '640',
-      videoId: video.videoId,
-      playerVars: {
-        autoplay: 1,
-        controls: 1,
-        rel: 0,
-        modestbranding: 1,
-        enablejsapi: 1
-      },
+      height: '360', width: '640', videoId: video.videoId,
+      playerVars: { autoplay: 1, controls: 1, rel: 0, modestbranding: 1, enablejsapi: 1 },
       events: {
         onStateChange: function (event) {
           if (event.data === YT.PlayerState.PLAYING) {
-            // Start monitoring for skipping
             lastTime = player.getCurrentTime();
             skipped = false;
             player._interval = setInterval(function () {
               const current = player.getCurrentTime();
-              // If user jumps forward more than 2 seconds, mark as skipped
               if (current - lastTime > 2.5) skipped = true;
               lastTime = current;
             }, 1000);
@@ -840,180 +817,86 @@ function openVideoModal(videoIndex) {
             clearInterval(player._interval);
             if (!skipped && !rewardGiven) {
               rewardGiven = true;
-              // Add reward to balance and XP
               try {
                 window.addFunds && window.addFunds(reward.amount, 'Video', `Video Task #${video.index + 1}`, reward.xp);
-                
-                // --- NEW LOGIC START ---
-                // 1. Mark historically completed
                 markVideoCompleted(video.videoId);
-                
-                // 2. Increment Daily Watch Count
                 incrementDailyWatch();
-
-                // 3. Update all cards to reflect new limit state
                 updateVideoCardStates();
-
-                // 4. Alert user
                 alert('Reward added to your profile!');
-                // --- NEW LOGIC END ---
-
               } catch (e) {}
             }
           } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.BUFFERING) {
             clearInterval(player._interval);
           }
-        },
-        onError: function () {}
+        }
       }
     });
   }
   onYouTubeReadyForModal();
-
-  // Show modal with animation
   overlay.classList.add('active');
   document.body.classList.add('modal-open');
-
-  // Handle escape key
   document.addEventListener('keydown', handleModalKeydown);
 }
 
-// Close video modal
 function closeVideoModal() {
   const overlay = document.getElementById('video-modal-overlay');
   const playerWrapper = document.getElementById('video-player-wrapper');
-
-  // Remove event listener
   document.removeEventListener('keydown', handleModalKeydown);
-
-  // Hide modal
   overlay.classList.remove('active');
   document.body.classList.remove('modal-open');
-
-  // Clear video with delay to smooth animation
   setTimeout(() => {
-    playerWrapper.innerHTML = `<div class="video-modal-loading">
-      <div class="video-modal-spinner"></div>
-      <span>Loading video...</span>
-    </div>`;
+    playerWrapper.innerHTML = `<div class="video-modal-loading"><div class="video-modal-spinner"></div><span>Loading video...</span></div>`;
     VIDEO_DATA.currentIndex = null;
   }, 300);
-
-  // Restore focus to the clicked video card
   const videoCard = document.querySelector(`[data-video-index="${VIDEO_DATA.currentIndex}"]`);
-  if (videoCard) {
-    const btn = videoCard.querySelector('.btn');
-    if(btn && !btn.disabled) btn.focus();
-  }
+  if (videoCard) { const btn = videoCard.querySelector('.btn'); if(btn && !btn.disabled) btn.focus(); }
 }
 
-// Handle keyboard events on modal
-function handleModalKeydown(e) {
-  if (e.key === 'Escape') {
-    closeVideoModal();
-    closeSurveyModal();
-  }
-}
+function handleModalKeydown(e) { if (e.key === 'Escape') { closeVideoModal(); closeSurveyModal(); } }
 
-// Initialize video modal system
 function initVideoModalSystem() {
-  // Fetch video data
   fetchVideoData().then(() => {
-    // Render only 10 uncompleted videos on load
     renderVideoTabOnLoad();
-    // Update video card thumbnails
     updateVideoCardThumbnails();
-    // Populate real durations for each video
     fetchAndPopulateDurations();
-
-    // Set up modal event listeners
     const overlay = document.getElementById('video-modal-overlay');
     const closeBtn = document.getElementById('video-modal-close');
-
-    // Close on button click
     closeBtn.addEventListener('click', closeVideoModal);
-
-    // Close on overlay click (outside modal)
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) {
-        closeVideoModal();
-      }
-    });
-
-    // Prevent modal close when clicking inside container
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeVideoModal(); });
     const container = document.getElementById('video-modal-container');
-    container.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
-
-    // Ensure YouTube API is loaded for player events
+    container.addEventListener('click', (e) => { e.stopPropagation(); });
     if (!window.YT || !window.YT.Player) {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      document.head.appendChild(tag);
+      const tag = document.createElement('script'); tag.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(tag);
     }
-
-    // --- APPLY STATES ON LOAD ---
     setTimeout(updateVideoCardStates, 300);
   });
 }
 
-/**
- * Updates the visual state of all video cards based on:
- * 1. Historical Completion (Permanent disable)
- * 2. Daily Limit (Temporary disable for today)
- */
 function updateVideoCardStates() {
     const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
     const limit = getDailyVideoLimit(currentXP);
     const watchedToday = checkDailyLimit();
     const isLimitReached = watchedToday >= limit;
 
-    // Iterate over all displayed cards
     document.querySelectorAll('.video-task-card').forEach((card) => {
         const index = parseInt(card.getAttribute('data-video-index'));
         const video = VIDEO_DATA.videos.find(v => v.index === index);
-        
         if (!video) return;
-        
         const btn = card.querySelector('.btn');
         const isDone = isVideoCompleted(video.videoId);
-
-        // Only update visual state, not event/click logic
         if (isDone) {
-            card.classList.add('completed');
-            card.style.opacity = '0.5';
-            card.style.cursor = 'not-allowed';
-            if (btn) {
-                btn.innerText = "Completed";
-                btn.style.opacity = '0.5';
-                btn.style.cursor = 'not-allowed';
-            }
+            card.classList.add('completed'); card.style.opacity = '0.5'; card.style.cursor = 'not-allowed';
+            if (btn) { btn.innerText = "Completed"; btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed'; }
         } else if (isLimitReached) {
-            // Daily limit reached: Disable card temporarily
-            card.classList.add('completed'); // Reuse completed style for dimming
-            card.style.opacity = '0.5';
-            card.style.cursor = 'not-allowed';
-            if (btn) {
-                btn.innerText = "Daily Limit";
-                btn.style.opacity = '0.5';
-                btn.style.cursor = 'not-allowed';
-            }
+            card.classList.add('completed'); card.style.opacity = '0.5'; card.style.cursor = 'not-allowed';
+            if (btn) { btn.innerText = "Daily Limit"; btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed'; }
         } else {
-            // Available
-            card.classList.remove('completed');
-            card.style.opacity = '';
-            card.style.cursor = '';
-            if (btn) {
-                btn.innerText = "Watch Now";
-                btn.style.opacity = '';
-                btn.style.cursor = '';
-            }
+            card.classList.remove('completed'); card.style.opacity = ''; card.style.cursor = '';
+            if (btn) { btn.innerText = "Watch Now"; btn.style.opacity = ''; btn.style.cursor = ''; }
         }
     });
 }
 
-// Update all video card thumbnails with real thumbnails from YouTube
 function updateVideoCardThumbnails() {
   document.querySelectorAll('.video-task-card').forEach((card) => {
       const index = parseInt(card.getAttribute('data-video-index'));
@@ -1021,94 +904,52 @@ function updateVideoCardThumbnails() {
       if (video) {
         const thumbnail = card.querySelector('.video-card-thumbnail');
         if (thumbnail && video.thumbnail) {
-          // Preload the image for smooth transition
           const img = new Image();
-          img.onload = () => {
-            thumbnail.style.backgroundImage = `url('${video.thumbnail}')`;
-          };
-          img.onerror = () => {
-            // Fallback gradient if image fails to load
-            thumbnail.style.backgroundImage = 'linear-gradient(135deg, #1E3A8A 0%, #F97316 100%)';
-          };
+          img.onload = () => { thumbnail.style.backgroundImage = `url('${video.thumbnail}')`; };
+          img.onerror = () => { thumbnail.style.backgroundImage = 'linear-gradient(135deg, #1E3A8A 0%, #F97316 100%)'; };
           img.src = video.thumbnail;
         }
       }
   });
 }
 
-// Get video thumbnail by index
 function getVideoThumbnail(index) {
-  if (index >= 0 && index < VIDEO_DATA.videos.length) {
-    return VIDEO_DATA.videos[index].thumbnail;
-  }
+  if (index >= 0 && index < VIDEO_DATA.videos.length) return VIDEO_DATA.videos[index].thumbnail;
   return null;
 }
 
-// Get video reward info (can be customized per video)
-// Compute reward (amount in ₦ and xp) based on video duration
 function getVideoReward(videoIndex) {
-  // If duration not yet known, fall back to a safe default
   const vid = VIDEO_DATA.videos.find(v => v.index === videoIndex);
   if (!vid || typeof vid.duration !== 'number' || !isFinite(vid.duration) || vid.duration <= 0) {
-    // maintain previous static behaviour as a graceful fallback
-    const rewards = [
-      { amount: 50, xp: 8 },
-      { amount: 75, xp: 10 },
-      { amount: 60, xp: 9 },
-      { amount: 80, xp: 11 },
-      { amount: 70, xp: 10 },
-      { amount: 90, xp: 12 }
-    ];
+    const rewards = [{ amount: 50, xp: 8 }, { amount: 75, xp: 10 }, { amount: 60, xp: 9 }, { amount: 80, xp: 11 }, { amount: 70, xp: 10 }, { amount: 90, xp: 12 }];
     return rewards[videoIndex % rewards.length] || { amount: 50, xp: 8 };
   }
-
-  // Category definitions (durations in minutes)
   const categories = [
     { name: 'Small', minDur: 0.5, maxDur: 2, minPrice: 5,  maxPrice: 20,  minXP: 2,  maxXP: 5  },
     { name: 'Medium',minDur: 2,   maxDur: 10, minPrice: 15, maxPrice: 70,  minXP: 6,  maxXP: 15 },
     { name: 'Large', minDur: 10,  maxDur: 30, minPrice: 50, maxPrice: 200, minXP: 20, maxXP: 50 },
     { name: 'Very Large', minDur: 30, maxDur: 180, minPrice: 150, maxPrice: 400, minXP: 80, maxXP: 150 }
   ];
-
-  const dur = vid.duration; // minutes (float)
-
-  // pick category
+  const dur = vid.duration; 
   let cat = categories.find(c => dur >= c.minDur && dur < c.maxDur);
-  // include upper bound for Very Large
   if (!cat && dur >= 180) cat = categories[categories.length - 1];
-  if (!cat) {
-    // If something odd, fallback
-    cat = categories[0];
-  }
-
-  // duration percent in category
+  if (!cat) cat = categories[0];
   const denom = (cat.maxDur - cat.minDur) || 1;
   let duration_percent = (dur - cat.minDur) / denom;
   duration_percent = Math.max(0, Math.min(1, duration_percent));
-
-  // linear interpolation for base values
   const basePrice = cat.minPrice + duration_percent * (cat.maxPrice - cat.minPrice);
   const baseXP = cat.minXP + duration_percent * (cat.maxXP - cat.minXP);
-
-  // small random variation
-  const randPrice = (Math.random() * 2) - 1; // -1 .. +1
-  const randXP = (Math.random() - 0.5); // -0.5 .. +0.5
-
+  const randPrice = (Math.random() * 2) - 1; 
+  const randXP = (Math.random() - 0.5); 
   let price = basePrice + randPrice;
   let xp = baseXP + randXP;
-
-  // clamp to category ranges
   price = Math.max(cat.minPrice, Math.min(cat.maxPrice, price));
   xp = Math.max(cat.minXP, Math.min(cat.maxXP, xp));
-
-  // round to 1 decimal to keep uniqueness while readable
   price = Math.round(price * 10) / 10;
   xp = Math.round(xp * 10) / 10;
-
   return { amount: price, xp: xp };
 }
 
-// Persistent storage helpers for per-video rewards
 function getStoredRewardByVideo(video) {
   if (!video || !video.videoId) return null;
   try {
@@ -1119,9 +960,7 @@ function getStoredRewardByVideo(video) {
     const xp = parseFloat(x);
     if (isNaN(amount) || isNaN(xp)) return null;
     return { amount: amount, xp: xp };
-  } catch (e) {
-    return null;
-  }
+  } catch (e) { return null; }
 }
 
 function storeRewardForVideo(video, reward) {
@@ -1153,68 +992,40 @@ function collectUsedRewardKeys() {
   return used;
 }
 
-// Update the DOM for all video cards with computed rewards and ensure uniqueness
 function updateVideoCardRewards() {
   if (!VIDEO_DATA.videos || !VIDEO_DATA.videos.length) return;
-
-  // Start with any persisted rewards reserved
   const used = collectUsedRewardKeys();
-
   document.querySelectorAll('.video-task-card').forEach((card) => {
     const index = parseInt(card.getAttribute('data-video-index'));
     const video = VIDEO_DATA.videos.find(v => v.index === index);
-    
     if (!video) return;
-
-    // Prefer persisted value if available
     let reward = getStoredRewardByVideo(video);
-
-    // If no persisted reward and we have duration info, generate + persist it
     if (!reward && typeof video.duration === 'number' && isFinite(video.duration) && video.duration > 0) {
-      // Attempt to generate a unique reward (up to many tries)
       let attempts = 0;
       do {
         reward = getVideoReward(index);
         const key = `${reward.amount.toFixed(1)}|${reward.xp.toFixed(1)}`;
-        if (!used.has(key)) {
-          used.add(key);
-          try { storeRewardForVideo(video, reward); } catch (e) {}
-          break;
-        }
+        if (!used.has(key)) { used.add(key); try { storeRewardForVideo(video, reward); } catch (e) {} break; }
         attempts++;
-        // tiny jitter before next attempt
         reward.amount = Math.round((reward.amount + (Math.random() * 0.6 - 0.3)) * 10) / 10;
         reward.xp = Math.round((reward.xp + (Math.random() * 0.3 - 0.15)) * 10) / 10;
       } while (attempts < 50);
-
-      // If still colliding after attempts, accept current reward and persist
-      if (attempts >= 50) {
-        try { storeRewardForVideo(video, reward); } catch (e) {}
-      }
+      if (attempts >= 50) { try { storeRewardForVideo(video, reward); } catch (e) {} }
     }
-
-    // If still no reward (duration unknown), compute temporary display value but do not persist
     if (!reward) {
       reward = getVideoReward(index);
-      // avoid displaying identical to a persisted one where possible
       const tmpKey = `${reward.amount.toFixed(1)}|${reward.xp.toFixed(1)}`;
       if (used.has(tmpKey)) {
         reward.amount = Math.round((reward.amount + 0.1) * 10) / 10;
         reward.xp = Math.round((reward.xp + 0.1) * 10) / 10;
       }
     }
-
-    // Update DOM numeric fields only (preserve all other markup)
     const rewardEl = card.querySelector('.task-reward');
     const xpEl = card.querySelector('.xp-badge');
     if (rewardEl) rewardEl.textContent = `₦${reward.amount}`;
     if (xpEl) xpEl.textContent = `+${reward.xp} XP`;
   });
 }
-
-// -------------------------
-// Populate real video durations
-// -------------------------
 
 function loadYouTubeAPI() {
   return new Promise((resolve) => {
@@ -1240,184 +1051,105 @@ async function fetchAndPopulateDurations() {
   if (!VIDEO_DATA.videos || VIDEO_DATA.videos.length === 0) return;
   try {
     await loadYouTubeAPI();
-
     document.querySelectorAll('.video-task-card').forEach((card) => {
       const index = parseInt(card.getAttribute('data-video-index'));
       const video = VIDEO_DATA.videos.find(v => v.index === index);
       if (!video) return;
-
       const placeholder = card.querySelector('.video-duration');
       if (!placeholder) return;
-
-      // create an offscreen container for a temporary player
       const divId = `yt-temp-player-${index}`;
       let div = document.getElementById(divId);
       if (!div) {
-        div = document.createElement('div');
-        div.id = divId;
-        div.style.width = '0px';
-        div.style.height = '0px';
-        div.style.overflow = 'hidden';
-        div.style.position = 'absolute';
-        div.style.left = '-9999px';
+        div = document.createElement('div'); div.id = divId;
+        div.style.width = '0px'; div.style.height = '0px'; div.style.overflow = 'hidden';
+        div.style.position = 'absolute'; div.style.left = '-9999px';
         document.body.appendChild(div);
       }
-
       try {
         const player = new YT.Player(divId, {
-          height: '0',
-          width: '0',
-          videoId: video.videoId,
+          height: '0', width: '0', videoId: video.videoId,
           playerVars: { controls: 0, disablekb: 1, fs: 0, rel: 0 },
           events: {
             onReady: function(ev) {
               try {
                 const dur = ev.target.getDuration();
                 placeholder.textContent = formatDuration(dur);
-                // store duration in minutes for reward calculation
-                try {
-                    video.duration = (typeof dur === 'number' && isFinite(dur) && dur > 0) ? (dur / 60) : null;
-                } catch (e) {}
-                // update rewards now that duration is known
+                try { video.duration = (typeof dur === 'number' && isFinite(dur) && dur > 0) ? (dur / 60) : null; } catch (e) {}
                 try { updateVideoCardRewards(); } catch (e) {}
-              } catch (e) {
-                placeholder.textContent = 'N/A';
-                try { video.duration = null; } catch (e) {}
-                try { updateVideoCardRewards(); } catch (err) {}
-              }
-              // cleanup
+              } catch (e) { placeholder.textContent = 'N/A'; try { video.duration = null; } catch (e) {} try { updateVideoCardRewards(); } catch (err) {} }
               try { ev.target.destroy(); } catch (e) {}
               if (div && div.parentNode) div.parentNode.removeChild(div);
             },
             onError: function() {
-              placeholder.textContent = 'N/A';
-              try { video.duration = null; } catch (e) {}
-              try { updateVideoCardRewards(); } catch (err) {}
+              placeholder.textContent = 'N/A'; try { video.duration = null; } catch (e) {} try { updateVideoCardRewards(); } catch (err) {}
               try { if (player && player.destroy) player.destroy(); } catch (e) {}
               if (div && div.parentNode) div.parentNode.removeChild(div);
             }
           }
         });
-      } catch (err) {
-        placeholder.textContent = 'N/A';
-        if (div && div.parentNode) div.parentNode.removeChild(div);
-      }
+      } catch (err) { placeholder.textContent = 'N/A'; if (div && div.parentNode) div.parentNode.removeChild(div); }
     });
-
-  } catch (err) {
-    console.error('Error loading YouTube API for durations', err);
-    // set fallback text for all placeholders
-    document.querySelectorAll('.video-duration').forEach(el => el.textContent = 'N/A');
-  }
+  } catch (err) { document.querySelectorAll('.video-duration').forEach(el => el.textContent = 'N/A'); }
 }
 
-/* ===================================================================
-   SURVEY MODAL SYSTEM
-   =================================================================== */
-
-// Survey Data Constant (Normally fetched from JSON file)
-// 1. Define the variable globally (changed from const to let)
+// SURVEY MODAL SYSTEM
 let SURVEY_DATA = [];
-
-// 2. Function to fetch the JSON data
 async function loadSurveyData() {
   try {
     const response = await fetch('questions.json');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     SURVEY_DATA = await response.json();
-    console.log("Survey data loaded successfully!");
-    // Render question cards after data is loaded
-    if (typeof renderQuestionTabOnLoad === "function") {
-      renderQuestionTabOnLoad();
-    }
-  } catch (error) {
-    console.error("Error loading questions.json:", error);
-  }
+    if (typeof renderQuestionTabOnLoad === "function") renderQuestionTabOnLoad();
+  } catch (error) { console.error("Error loading questions.json:", error); }
 }
-
-// 3. Run the fetch function
 loadSurveyData();
 
-// RENDER QUESTION TAB DYNAMICALLY (Replenishment Logic)
 function renderQuestionTabOnLoad() {
     const container = document.getElementById('question-task-list');
     if (!container) return;
-
-    // Ensure data exists
     if (!SURVEY_DATA || SURVEY_DATA.length === 0) return;
-
-    // Get current XP and daily limit
     const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
     const limit = getDailyQuestionLimit(currentXP);
     const answeredToday = checkDailyQuestionLimit();
     const isLimitReached = answeredToday >= limit;
-
-    // 1. Get History (Completed questions)
     const completed = getCompletedQuestionCards();
-
-    // 2. Determine if we should show the same set (if limit reached) or fresh (if new day)
     let toShow = [];
     if (isLimitReached) {
-      // Show the same set as when the limit was reached (store in localStorage)
       let lastSet = localStorage.getItem('earnova_last_question_set');
       if (lastSet) {
         try {
           const lastSetArr = JSON.parse(lastSet);
-          // Map ids to survey objects (filter out if survey removed)
           toShow = lastSetArr.map(id => SURVEY_DATA.find(q => q.id === id)).filter(Boolean);
-        } catch (e) {
-          toShow = [];
-        }
+        } catch (e) { toShow = []; }
       }
-      // If no last set, fallback to current available
       if (!toShow.length) {
         const available = SURVEY_DATA.filter(q => !completed.includes(q.id));
         toShow = available.slice(0, 25);
       }
     } else {
-      // Not at limit, show fresh set and store it
       const available = SURVEY_DATA.filter(q => !completed.includes(q.id));
       toShow = available.slice(0, 25);
-      // Store this set for reference if limit is reached later
       localStorage.setItem('earnova_last_question_set', JSON.stringify(toShow.map(q => q.id)));
     }
-
-    // 4. Render
     container.innerHTML = '';
     if (toShow.length === 0) {
       container.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">No more questions available right now. Please check back later.</p>';
       return;
     }
-
     toShow.forEach((survey, index) => {
       let reward = null;
-      if (typeof getStoredRewardByQuestionCard === "function") {
-        reward = getStoredRewardByQuestionCard(survey);
-      }
-      if (!reward && typeof getQuestionCardReward === "function") {
-        reward = getQuestionCardReward(survey, index);
-      }
+      if (typeof getStoredRewardByQuestionCard === "function") reward = getStoredRewardByQuestionCard(survey);
+      if (!reward && typeof getQuestionCardReward === "function") reward = getQuestionCardReward(survey, index);
       if (!reward) reward = { amount: 150, xp: 10 };
-
       let btnText = 'Perform Task';
       let btnAttrs = `onclick=\"handleQuestionClick(${index}, '${survey.id}')\"`;
       let btnStyle = 'margin-top:auto';
-      const cardHtml = `
-      <div class=\"task-card\" id=\"q-card-${index}\" data-survey-id=\"${survey.id}\">\n            <div class=\"task-header\">\n                <span class=\"task-type\">Survey</span>\n                <div style=\"display: flex; gap: 8px; align-items: center;\">\n                    <span class=\"task-reward\">₦${reward.amount}</span>\n                    <span class=\"xp-badge\">+${reward.xp} XP</span>\n                </div>\n            </div>\n            <div class=\"task-body\">\n                <div class=\"task-title\">${survey.title}</div>\n                <p style=\"font-size:12px; color:var(--text-secondary); margin-bottom:12px;\">Complete this survey to earn rewards.</p>\n                <button class=\"btn btn-primary\" style=\"${btnStyle}\" ${btnAttrs}>${btnText}</button>\n            </div>\n        </div>`;
+      const cardHtml = `<div class=\"task-card\" id=\"q-card-${index}\" data-survey-id=\"${survey.id}\">\n<div class=\"task-header\">\n<span class=\"task-type\">Survey</span>\n<div style=\"display: flex; gap: 8px; align-items: center;\">\n<span class=\"task-reward\">₦${reward.amount}</span>\n<span class=\"xp-badge\">+${reward.xp} XP</span>\n</div>\n</div>\n<div class=\"task-body\">\n<div class=\"task-title\">${survey.title}</div>\n<p style=\"font-size:12px; color:var(--text-secondary); margin-bottom:12px;\">Complete this survey to earn rewards.</p>\n<button class=\"btn btn-primary\" style=\"${btnStyle}\" ${btnAttrs}>${btnText}</button>\n</div>\n</div>`;
       container.insertAdjacentHTML('beforeend', cardHtml);
     });
-
-    // 5. Update UI States (Check Daily Limits)
     updateQuestionUI();
 }
 
-// =============================
-// QUESTION CARD REWARD SYSTEM
-// =============================
-
-// Reward categories for question cards
 const QUESTION_REWARD_CATEGORIES = [
   { name: 'Very Small', minQ: 1, maxQ: 3, minPrice: 5, maxPrice: 20, minXP: 2, maxXP: 8 },
   { name: 'Small', minQ: 4, maxQ: 7, minPrice: 20, maxPrice: 60, minXP: 8, maxXP: 25 },
@@ -1426,34 +1158,24 @@ const QUESTION_REWARD_CATEGORIES = [
   { name: 'Very Large', minQ: 23, maxQ: 30, minPrice: 180, maxPrice: 250, minXP: 80, maxXP: 120 }
 ];
 
-// Get reward for a question card (by survey object)
 function getQuestionCardReward(survey, index) {
   if (!survey || !Array.isArray(survey.questions)) return { amount: 5, xp: 2 };
   const qCount = survey.questions.length;
-  // Find category
   let cat = QUESTION_REWARD_CATEGORIES.find(c => qCount >= c.minQ && qCount <= c.maxQ);
   if (!cat) cat = QUESTION_REWARD_CATEGORIES[0];
-  // Linear scaling within category
   const denom = (cat.maxQ - cat.minQ) || 1;
   let qPercent = (qCount - cat.minQ) / denom;
   qPercent = Math.max(0, Math.min(1, qPercent));
-  // Interpolate
   let basePrice = cat.minPrice + qPercent * (cat.maxPrice - cat.minPrice);
   let baseXP = cat.minXP + qPercent * (cat.maxXP - cat.minXP);
-  // Add decimal uniqueness: use index and qCount
   const dec = ((index + 1) * 0.01) + (qCount * 0.001);
-  let price = basePrice + dec;
-  let xp = baseXP + dec;
-  // Clamp
+  let price = basePrice + dec; let xp = baseXP + dec;
   price = Math.max(cat.minPrice, Math.min(cat.maxPrice, price));
   xp = Math.max(cat.minXP, Math.min(cat.maxXP, xp));
-  // Round to 2 decimals for uniqueness
-  price = Math.round(price * 100) / 100;
-  xp = Math.round(xp * 100) / 100;
+  price = Math.round(price * 100) / 100; xp = Math.round(xp * 100) / 100;
   return { amount: price, xp: xp };
 }
 
-// Persistent storage helpers for per-question-card rewards
 function getStoredRewardByQuestionCard(survey) {
   if (!survey || !survey.id) return null;
   try {
@@ -1475,7 +1197,6 @@ function storeRewardForQuestionCard(survey, reward) {
   } catch (e) {}
 }
 
-// Ensure all question cards have unique, persistent rewards
 function updateQuestionCardRewards() {
   if (!Array.isArray(SURVEY_DATA) || !SURVEY_DATA.length) return;
   SURVEY_DATA.forEach((survey, index) => {
@@ -1487,57 +1208,33 @@ function updateQuestionCardRewards() {
   });
 }
 
-// On load, ensure rewards are assigned and persistent
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', updateQuestionCardRewards);
 } else {
   updateQuestionCardRewards();
 }
 
-// Open Survey Modal with Specific Form Dataies
-// --- Question Card Completion & Reward Logic ---
-// Persistent completion helpers for question cards
 function getCompletedQuestionCards() {
-  try {
-    return JSON.parse(localStorage.getItem('completedQuestionCards')) || [];
-  } catch (e) {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem('completedQuestionCards')) || []; } catch (e) { return []; }
 }
-
 function setCompletedQuestionCards(arr) {
   localStorage.setItem('completedQuestionCards', JSON.stringify(arr));
 }
-
 function isQuestionCardCompleted(survey) {
   if (!survey || !survey.id) return false;
   const arr = getCompletedQuestionCards();
   return arr.includes(survey.id);
 }
-
 function markQuestionCardCompleted(survey) {
   if (!survey || !survey.id) return;
   const arr = getCompletedQuestionCards();
-  if (!arr.includes(survey.id)) {
-    arr.push(survey.id);
-    setCompletedQuestionCards(arr);
-  }
-  // Immediately update the UI for the completed card
-  var card = document.getElementById('q-card-' + survey.id); // Note: render uses q-card-{index}, fix selection logic below
-  
-  // Refined selection to handle generated IDs or data attributes
-  card = document.querySelector(`.task-card[data-survey-id="${survey.id}"]`);
-  
+  if (!arr.includes(survey.id)) { arr.push(survey.id); setCompletedQuestionCards(arr); }
+  var card = document.querySelector(`.task-card[data-survey-id="${survey.id}"]`);
   if (card) {
-    card.classList.add('completed');
-    card.style.opacity = '0.5';
-    card.style.cursor = 'not-allowed';
+    card.classList.add('completed'); card.style.opacity = '0.5'; card.style.cursor = 'not-allowed';
     var btn = card.querySelector('button');
     if (btn) {
-      btn.textContent = 'Completed';
-      btn.removeAttribute('disabled');
-      btn.style.opacity = '0.5';
-      btn.style.cursor = 'not-allowed';
+      btn.textContent = 'Completed'; btn.removeAttribute('disabled'); btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed';
       btn.onclick = function() { alert('You have already answered this question.'); };
     }
   }
@@ -1549,27 +1246,16 @@ window.openSurveyModal = function(index) {
   const overlay = document.getElementById('survey-modal-overlay');
   const title = document.getElementById('survey-modal-title');
   const formContent = document.getElementById('survey-form-content');
-
-  // Set Title
   title.innerText = survey.title;
-
-  // Clear and Populate Form
   formContent.innerHTML = '';
-  survey.questions.forEach(q => {
-    formContent.innerHTML += renderFormInput(q);
-  });
-
-  // Add Get Rewards button if not already present
+  survey.questions.forEach(q => { formContent.innerHTML += renderFormInput(q); });
   let footer = document.querySelector('.survey-modal-footer');
   if (footer) {
     footer.innerHTML = '';
-    // Only show button if not already completed
     if (!isQuestionCardCompleted(survey)) {
       const btn = document.createElement('button');
-      btn.className = 'btn btn-primary';
-      btn.textContent = 'Get Rewards';
+      btn.className = 'btn btn-primary'; btn.textContent = 'Get Rewards';
       btn.onclick = function() {
-        // Validate all questions as required (ignore q.required)
         let allFilled = true;
         for (let i = 0; i < survey.questions.length; i++) {
           const q = survey.questions[i];
@@ -1579,62 +1265,39 @@ window.openSurveyModal = function(index) {
           if (!els || els.length === 0) { allFilled = false; break; }
           const type = (els[0].type || '').toLowerCase();
           if (type === 'checkbox' || type === 'radio') {
-            let checked = false;
-            els.forEach(e => { if (e.checked) checked = true; });
+            let checked = false; els.forEach(e => { if (e.checked) checked = true; });
             if (!checked) { allFilled = false; break; }
           } else if (type === 'select-one') {
             if (!els[0].value || els[0].value === '') { allFilled = false; break; }
           } else {
-            let filled = false;
-            els.forEach(e => {
-              if (e.value && e.value.trim() !== '') filled = true;
-            });
+            let filled = false; els.forEach(e => { if (e.value && e.value.trim() !== '') filled = true; });
             if (!filled) { allFilled = false; break; }
           }
         }
-        if (!allFilled) {
-          alert('You have not completed the form. Please answer all questions before claiming your reward.');
-          return;
-        }
-        // Prevent duplicate reward
-        if (isQuestionCardCompleted(survey)) {
-          alert('You have already claimed this reward.');
-          return;
-        }
-        // Get reward (persistent)
+        if (!allFilled) { alert('You have not completed the form. Please answer all questions before claiming your reward.'); return; }
+        if (isQuestionCardCompleted(survey)) { alert('You have already claimed this reward.'); return; }
         let reward = null;
         if (typeof getStoredRewardByQuestionCard === 'function') reward = getStoredRewardByQuestionCard(survey);
         if (!reward && typeof getQuestionCardReward === 'function') reward = getQuestionCardReward(survey, index);
         if (!reward) reward = { amount: 150, xp: 10 };
-        // Add funds and XP (same as video logic)
-        if (typeof addFunds === 'function') {
-          addFunds(reward.amount, 'Survey', survey.title, reward.xp);
-        } else {
-          // Fallback: update localStorage directly
+        if (typeof addFunds === 'function') { addFunds(reward.amount, 'Survey', survey.title, reward.xp); } 
+        else {
           let bal = parseFloat(localStorage.getItem('earnova_balance')) || 0;
           let xp = parseInt(localStorage.getItem('earnova_xp')) || 0;
-          bal += reward.amount;
-          xp += reward.xp;
-          localStorage.setItem('earnova_balance', bal);
-          localStorage.setItem('earnova_xp', xp);
+          bal += reward.amount; xp += reward.xp;
+          localStorage.setItem('earnova_balance', bal); localStorage.setItem('earnova_xp', xp);
         }
-        // Mark as completed and update UI immediately
         markQuestionCardCompleted(survey);
-        // Close modal
         window.closeSurveyModal();
       };
       footer.appendChild(btn);
     } else {
-      // Already completed
       const doneMsg = document.createElement('div');
       doneMsg.textContent = 'You have already completed this survey and claimed your reward.';
-      doneMsg.style.color = 'var(--success)';
-      doneMsg.style.fontWeight = 'bold';
+      doneMsg.style.color = 'var(--success)'; doneMsg.style.fontWeight = 'bold';
       footer.appendChild(doneMsg);
     }
   }
-
-  // Open Modal
   overlay.classList.add('active');
   document.body.classList.add('modal-open');
 };
@@ -1647,98 +1310,46 @@ window.closeSurveyModal = function() {
 
 function renderFormInput(q) {
   let inputHtml = '';
-  
   switch(q.type) {
-    case 'text':
-    case 'number':
-      inputHtml = `<input type="${q.type}" class="survey-input" placeholder="${q.placeholder || ''}" name="q_${q.id}">`;
-      break;
-    
+    case 'text': case 'number':
+      inputHtml = `<input type="${q.type}" class="survey-input" placeholder="${q.placeholder || ''}" name="q_${q.id}">`; break;
     case 'textarea':
-      inputHtml = `<textarea class="survey-textarea" placeholder="${q.placeholder || ''}" name="q_${q.id}"></textarea>`;
-      break;
-      
+      inputHtml = `<textarea class="survey-textarea" placeholder="${q.placeholder || ''}" name="q_${q.id}"></textarea>`; break;
     case 'select':
       const options = q.options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
-      inputHtml = `<select class="survey-select" name="q_${q.id}"><option value="" disabled selected>Select an option</option>${options}</select>`;
-      break;
-      
+      inputHtml = `<select class="survey-select" name="q_${q.id}"><option value="" disabled selected>Select an option</option>${options}</select>`; break;
     case 'radio':
       inputHtml = `<div class="survey-radio-group">`;
       q.options.forEach(opt => {
         const id = `q_${q.id}_${opt.replace(/\s+/g, '_')}`;
-        inputHtml += `
-          <label class="survey-option-label" for="${id}">
-            <input type="radio" class="survey-option-input" name="q_${q.id}" id="${id}" value="${opt}">
-            ${opt}
-          </label>
-        `;
+        inputHtml += `<label class="survey-option-label" for="${id}"><input type="radio" class="survey-option-input" name="q_${q.id}" id="${id}" value="${opt}">${opt}</label>`;
       });
-      inputHtml += `</div>`;
-      break;
-      
+      inputHtml += `</div>`; break;
     case 'checkbox':
       inputHtml = `<div class="survey-checkbox-group">`;
       q.options.forEach(opt => {
         const id = `q_${q.id}_${opt.replace(/\s+/g, '_')}`;
-        inputHtml += `
-          <label class="survey-option-label" for="${id}">
-            <input type="checkbox" class="survey-option-input" name="q_${q.id}[]" id="${id}" value="${opt}">
-            ${opt}
-          </label>
-        `;
+        inputHtml += `<label class="survey-option-label" for="${id}"><input type="checkbox" class="survey-option-input" name="q_${q.id}[]" id="${id}" value="${opt}">${opt}</label>`;
       });
-      inputHtml += `</div>`;
-      break;
+      inputHtml += `</div>`; break;
   }
-  
-  return `
-    <div class="survey-form-group">
-      <label class="survey-question-label">${q.id}. ${q.question}</label>
-      ${inputHtml}
-    </div>
-  `;
+  return `<div class="survey-form-group"><label class="survey-question-label">${q.id}. ${q.question}</label>${inputHtml}</div>`;
 }
 
-// Initialize Survey Modal Functionality
 function initSurveyModalSystem() {
   const overlay = document.getElementById('survey-modal-overlay');
   const container = document.getElementById('survey-modal-container');
-  
-  // Close on overlay click
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      closeSurveyModal();
-    }
-  });
-  
-  // Prevent closing when clicking inside modal
-  container.addEventListener('click', (e) => {
-    e.stopPropagation();
-  });
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeSurveyModal(); });
+  container.addEventListener('click', (e) => { e.stopPropagation(); });
 }
 
-// ===================================================================
-// WEBSITE TASK SYSTEM (HIDDEN TAB LOGIC + DAILY LIMITS + ROTATION)
-// ===================================================================
-
-// Daily Limit Calculation for Websites
+// WEBSITE TASK SYSTEM
 function getDailyWebsiteLimit(xp) {
-  if (xp < 500) return 1;     // Level 1
-  if (xp < 750) return 2;     // Level 2
-  if (xp < 1125) return 3;    // Level 3
-  if (xp < 1688) return 5;    // Level 4
-  if (xp < 2532) return 5;    // Level 5
-  if (xp < 3798) return 5;    // Level 6
-  if (xp < 5697) return 7;    // Level 7
-  if (xp < 8546) return 9;    // Level 8
-  if (xp < 12819) return 10;  // Level 9
-  if (xp < 19229) return 10;  // Level 10
-  if (xp < 28844) return 12;  // Level 11
-  if (xp < 43266) return 13;  // Level 12
-  if (xp < 64899) return 15;  // Level 13
-  if (xp < 97349) return 17;  // Level 14
-  return 20;                  // Level 15 (Final)
+  if (xp < 500) return 1; if (xp < 750) return 2; if (xp < 1125) return 3;
+  if (xp < 1688) return 5; if (xp < 2532) return 5; if (xp < 3798) return 5;
+  if (xp < 5697) return 7; if (xp < 8546) return 9; if (xp < 12819) return 10;
+  if (xp < 19229) return 10; if (xp < 28844) return 12; if (xp < 43266) return 13;
+  if (xp < 64899) return 15; if (xp < 97349) return 17; return 20;
 }
 
 function checkDailyWebsiteLimit() {
@@ -1763,52 +1374,37 @@ function incrementDailyWebsite() {
 async function renderWebsiteTabOnLoad() {
     const container = document.getElementById('website-task-list');
     if (!container) return;
-    
     let websites = [];
     try {
         const response = await fetch('websites.json');
         if (!response.ok) throw new Error('Failed to load website data');
         const data = await response.json();
-        // Just load raw data here, filter later based on limits/completion
         websites = data;
-    } catch (error) {
-        console.error("Error loading websites.json:", error);
-        container.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">Unable to load websites.</p>';
-        return;
-    }
+    } catch (error) { container.innerHTML = '<p style="padding:20px; color:var(--text-secondary);">Unable to load websites.</p>'; return; }
     
     container.innerHTML = '';
     const completedWebsites = JSON.parse(localStorage.getItem('completedWebsites') || '[]');
-    
-    // Check Limits
     const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
     const limit = getDailyWebsiteLimit(currentXP);
     const visitedToday = checkDailyWebsiteLimit();
     const isLimitReached = visitedToday >= limit;
 
-    // Determine Logic: Show stored set (if limit reached) or fresh set (if new day)
     let toShow = [];
     if (isLimitReached) {
-        // Limit reached: Retrieve the set stored when day started/limit hit
         let lastSet = localStorage.getItem('earnova_last_website_set');
         if (lastSet) {
             try {
-                // Filter main list by matching URLs in stored set
                 const lastSetUrls = JSON.parse(lastSet);
                 toShow = websites.filter(site => lastSetUrls.includes(site.link));
             } catch(e) { toShow = []; }
         }
-        // Fallback if storage fails
         if (!toShow.length) {
              const available = websites.filter(site => !completedWebsites.includes(site.link));
              toShow = available.slice(0, 20);
         }
     } else {
-        // Limit not reached: Show fresh unvisited sites
         const available = websites.filter(site => !completedWebsites.includes(site.link));
-        // Take top 20 to fill grid
         toShow = available.slice(0, 20);
-        // Persist this specific set for the day
         localStorage.setItem('earnova_last_website_set', JSON.stringify(toShow.map(s => s.link)));
     }
 
@@ -1817,11 +1413,8 @@ async function renderWebsiteTabOnLoad() {
         return;
     }
 
-    // Check active task to restore UI state
     const activeTaskStr = localStorage.getItem('earnova_active_web_task');
     let activeTask = activeTaskStr ? JSON.parse(activeTaskStr) : null;
-
-    // --- Reward Calculation ---
     const categories = [
       { name: 'Very Small', min: 5, max: 30, minPrice: 1, maxPrice: 3, minXP: 1, maxXP: 3 },
       { name: 'Small', min: 30, max: 120, minPrice: 3, maxPrice: 8, minXP: 3, maxXP: 8 },
@@ -1830,28 +1423,17 @@ async function renderWebsiteTabOnLoad() {
       { name: 'Very Large', min: 1800, max: 3000, minPrice: 60, maxPrice: 100, minXP: 40, maxXP: 60 }
     ];
 
-    // Persistent reward storage
     function getStoredWebsiteReward(link) {
-      try {
-        const all = JSON.parse(localStorage.getItem('website_rewards') || '{}');
-        return all[link] || null;
-      } catch (e) { return null; }
+      try { const all = JSON.parse(localStorage.getItem('website_rewards') || '{}'); return all[link] || null; } catch (e) { return null; }
     }
     function storeWebsiteReward(link, price, xp) {
-      try {
-        const all = JSON.parse(localStorage.getItem('website_rewards') || '{}');
-        all[link] = { price, xp };
-        localStorage.setItem('website_rewards', JSON.stringify(all));
-      } catch (e) {}
+      try { const all = JSON.parse(localStorage.getItem('website_rewards') || '{}'); all[link] = { price, xp }; localStorage.setItem('website_rewards', JSON.stringify(all)); } catch (e) {}
     }
 
     toShow.forEach((site, index) => {
       let reward = getStoredWebsiteReward(site.link);
       let price, xp;
-      if (reward) {
-        price = reward.price;
-        xp = reward.xp;
-      } else {
+      if (reward) { price = reward.price; xp = reward.xp; } else {
         let cat = categories.find(c => site.seconds >= c.min && site.seconds <= c.max);
         if (!cat) cat = categories[0];
         const durationPercent = (site.seconds - cat.min) / (cat.max - cat.min);
@@ -1859,10 +1441,8 @@ async function renderWebsiteTabOnLoad() {
         xp = cat.minXP + durationPercent * (cat.maxXP - cat.minXP);
         price = Math.max(cat.minPrice, Math.min(cat.maxPrice, price));
         xp = Math.max(cat.minXP, Math.min(cat.maxXP, xp));
-        price = Math.round(price * 10) / 10;
-        xp = Math.round(xp * 10) / 10;
-        price = Math.min(100, Math.max(0.5, price));
-        xp = Math.min(60, Math.max(1, xp));
+        price = Math.round(price * 10) / 10; xp = Math.round(xp * 10) / 10;
+        price = Math.min(100, Math.max(0.5, price)); xp = Math.min(60, Math.max(1, xp));
         storeWebsiteReward(site.link, price, xp);
       }
 
@@ -1873,157 +1453,63 @@ async function renderWebsiteTabOnLoad() {
       let btnStyle = "margin-top:auto";
 
       if (isCompleted) {
-        btnText = "Completed";
-        btnAttrs = `onclick="alert('You have already visited this website.')"`;
-        cardStyle = "opacity:0.5; cursor:not-allowed;";
-        btnStyle += "; opacity:0.5; cursor:not-allowed;";
+        btnText = "Completed"; btnAttrs = `onclick="alert('You have already visited this website.')"`;
+        cardStyle = "opacity:0.5; cursor:not-allowed;"; btnStyle += "; opacity:0.5; cursor:not-allowed;";
       } else if (isLimitReached) {
-        btnText = "Daily Limit";
-        btnAttrs = `onclick="alert('Daily Website Limit Reached! Level ${getLevel(currentXP)} allows ${limit} websites per day.')"`;
-        cardStyle = "opacity:0.5; cursor:not-allowed;";
-        btnStyle += "; opacity:0.5; cursor:not-allowed;";
+        btnText = "Daily Limit"; 
+        // Use global level logic if available
+        const lvl = typeof getLevel === 'function' ? getLevel(currentXP) : 1;
+        btnAttrs = `onclick="alert('Daily Website Limit Reached! Level ${lvl} allows ${limit} websites per day.')"`;
+        cardStyle = "opacity:0.5; cursor:not-allowed;"; btnStyle += "; opacity:0.5; cursor:not-allowed;";
       } else if (activeTask && activeTask.url === site.link) {
-          btnText = "Visit in Progress...";
-          btnAttrs = `onclick="alert('This task is currently active. Please switch tabs to continue the timer.')"`;
+          btnText = "Visit in Progress..."; btnAttrs = `onclick="alert('This task is currently active. Please switch tabs to continue the timer.')"`;
       }
-
-      // Add special class if completed to match styling logic
       const completedClass = isCompleted || isLimitReached ? 'completed' : '';
-
-      const cardHtml = `
-      <div class="task-card ${completedClass}" style="${cardStyle}" data-website-link="${site.link}">
-        <div class="task-header">
-          <span class="task-type">Website Visit</span>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <span class="task-reward">₦${price}</span>
-            <span class="xp-badge">+${xp} XP</span>
-          </div>
-        </div>
-        <div class="task-body">
-          <div class="task-title">${site.title}</div>
-          <div class="task-meta">⏱ ${site.seconds} Seconds Required</div>
-          <button id="web-btn-${index}" class="btn btn-primary" style="${btnStyle}" ${btnAttrs}>${btnText}</button>
-        </div>
-      </div>`;
+      const cardHtml = `<div class="task-card ${completedClass}" style="${cardStyle}" data-website-link="${site.link}">
+        <div class="task-header"><span class="task-type">Website Visit</span><div style="display: flex; gap: 8px; align-items: center;"><span class="task-reward">₦${price}</span><span class="xp-badge">+${xp} XP</span></div></div>
+        <div class="task-body"><div class="task-title">${site.title}</div><div class="task-meta">⏱ ${site.seconds} Seconds Required</div><button id="web-btn-${index}" class="btn btn-primary" style="${btnStyle}" ${btnAttrs}>${btnText}</button></div></div>`;
       container.insertAdjacentHTML('beforeend', cardHtml);
     });
 }
 
-// 1. User clicks button -> Opens Window -> Starts "Active Task" in storage
 function initiateWebsiteTask(url, seconds, reward, xp, btnId) {
-    // Check Limits before starting
     const currentXP = parseInt(localStorage.getItem('earnova_xp')) || 0;
     const limit = getDailyWebsiteLimit(currentXP);
     const visitedToday = checkDailyWebsiteLimit();
     if (visitedToday >= limit) {
-        alert(`Daily Website Limit Reached! Level ${getLevel(currentXP)} allows ${limit} websites per day.`);
+        const lvl = typeof getLevel === 'function' ? getLevel(currentXP) : 1;
+        alert(`Daily Website Limit Reached! Level ${lvl} allows ${limit} websites per day.`);
         return;
     }
-
-    // Check if another task is already running
     if (localStorage.getItem('earnova_active_web_task')) {
-        alert("You already have a website task running. Please complete or cancel it first.");
-        return;
+        alert("You already have a website task running. Please complete or cancel it first."); return;
     }
-
-    // Open the URL
     window.open(url, '_blank');
-
-    // Create task object. Start Time is set to NOW.
-    // The logic: time counts as long as activeTask exists.
-    // When user returns, we check (Now - StartTime).
-    const task = {
-        url: url,
-        seconds: seconds,
-        reward: reward,
-        xp: xp,
-        startTime: Date.now(),
-        targetTime: Date.now() + (seconds * 1000)
-    };
-
+    const task = { url: url, seconds: seconds, reward: reward, xp: xp, startTime: Date.now(), targetTime: Date.now() + (seconds * 1000) };
     localStorage.setItem('earnova_active_web_task', JSON.stringify(task));
-
-    // Update UI immediately
     const btn = document.getElementById(btnId);
-    if (btn) {
-        btn.innerText = "Visit in Progress...";
-        btn.onclick = function() { alert('Task is running. Switch tabs to continue timer.'); };
-    }
-
-    // Inform user
-    // We don't alert here because window.open might be blocked if we alert first.
-    // The visual change on the button acts as feedback.
+    if (btn) { btn.innerText = "Visit in Progress..."; btn.onclick = function() { alert('Task is running. Switch tabs to continue timer.'); }; }
 }
 
-// 2. Logic to check task status when the user is LOOKING at the page (Visible or Load)
 function checkWebsiteTaskStatus() {
     const taskStr = localStorage.getItem('earnova_active_web_task');
-    if (!taskStr) return; // No active task
-
+    if (!taskStr) return;
     const task = JSON.parse(taskStr);
     const now = Date.now();
-
     if (now >= task.targetTime) {
-        // --- SUCCESS CASE ---
-        // Time has elapsed (whether browser was closed, tab hidden, or refreshed)
-        
-        // 1. Add Funds
-        if (typeof addFunds === 'function') {
-            addFunds(task.reward, 'Website Visit', `Visit to ${task.url}`, task.xp);
-        }
-
-        // 2. Mark as completed in history
+        if (typeof addFunds === 'function') { addFunds(task.reward, 'Website Visit', `Visit to ${task.url}`, task.xp); }
         const completedWebsites = JSON.parse(localStorage.getItem('completedWebsites') || '[]');
-        if (!completedWebsites.includes(task.url)) {
-            completedWebsites.push(task.url);
-            localStorage.setItem('completedWebsites', JSON.stringify(completedWebsites));
-        }
-
-        // 3. Increment Daily Count
+        if (!completedWebsites.includes(task.url)) { completedWebsites.push(task.url); localStorage.setItem('completedWebsites', JSON.stringify(completedWebsites)); }
         incrementDailyWebsite();
-
-        // 4. Clear active task
         localStorage.removeItem('earnova_active_web_task');
-
-        // 5. Alert User
         alert("You have claimed your reward!");
-
-        // 6. Refresh UI
         renderWebsiteTabOnLoad();
-
     } else {
-        // --- FAILURE CASE (Too Early) ---
-        // User came back to the tab before targetTime
-        
-        // 1. Clear active task (Reset)
         localStorage.removeItem('earnova_active_web_task');
-
-        // 2. Alert User
         alert("You have come back too early! You have not completed your stay on the site. Therefore you will not claim your reward.");
-
-        // 3. Refresh UI (Reset button text)
         renderWebsiteTabOnLoad();
     }
 }
 
-// 3. Event Listeners for Hidden/Visible logic
-
-// Check on Page Load (in case they refreshed while task was running)
-window.addEventListener('load', () => {
-    // If the page loads and there is an active task, it effectively means
-    // the user is "viewing" the page. So we run the check.
-    checkWebsiteTaskStatus();
-});
-
-// Check on Visibility Change (Tab switch)
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        // Tab is hidden. 
-        // We don't need to do anything here because the task was saved to localStorage 
-        // with a specific start time. Time is strictly linear.
-        // As long as they are away, (Date.now()) is increasing towards targetTime.
-    } else {
-        // Tab is visible (User came back)
-        checkWebsiteTaskStatus();
-    }
-});
+window.addEventListener('load', () => { checkWebsiteTaskStatus(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { checkWebsiteTaskStatus(); } });

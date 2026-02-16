@@ -6,6 +6,8 @@
     <title>Earnova | Enterprise Task Dashboard</title>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Paystack Inline JS -->
+    <script src="https://js.paystack.co/v1/inline.js"></script>
     
     <style>
         /* ------------------------------------------------------------
@@ -1360,8 +1362,8 @@
                     <div class="level-card">
                         <!-- Left: Level Badge -->
                         <div class="level-badge">
-                            <div class="level-number">8</div>
-                            <div class="level-tier-name">Pro Member</div>
+                            <div class="level-number">1</div>
+                            <div class="level-tier-name">Level 1</div>
                         </div>
 
                         <!-- Right: XP Progress Section -->
@@ -1373,8 +1375,8 @@
                                     <div class="xp-progress-bar-fill"></div>
                                 </div>
                                 <div class="xp-text-row">
-                                    <span class="xp-current">450 / 1000 XP</span>
-                                    <span class="xp-remaining">550 XP to next level</span>
+                                    <span class="xp-current">0 / 500 XP</span>
+                                    <span class="xp-remaining">500 XP to next level</span>
                                 </div>
                             </div>
 
@@ -1383,7 +1385,7 @@
                                 <div class="daily-xp-bar-small">
                                     <div class="daily-xp-bar-fill" style="width: 33%;"></div>
                                 </div>
-                                <span class="daily-xp-text">40 / 120 Daily XP</span>
+                                <span class="daily-xp-text">0 / 120 Daily XP</span>
                             </div>
                         </div>
                     </div>
@@ -1421,7 +1423,7 @@
                             <canvas id="tasksChart"></canvas>
                         </div>
                     </div>
-                    <!-- LEVEL PROGRESSION TABLE (NOW ONLY IN DASHBOARD, FULL WIDTH) -->
+                    <!-- LEVEL PROGRESSION TABLE -->
                     <div class="card" style="margin-bottom: 32px; width: 100%;">
                         <div class="section-header" style="margin-bottom: 16px;">
                             <h3 class="task-title">Level Progression & Limits</h3>
@@ -1548,7 +1550,6 @@
                             </table>
                         </div>
                     </div>
-                    </div>
                 </section>
 
                 <!-- ANALYTICS -->
@@ -1561,8 +1562,6 @@
                          <div class="card chart-container"><canvas id="typeChart"></canvas></div>
                     </div>
                 </section>
-
-                <!-- LEVEL PROGRESSION TABLE (ADDED HERE) -->
 
                 <!-- VIDEO TASKS -->
                 <section id="videos" class="content-section">
@@ -1619,33 +1618,91 @@
                     </div>
                 </section>
 
-                <!-- PROFILE -->
+                <!-- PROFILE (WITHDRAWAL & LEVEL UP) -->
                 <section id="profile" class="content-section">
                     <div class="section-header"><h1 class="page-title">User Profile</h1></div>
-                    <div class="card">
-                        <form class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label">Full Name</label>
-                                <input type="text" class="form-input" value="John Doe">
+                    
+                    <div class="dashboard-grid">
+                        <!-- Left Col: Personal Info & Level Management -->
+                        <div style="display: flex; flex-direction: column; gap: 24px;">
+                            
+                            <!-- Personal Info -->
+                            <div class="card">
+                                <h3 class="task-title" style="margin-bottom: 20px;">Personal Details</h3>
+                                <form class="form-grid" style="grid-template-columns: 1fr;">
+                                    <div class="form-group">
+                                        <label class="form-label">Full Name</label>
+                                        <input type="text" id="profile-fullname" class="form-input" value="John Doe">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Email Address</label>
+                                        <input type="email" id="profile-email" class="form-input" value="john.doe@earnova.com" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-input" value="+234 800 000 0000">
+                                    </div>
+                                </form>
+                                <button class="btn btn-outline" style="width: auto; margin-top: 16px;">Update Details</button>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Email Address</label>
-                                <input type="email" class="form-input" value="john.doe@earnova.com" readonly>
+
+                            <!-- Level Upgrade Card -->
+                            <div class="card" style="background: linear-gradient(135deg, rgba(30, 58, 138, 0.05) 0%, rgba(30, 58, 138, 0.02) 100%); border-left: 4px solid var(--accent-primary);">
+                                <h3 class="task-title" style="margin-bottom: 8px;">Level Management</h3>
+                                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                                    Even if you reach the XP requirement, you must pay an upgrade fee to unlock the next level and its benefits.
+                                </p>
+                                
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                    <div>
+                                        <div style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">Current Paid Level</div>
+                                        <div style="font-size: 24px; font-weight: 800; color: var(--accent-primary);" id="profile-paid-level">Level 1</div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase;">XP Status</div>
+                                        <div style="font-size: 14px; font-weight: 600;" id="profile-xp-status">0 XP</div>
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-primary" id="btn-level-upgrade" onclick="initiateLevelUpPayment()">
+                                    Pay ₦1,000 to Upgrade Level
+                                </button>
+                                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 8px; text-align: center;">
+                                    Requires XP for next level. Secured by Paystack.
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Phone Number</label>
-                                <input type="tel" class="form-input" value="+234 800 000 0000">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Country</label>
-                                <select class="form-input">
-                                    <option>Nigeria</option>
-                                    <option>Ghana</option>
-                                    <option>Kenya</option>
-                                </select>
-                            </div>
-                        </form>
-                        <button class="btn btn-primary" style="width: auto; margin-top: 16px;">Save Changes</button>
+
+                        </div>
+
+                        <!-- Right Col: Withdrawal -->
+                        <div class="card">
+                            <h3 class="task-title" style="margin-bottom: 12px; color: var(--accent-secondary);">Withdraw Funds</h3>
+                            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 20px;">
+                                Minimum Requirement: <strong>Level 5</strong>. Funds will be sent to the account details provided below.
+                            </p>
+                            
+                            <form id="withdrawal-form">
+                                <div class="form-group">
+                                    <label class="form-label">Amount (₦)</label>
+                                    <input type="number" id="withdraw-amount" class="form-input" placeholder="e.g. 5000">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Account Name</label>
+                                    <input type="text" id="withdraw-name" class="form-input" placeholder="Account Holder Name">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Account Number</label>
+                                    <input type="number" id="withdraw-acct" class="form-input" placeholder="10-digit NUBAN">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Bank Name</label>
+                                    <input type="text" id="withdraw-bank" class="form-input" placeholder="e.g. GTBank, UBA">
+                                </div>
+                                <button type="button" id="withdraw-btn" class="btn btn-primary" style="margin-top: 10px;" onclick="handleWithdrawal()">
+                                    Withdraw Funds
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </section>
 
@@ -1705,27 +1762,33 @@
         64899, // Level 14: 64899 XP
         97349  // Level 15: 97349 XP
     ];
+    
+    // Core function to determine Potential Level based purely on XP
     function getLevel(xp) {
         for (let i = LEVELS.length - 1; i >= 0; i--) {
             if (xp >= LEVELS[i]) return i + 1;
         }
         return 1;
     }
+    
     function getLevelXP(level) {
         if (level <= 1) return 0;
         if (level - 1 < LEVELS.length) return LEVELS[level - 1];
         return LEVELS[LEVELS.length - 1];
     }
+    
     function getNextLevelXP(level) {
         if (level < LEVELS.length) return LEVELS[level];
         return LEVELS[LEVELS.length - 1];
     }
+
     const STATE = {
         balance: parseFloat(localStorage.getItem('earnova_balance')) || 0,
         completedTasks: JSON.parse(localStorage.getItem('earnova_completed')) || 0,
         transactions: JSON.parse(localStorage.getItem('earnova_transactions')) || [],
         theme: localStorage.getItem('earnova_theme') || 'light',
-        xp: parseInt(localStorage.getItem('earnova_xp')) || 0
+        xp: parseInt(localStorage.getItem('earnova_xp')) || 0,
+        paidLevel: parseInt(localStorage.getItem('earnova_paid_level')) || 1
     };
 
     const UI = {
@@ -1738,12 +1801,16 @@
         sidebar: document.getElementById('sidebar'),
         overlay: document.getElementById('sidebar-overlay'),
         xpDisplay: document.getElementById('header-xp'),
-        // Profile/level card elements (if present)
+        // Profile/level card elements
         levelNumber: document.querySelector('.level-number'),
         levelTier: document.querySelector('.level-tier-name'),
         xpBar: document.querySelector('.xp-progress-bar-fill'),
         xpCurrent: document.querySelector('.xp-current'),
-        xpRemaining: document.querySelector('.xp-remaining')
+        xpRemaining: document.querySelector('.xp-remaining'),
+        // Profile Specific
+        profilePaidLevel: document.getElementById('profile-paid-level'),
+        profileXpStatus: document.getElementById('profile-xp-status'),
+        btnLevelUpgrade: document.getElementById('btn-level-upgrade')
     };
 
     /* ------------------------------------------------------------
@@ -1861,205 +1928,77 @@
                 <td>${tx.date}</td>
                 <td>${tx.desc}</td>
                 <td>${tx.type}</td>
-                <td style="color: var(--success); font-weight:700;">+₦${tx.amount}</td>
-                <td><span class="status-badge status-completed">${tx.status}</span></td>
+                <td style="${tx.amount > 0 ? 'color: var(--success);' : 'color: var(--text-primary);'} font-weight:700;">
+                    ${tx.amount > 0 ? '+' : ''}₦${Math.abs(tx.amount)}
+                </td>
+                <td><span class="status-badge ${tx.amount > 0 ? 'status-completed' : ''}">${tx.status}</span></td>
             </tr>
         `).join('');
     }
 
     function renderAllTasks() {
-        // Video Tab
-        if (typeof renderVideoTabOnLoad === 'function') {
-             renderVideoTabOnLoad();
-        }
-
-        // Question Tab: Use the dynamic loader from scripts.js instead of inline loop
-        if (typeof renderQuestionTabOnLoad === 'function') {
-            renderQuestionTabOnLoad();
-        }
-
-        // Website Tab: Use the dynamic loader from scripts.js
-        if (typeof renderWebsiteTabOnLoad === 'function') {
-             renderWebsiteTabOnLoad();
-        }
-    }
-
-    // --- Components ---
-
-    function createVideoCard(videoIndex, mins, reward, xp) {
-        return `
-        <div class="task-card video-task-card" id="vid-${videoIndex}" data-video-index="${videoIndex}">
-            <div class="task-header">
-                <span class="task-type">Video Ad</span>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <span class="task-reward">₦${reward}</span>
-                    <span class="xp-badge">+${xp} XP</span>
-                </div>
-            </div>
-            <div class="video-card-thumbnail" style="background-image: url('https://img.youtube.com/vi/placeholder/hqdefault.jpg');" onclick="openVideoModal(${videoIndex})" title="Click to watch video">
-                <div class="video-card-play-icon">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                </div>
-            </div>
-            <div class="task-body">
-                <div class="task-title">Video Task #${videoIndex + 1}</div>
-                <div class="task-meta">⏱ <span class="video-duration" data-video-index="${videoIndex}">Loading...</span> • HD</div>
-                <div class="progress-container"><div class="progress-bar" id="prog-vid-${videoIndex}"></div></div>
-                <button class="btn btn-primary" onclick="openVideoModal(${videoIndex})">Watch Now</button>
-            </div>
-        </div>`;
-    }
-
-    function createQuestionCard(index, survey) {
-        // Get persistent reward from scripts.js logic
-        let reward = null;
-        if (typeof getStoredRewardByQuestionCard === "function") {
-            reward = getStoredRewardByQuestionCard(survey);
-        }
-        if (!reward && typeof getQuestionCardReward === "function") {
-            reward = getQuestionCardReward(survey, index);
-        }
-        if (!reward) reward = { amount: 150, xp: 10 };
-
-        // Check if completed
-        let completed = false;
-        if (typeof isQuestionCardCompleted === "function") {
-            completed = isQuestionCardCompleted(survey);
-        }
-
-        // Always render a clickable button, but visually inactive if completed
-        let btnAttrs = '';
-        let btnText = '';
-        let btnStyle = 'margin-top:auto';
-        if (completed) {
-            btnText = 'Completed';
-            btnStyle += ';opacity:0.5;cursor:not-allowed;';
-            btnAttrs = `onclick=\"alert('You have already answered this question.')\"`;
-        } else {
-            btnText = 'Perform Task';
-            // FIX: Using handleQuestionClick instead of openSurveyModal
-            btnAttrs = `onclick=\"handleQuestionClick(${index}, '${survey.id}')\"`;
-        }
-        return `
-        <div class="task-card${completed ? ' completed' : ''}" id="question-card-${survey.id}"${completed ? ' style=\"opacity:0.5;cursor:not-allowed;\"' : ''} data-survey-id="${survey.id}">
-            <div class="task-header">
-                <span class="task-type">Survey</span>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <span class="task-reward">₦${reward.amount}</span>
-                    <span class="xp-badge">+${reward.xp} XP</span>
-                </div>
-            </div>
-            <div class="task-body">
-                <div class="task-title">${survey.title}</div>
-                <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px;">Complete this survey to earn rewards.</p>
-                <button class="btn btn-primary" style="${btnStyle}" ${btnAttrs}>${btnText}</button>
-            </div>
-        </div>`;
-    }
-
-    function createSocialCard(id) {
-        return `
-        <div class="task-card">
-            <div class="task-header">
-                <span class="task-type">Instagram</span>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <span class="task-reward">₦30</span>
-                    <span class="xp-badge">+3 XP</span>
-                </div>
-            </div>
-            <div class="task-body">
-                <div class="task-title">Follow & Like Recent Post</div>
-                <div class="task-meta">Instant Reward</div>
-                <button class="btn btn-outline" style="margin-top:auto" onclick="addFunds(30, 'Social', 'Instagram Action', 3)">Perform Task</button>
-            </div>
-        </div>`;
-    }
-
-    /* ------------------------------------------------------------
-       SIMULATION
-    ------------------------------------------------------------ */
-    function startVideoTask(id, mins, reward) {
-        const btn = document.querySelector(`#vid-${id} button`);
-        const bar = document.getElementById(`prog-vid-${id}`);
-        
-        if(btn.disabled) return;
-        btn.disabled = true;
-        btn.innerText = "Watching...";
-        
-        let width = 0;
-        const interval = setInterval(() => {
-            width += 5; 
-            bar.style.width = width + '%';
-            
-            if(width >= 100) {
-                clearInterval(interval);
-                btn.innerText = "Claim Reward";
-                btn.classList.replace('btn-primary', 'btn-outline');
-                btn.style.color = 'var(--success)';
-                btn.style.borderColor = 'var(--success)';
-                btn.disabled = false;
-                btn.onclick = () => {
-                    addFunds(reward, 'Video', `Video Task #${id}`);
-                    btn.innerText = "Completed";
-                    btn.disabled = true;
-                    document.getElementById(`vid-${id}`).style.opacity = '0.5';
-                };
-            }
-        }, 200);
+        if (typeof renderVideoTabOnLoad === 'function') renderVideoTabOnLoad();
+        if (typeof renderQuestionTabOnLoad === 'function') renderQuestionTabOnLoad();
+        if (typeof renderWebsiteTabOnLoad === 'function') renderWebsiteTabOnLoad();
     }
 
     // XP/Level UI update
     function updateXPUI() {
+        // Refresh local state
+        STATE.xp = parseInt(localStorage.getItem('earnova_xp')) || 0;
+        STATE.paidLevel = parseInt(localStorage.getItem('earnova_paid_level')) || 1;
+        
+        const potentialLevel = getLevel(STATE.xp);
+        const effectiveLevel = Math.min(potentialLevel, STATE.paidLevel);
+
         // Header XP
-        if (UI.xpDisplay) {
-            UI.xpDisplay.innerText = STATE.xp + ' XP';
-        }
-        // Dashboard Total XP stat card
+        if (UI.xpDisplay) UI.xpDisplay.innerText = STATE.xp + ' XP';
+        
+        // Dashboard Total XP
         var dashXP = document.getElementById('dash-xp');
-        if (dashXP) {
-            dashXP.innerText = STATE.xp + ' XP';
-        }
-        // Level Card (profile/dashboard)
-        if (UI.levelNumber) {
-            const level = getLevel(STATE.xp);
-            UI.levelNumber.innerText = level;
-        }
-        if (UI.levelTier) {
-            const level = getLevel(STATE.xp);
-            UI.levelTier.innerText = 'Level ' + level;
-        }
-        if (UI.xpBar) {
-            const level = getLevel(STATE.xp);
-            const prevXP = getLevelXP(level);
-            const nextXP = getNextLevelXP(level);
+        if (dashXP) dashXP.innerText = STATE.xp + ' XP';
+        
+        // Level Card (Main visual uses Paid/Effective Level)
+        if (UI.levelNumber) UI.levelNumber.innerText = effectiveLevel;
+        if (UI.levelTier) UI.levelTier.innerText = 'Level ' + effectiveLevel;
+        
+        // XP Bar Logic (Based on XP progress to next POTENTIAL level)
+        if (UI.xpBar && UI.xpCurrent && UI.xpRemaining) {
+            const prevXP = getLevelXP(potentialLevel);
+            const nextXP = getNextLevelXP(potentialLevel);
             const progress = nextXP > prevXP ? ((STATE.xp - prevXP) / (nextXP - prevXP)) * 100 : 100;
+            
             UI.xpBar.style.width = Math.max(0, Math.min(100, progress)) + '%';
-        }
-        if (UI.xpCurrent) {
-            const level = getLevel(STATE.xp);
-            const prevXP = getLevelXP(level);
-            const nextXP = getNextLevelXP(level);
             UI.xpCurrent.innerText = (STATE.xp - prevXP) + ' / ' + (nextXP - prevXP) + ' XP';
-        }
-        if (UI.xpRemaining) {
-            const level = getLevel(STATE.xp);
-            const nextXP = getNextLevelXP(level);
+            
             const rem = nextXP - STATE.xp;
             UI.xpRemaining.innerText = rem > 0 ? (rem + ' XP to next level') : 'Max Level';
         }
-    }
 
-    // Get video reward info by index
-    function getVideoReward(videoIndex) {
-        const rewards = [
-            { amount: 50, xp: 8 },
-            { amount: 75, xp: 10 },
-            { amount: 60, xp: 9 },
-            { amount: 80, xp: 11 },
-            { amount: 70, xp: 10 },
-            { amount: 90, xp: 12 }
-        ];
-        return rewards[videoIndex % rewards.length] || { amount: 50, xp: 8 };
+        // Profile Specific UI Updates
+        if (UI.profilePaidLevel) {
+            UI.profilePaidLevel.innerText = `Level ${STATE.paidLevel}`;
+        }
+        if (UI.profileXpStatus) {
+            UI.profileXpStatus.innerText = `${STATE.xp} XP (Pot. Level ${potentialLevel})`;
+        }
+
+        // Upgrade Button State
+        if (UI.btnLevelUpgrade) {
+            if (potentialLevel > STATE.paidLevel) {
+                // Eligible for upgrade
+                UI.btnLevelUpgrade.disabled = false;
+                UI.btnLevelUpgrade.innerText = `Pay ₦1,000 to Upgrade to Level ${STATE.paidLevel + 1}`;
+                UI.btnLevelUpgrade.classList.remove('btn-outline');
+                UI.btnLevelUpgrade.classList.add('btn-primary');
+            } else {
+                // Not enough XP
+                UI.btnLevelUpgrade.disabled = true;
+                UI.btnLevelUpgrade.innerText = `Need more XP for Level ${STATE.paidLevel + 1}`;
+                UI.btnLevelUpgrade.classList.remove('btn-primary');
+                UI.btnLevelUpgrade.classList.add('btn-outline');
+            }
+        }
     }
 
     /* ------------------------------------------------------------
