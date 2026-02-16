@@ -192,6 +192,211 @@ Repeat'
 
 please apply this feature the video tab has this type of feature but we dont need to touch the video tab this is only funtionality for the question tab there is no redesigning of any element here except for disabling and enabling no feature already ther i smeant to be deleted just add this feature and give me back may full updated profile.html and scripts.js code to copy. remember this is only functionality there is no designing here add the feature and give me back may full updated profile.html and scripts.js code to copy
 
+
+
+
+Important:
+You are only responsible for assigning the price and XP for website tasks on the task card.
+
+You must not change anything else—no HTML, layout, text, buttons, images, or other design.
+Do not change any other data.
+
+Only price and XP fields should be modified.
+This is your sole responsibility. Nothing else should be touched.
+
+1️⃣ Categorize Website Tasks by Time Spent
+
+Website tasks fall into five categories based on how long the user stays on the site.
+
+You must assign the correct category before calculating the price and XP.
+
+Category	Time Spent	Price Range (₦)	XP Range
+Very Small	5 – 30s	1 – 3	1 – 3
+Small	30 – 120s	3 – 8	3 – 8
+Medium	120 – 600s	8 – 25	8 – 20
+Large	600 – 1800s	25 – 60	20 – 40
+Very Large	1800 – 3000s	60 – 100	40 – 60
+Notes:
+
+Duration is measured in seconds.
+
+Every website task must have a unique price and XP, even if two tasks have the same duration.
+
+Price and XP increase as the time increases.
+
+You must add small random variation to make values unique.
+
+2️⃣ Calculate Relative Duration Within Category
+
+You must calculate how far the task duration is inside its category.
+
+This is called:
+
+duration_percent = (task_time - min_category_time) 
+                   / (max_category_time - min_category_time)
+
+
+This produces a value between 0 and 1.
+
+Example
+
+Task time = 900 seconds
+Category = Large (600 – 1800s)
+
+(900 – 600) / (1800 – 600)
+= 300 / 1200
+= 0.25
+
+
+This means the task is 25% into the Large category.
+
+3️⃣ Calculate Base Price and XP
+
+Use linear interpolation:
+
+price = min_price + duration_percent * (max_price - min_price)
+
+XP = min_XP + duration_percent * (max_XP - min_XP)
+
+Example (Large Task, 900s)
+
+Large price range: 25 – 60 ₦
+Large XP range: 20 – 40
+
+duration_percent = 0.25
+
+price = 25 + 0.25 * (60 - 25)
+= 25 + 8.75
+= 33.75 ₦
+
+XP = 20 + 0.25 * (40 - 20)
+= 20 + 5
+= 25 XP
+
+4️⃣ Add Small Random Variation
+
+To prevent duplicate values:
+
+price = price + random(-1, 1)
+XP = XP + random(-0.5, 0.5)
+
+
+Rules:
+
+Price variation: ±1 ₦
+
+XP variation: ±0.5
+
+Final values must remain inside the category range.
+
+5️⃣ Ensure Uniqueness
+
+Even after randomization:
+
+No two website tasks may have the exact same price and XP.
+
+Decimal differences are required if durations are similar.
+
+Uniqueness must be enforced across the entire system.
+
+6️⃣ Ensure Proportionality
+
+The system must reward longer website sessions more than shorter ones.
+
+Longer time → higher price
+
+Longer time → higher XP
+
+Random variation must not break this rule.
+
+7️⃣ Price and XP Must Reflect Duration Exactly
+
+Do NOT assign flat values.
+
+You must:
+
+Determine the category
+
+Calculate duration_percent
+
+Interpolate price and XP
+
+Apply small random variation
+
+Round to 1 decimal place if needed
+
+Ensure uniqueness
+
+Examples
+
+5s → Very Small → near minimum price & XP
+60s → Small → mid Small range
+300s → Medium → mid Medium range
+2000s → Very Large → high end of system
+
+Every task must be different.
+
+8️⃣ Constraints for the AI
+
+Never touch HTML, layout, images, buttons, or text.
+
+Only modify numeric fields: price and XP.
+
+Always stay within category ranges.
+
+Apply variation carefully.
+
+Ensure uniqueness.
+
+Maintain proportionality.
+
+Decimals are allowed.
+
+Do not hardcode fixed values.
+
+All calculations must be dynamic.
+
+9️⃣ Debugging Guide (Internal Logic)
+
+If task_time < 30s → Very Small
+If 30s ≤ task_time < 120s → Small
+If 120s ≤ task_time < 600s → Medium
+If 600s ≤ task_time < 1800s → Large
+If 1800s ≤ task_time ≤ 3000s → Very Large
+
+Base price = min_price + duration_percent * (max_price - min_price)
+Base XP = min_XP + duration_percent * (max_XP - min_XP)
+
+
+Randomize:
+
+±1 ₦ price
+
+±0.5 XP
+
+Ensure final values:
+
+Within range
+
+Unique
+
+Proportional
+
+🔟 End Rules (Do Not Break)
+
+You only touch numeric fields: price and XP.
+Everything else remains unchanged.
+All website tasks must be processed.
+All ranges must be respected.
+Random variation must be applied carefully.
+Values must be proportional to time spent.
+Values must be unique across all website tasks. the none of the webssite price should exceed 100 and none of the webstie card xp must exceed 60
+
+
+
+
+
+
 temporary refreshing:
 localStorage.setItem('earnova_daily_watch_count', 0);
 refreshVideoTabForNewDay();

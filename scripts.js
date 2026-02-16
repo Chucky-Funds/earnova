@@ -1736,42 +1736,88 @@ async function renderWebsiteTabOnLoad() {
     // Check completed websites from local storage
     const completedWebsites = JSON.parse(localStorage.getItem('completedWebsites') || '[]');
     
+    // --- Website Task Reward Calculation ---
+    // Category definitions
+    const categories = [
+      { name: 'Very Small', min: 5, max: 30, minPrice: 1, maxPrice: 3, minXP: 1, maxXP: 3 },
+      { name: 'Small', min: 30, max: 120, minPrice: 3, maxPrice: 8, minXP: 3, maxXP: 8 },
+      { name: 'Medium', min: 120, max: 600, minPrice: 8, maxPrice: 25, minXP: 8, maxXP: 20 },
+      { name: 'Large', min: 600, max: 1800, minPrice: 25, maxPrice: 60, minXP: 20, maxXP: 40 },
+      { name: 'Very Large', min: 1800, max: 3000, minPrice: 60, maxPrice: 100, minXP: 40, maxXP: 60 }
+    ];
+
+    // Used values for uniqueness
+    const usedRewards = {};
+
     websites.forEach((site, index) => {
-        // Calculate reward based on seconds: ~₦0.5 per second capped somewhat, XP ~0.1 per second
-        const rewardAmount = Math.max(5, Math.floor(site.seconds * 0.1)); 
-        const rewardXP = Math.max(1, Math.floor(site.seconds * 0.05));
-        
-        const isCompleted = completedWebsites.includes(site.link);
-        
-        let btnAttrs = `onclick="handleWebsiteVisit(this, '${site.link}', ${site.seconds}, ${rewardAmount}, ${rewardXP})"`;
-        let btnText = "Visit Site";
-        let cardStyle = "";
-        let btnStyle = "margin-top:auto";
-        
-        if (isCompleted) {
-            btnText = "Completed";
-            btnAttrs = `onclick="alert('You have already visited this website.')"`;
-            cardStyle = "opacity:0.5; cursor:not-allowed;";
-            btnStyle += "; opacity:0.5; cursor:not-allowed;";
-        }
-        
-        const cardHtml = `
-        <div class="task-card ${isCompleted ? 'completed' : ''}" style="${cardStyle}" data-website-link="${site.link}">
-            <div class="task-header">
-                <span class="task-type">Website Visit</span>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <span class="task-reward">₦${rewardAmount}</span>
-                    <span class="xp-badge">+${rewardXP} XP</span>
-                </div>
-            </div>
-            <div class="task-body">
-                <div class="task-title">${site.title}</div>
-                <div class="task-meta">⏱ ${site.seconds} Seconds Required</div>
-                <button class="btn btn-primary" style="${btnStyle}" ${btnAttrs}>${btnText}</button>
-            </div>
-        </div>`;
-        
-        container.insertAdjacentHTML('beforeend', cardHtml);
+      // Find category
+      let cat = categories.find(c => site.seconds >= c.min && site.seconds <= c.max);
+      if (!cat) {
+        // If below min, treat as Very Small
+        cat = categories[0];
+      }
+      // Calculate duration_percent
+      const durationPercent = (site.seconds - cat.min) / (cat.max - cat.min);
+      // Linear interpolation
+      let price = cat.minPrice + durationPercent * (cat.maxPrice - cat.minPrice);
+      let xp = cat.minXP + durationPercent * (cat.maxXP - cat.minXP);
+      // Random variation
+      function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+      price += randomInRange(-1, 1);
+      xp += randomInRange(-0.5, 0.5);
+      // Clamp to category range
+      price = Math.max(cat.minPrice, Math.min(cat.maxPrice, price));
+      xp = Math.max(cat.minXP, Math.min(cat.maxXP, xp));
+      // Round to 1 decimal
+      price = Math.round(price * 10) / 10;
+      xp = Math.round(xp * 10) / 10;
+      // Uniqueness enforcement
+      let key = `${price}_${xp}`;
+      let tries = 0;
+      while (usedRewards[key] && tries < 10) {
+        price += randomInRange(-0.2, 0.2);
+        xp += randomInRange(-0.1, 0.1);
+        price = Math.max(cat.minPrice, Math.min(cat.maxPrice, price));
+        xp = Math.max(cat.minXP, Math.min(cat.maxXP, xp));
+        price = Math.round(price * 10) / 10;
+        xp = Math.round(xp * 10) / 10;
+        key = `${price}_${xp}`;
+        tries++;
+      }
+      usedRewards[key] = true;
+      // Final constraints
+      price = Math.min(100, price);
+      xp = Math.min(60, xp);
+      // Completed state
+      const isCompleted = completedWebsites.includes(site.link);
+      let btnAttrs = `onclick="handleWebsiteVisit(this, '${site.link}', ${site.seconds}, ${price}, ${xp})"`;
+      let btnText = "Visit Site";
+      let cardStyle = "";
+      let btnStyle = "margin-top:auto";
+      if (isCompleted) {
+        btnText = "Completed";
+        btnAttrs = `onclick="alert('You have already visited this website.')"`;
+        cardStyle = "opacity:0.5; cursor:not-allowed;";
+        btnStyle += "; opacity:0.5; cursor:not-allowed;";
+      }
+      const cardHtml = `
+      <div class="task-card ${isCompleted ? 'completed' : ''}" style="${cardStyle}" data-website-link="${site.link}">
+        <div class="task-header">
+          <span class="task-type">Website Visit</span>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span class="task-reward">₦${price}</span>
+            <span class="xp-badge">+${xp} XP</span>
+          </div>
+        </div>
+        <div class="task-body">
+          <div class="task-title">${site.title}</div>
+          <div class="task-meta">⏱ ${site.seconds} Seconds Required</div>
+          <button class="btn btn-primary" style="${btnStyle}" ${btnAttrs}>${btnText}</button>
+        </div>
+      </div>`;
+      container.insertAdjacentHTML('beforeend', cardHtml);
     });
 }
 
