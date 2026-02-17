@@ -589,3 +589,119 @@
         padding: 30px 20px;
     }
 }
+
+
+/* -----------------------------------------------------------
+   NEW REWARDS LAYOUT (Bank & Crypto Only)
+----------------------------------------------------------- */
+
+/* Change grid to 2 columns for larger cards */
+.rewards-grid.two-col-layout {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.reward-card.premium-card {
+    padding: 50px 40px;
+    text-align: left; /* Align text left for premium feel */
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Gradient borders on hover */
+.reward-card.premium-card:hover {
+    border-color: var(--accent-orange);
+    background: rgba(255, 255, 255, 0.07);
+    transform: translateY(-10px);
+}
+
+.card-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--accent-green);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.icon-pulse {
+    font-size: 3.5rem;
+    margin-bottom: 25px;
+    display: inline-block;
+    animation: pulse-animation 2s infinite;
+}
+
+@keyframes pulse-animation {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.reward-card.premium-card h3 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.reward-desc {
+    color: #9CA3AF;
+    font-size: 1rem;
+    margin-bottom: 30px;
+    line-height: 1.6;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 20px;
+}
+
+/* Details Section (Min withdrawal etc) */
+.reward-details {
+    margin-bottom: 30px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    color: #D1D5DB;
+    font-size: 0.95rem;
+}
+
+.detail-row .highlight {
+    color: var(--accent-orange);
+    font-weight: 700;
+}
+
+/* Supported Banks List */
+.supported-list p {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: #6B7280;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+.bank-logos {
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* Mobile Responsiveness for new layout */
+@media (max-width: 768px) {
+    .rewards-grid.two-col-layout {
+        grid-template-columns: 1fr; /* Stack vertically on mobile */
+        gap: 30px;
+    }
+    
+    .reward-card.premium-card {
+        padding: 30px 20px;
+    }
+}
