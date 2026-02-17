@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews & Feedback | Earn-nova</title>
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="stylesheet" href="css/index.css">
+    <style>
+        /* INLINE CSS FOR THIS PAGE ONLY */
+        .reviews-header {
+            background: var(--bg-dark);
+            color: white;
+            padding: 120px 0 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .rating-summary {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+            padding: 10px 25px;
+            border-radius: 50px;
+            margin-top: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 40px 0;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 1px solid var(--border-subtle);
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            color: var(--text-muted);
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            padding-bottom: 80px;
+        }
+
+        .review-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            opacity: 0; /* Hidden initially for animation */
+            transform: translateY(30px);
+        }
+
+        .review-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+        }
+
+        .review-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .rating-stars {
+            color: #FBBF24;
+            letter-spacing: 2px;
+        }
+        
+        .rating-stars.bad { color: #ef4444; } /* Red stars for bad reviews */
+        .rating-stars.mid { color: #f97316; } /* Orange for mid */
+
+        .review-date {
+            font-size: 0.75rem;
+            color: #9CA3AF;
+        }
+
+        .review-title {
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .review-body {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .tag-pill {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            background: var(--bg-light);
+            border-radius: 4px;
+            margin-top: 15px;
+            color: var(--text-muted);
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .reviews-header { padding: 100px 0 40px; }
+            .reviews-grid { grid-template-columns: 1fr; }
+            .filter-container { gap: 8px; }
+            .filter-btn { padding: 8px 16px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER (Same as Main) -->
+    <header id="header">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"></div>
+                <span class="logo-text">Earn-nova</span>
+            </a>
+            <nav>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="index.html" class="nav-link">Back to Home</a></li>
+                </ul>
+            </nav>
+            <div class="nav-actions">
+                <a href="login.html" class="btn btn-secondary">Join Now</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO HEADER -->
+    <section class="reviews-header">
+        <div class="container">
+            <h1 style="font-size: clamp(2rem, 4vw, 3rem);">Community Feedback</h1>
+            <p style="opacity: 0.8; max-width: 500px; margin: 10px auto;">Transparent reviews from our active users. The good, the bad, and the honest truth.</p>
+            
+            <div class="rating-summary">
+                <span style="font-size: 1.5rem; font-weight: 700; color: #FBBF24; margin-right: 10px;">★ 4.2</span>
+                <span>based on 12,408 reviews</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- REVIEWS SECTION -->
+    <section class="section-padding" style="background: var(--bg-light); padding-top: 20px;">
+        <div class="container">
+            
+            <!-- Filters -->
+            <div class="filter-container">
+                <button class="filter-btn active" onclick="filterReviews('all')">All Reviews</button>
+                <button class="filter-btn" onclick="filterReviews('5')">★★★★★ Excellent</button>
+                <button class="filter-btn" onclick="filterReviews('3')">★★★☆☆ Moderate</button>
+                <button class="filter-btn" onclick="filterReviews('1')">★☆☆☆☆ Critical</button>
+            </div>
+
+            <!-- Grid -->
+            <div class="reviews-grid" id="reviewsGrid">
+                <!-- Javascript will inject 50 reviews here -->
+            </div>
+
+            <div class="text-center">
+                <p style="color: var(--text-muted);">Showing 50 most recent reviews</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER (Simplified) -->
+    <footer>
+        <div class="container text-center">
+            <p>&copy; 2026 Earn-nova Inc. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- LOGIC -->
+<script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // 1. EXPANDED DATASETS (Enough for 100+ unique reviews)
+        const names = [
+            "Emmanuel", "Sarah", "Chinedu", "Grace", "Tunde", "Zainab", "David", "Ngozi", "Ibrahim", "Blessing",
+            "Femi", "Kelechi", "Aisha", "Musa", "Bolaji", "Chioma", "Emeka", "Funke", "Ahmed", "Precious",
+            "Mercy", "Samuel", "Victor", "Yusuf", "Mary", "Michael", "Faith", "Solomon", "Olamide", "Fatima",
+            "Destiny", "Gideon", "Joy", "Esther", "Abubakar", "Chisom", "Daniel", "Victoria", "Prosper", "Anita",
+            "Kingsley", "Jennifer", "Umar", "Folake", "Bose", "Idris", "Tope", "Nneka", "Segun", "Rita",
+            "Promise", "Ebuka", "Hassan", "Lola", "Stanley", "Rose", "Sunday", "Juliet", "Collins", "Habiba",
+            "Wale", "Amarachi", "Friday", "Temitope", "Sadiq", "Glory", "Patrick", "Rukayat", "Timothy", "Ada",
+            "Godwin", "Loveth", "Lateef", "Bukola", "Peter", "Sandra", "Okiki", "Halima", "Matthew", "Ogechi",
+            "Silas", "Cynthia", "Kabir", "Simi", "Henry", "Rashida", "Felix", "Uche", "Paul", "Queen"
+        ];
+
+        const titles_good = [
+            "Amazing Platform", "Fast Payout", "Legit Income", "Best in Nigeria", "Works perfectly",
+            "Omo, e choke!", "Sweet App", "Student Saver", "Better than others", "Crypto confirmed",
+            "My Side Hustle", "Alert Entered", "Real Cash", "Love it", "Very Easy",
+            "PalmPay credited", "Verified User", "Smooth sailing", "Data money", "Weekend cash",
+            "Highly Recommended", "No stress", "Fastest withdrawal", "Nice update", "Legit 100%"
+        ];
+
+        const titles_mid = [
+            "Good but slow", "Okay experience", "Needs improvement", "Hard surveys", "Decent Pay",
+            "Just average", "Takes too long", "Not bad sha", "Payout delayed", "Survey cut off",
+            "Fix the bugs", "Data consumption", "Verification slow", "Okay for students", "Can be better",
+            "Low tasks today", "Good but stressful", "Waiting for payment", "Average app", "Needs update"
+        ];
+
+        const titles_bad = [
+            "Account Suspended", "Disqualified often", "App Crashing", "Low pay rates", "Waste of time",
+            "Scam alert?", "Banned for nothing", "Where is my money?", "Fake platform", "Verification failed",
+            "VPN error??", "Too hard", "Disappointed", "Points disappeared", "Customer support ignored me",
+            "Not working", "0.5 stars", "Don't download", "Buggy website", "Login issues"
+        ];
+        
+        const text_good = [
+            "I withdrew ₦20k yesterday and saw it in my GTBank account this morning. Very happy!",
+            "Finally a site that pays via Crypto without high fees. Love it.",
+            "It takes time to build up, but it is definitely legit. Good side hustle.",
+            "Customer support helped me reset my password quickly. 5 stars.",
+            "I love watching the videos while commuting. Easy money.",
+            "Just received ₦5,000 in my Opay. Thanks Earn-nova!",
+            "This is the best platform for students in Nigeria. I pay my bills with this.",
+            "I was skeptical at first, but the USDT withdrawal is instant. confirmed.",
+            "The referral bonus is actually real. I invited 3 friends and got paid.",
+            "Verification was fast. I used my NIN and got approved in 10 mins.",
+            "Better than Swagbucks for Nigerians. At least we qualify for surveys here.",
+            "Consistency is key. I make about ₦2,000 every day.",
+            "The new update makes it easier to navigate. Good job devs.",
+            "Straight to my Kuda bank. No stories.",
+            "I bought data subscription with my earnings today. It works."
+        ];
+
+        const text_mid = [
+            "Payouts are real but they take 48 hours, not 24 hours. Please speed it up.",
+            "Too many surveys disqualify me halfway through. But the ones that work pay well.",
+            "The app is good but drains my battery a bit. Otherwise fine.",
+            "I wish there were more video tasks available in the mornings.",
+            "It's okay. Not a get rich quick scheme, but pays for airtime.",
+            "Money came but it took 3 days. Almost thought I was scammed.",
+            "Minimum withdrawal is a bit high for beginners. Lower it to ₦1000 please.",
+            "The dark mode needs work, I can't see some buttons.",
+            "Surveys are sometimes repetitive. Please add new ones.",
+            "Good app but consumes too much data for video tasks.",
+            "I got my money, but the fees for bank transfer are slightly high.",
+            "Verification took 2 days. But after that, everything was smooth.",
+            "Sometimes the server is slow on weekends.",
+            "Okay app, but I prefer the desktop version.",
+            "It pays, but you need patience. A lot of patience."
+        ];
+
+        const text_bad = [
+            "I got banned for 'VPN usage' but I wasn't using one! Support please help.",
+            "Tried to withdraw ₦2000 and it failed. Still waiting for refund.",
+            "Too many ads on the site makes it hard to navigate.",
+            "0.5 stars. I spent 20 mins on a survey and got ₦50. Not worth it.",
+            "My account level is stuck at level 1. Very frustrating.",
+            "They said I used a proxy. I don't even know what that is. Unfair.",
+            "I requested payout last week. Still showing 'Processing'.",
+            "Verification failed 3 times. My ID is clear. Fix this.",
+            "App crashes every time I open a high-paying survey.",
+            "Total waste of time. The points system is confusing.",
+            "I cannot login. It says 'User not found' but I have money in there.",
+            "Customer service is not replying to my emails.",
+            "Why is the minimum withdrawal ₦5000? That is too high.",
+            "My points vanished after the update. Please restore them.",
+            "Scam. Do not put your money here."
+        ];
+
+        let reviewsData = [];
+
+        // GENERATE 100 REVIEWS
+        for(let i=0; i<100; i++) {
+            let rating, title, text, type, reviewType;
+            let rand = Math.random();
+
+            // Logic: 65% Good, 25% Mid, 10% Bad
+            if (rand > 0.35) { 
+                // GOOD
+                rating = (Math.floor(Math.random() * 2) + 4); // 4 or 5
+                title = titles_good[Math.floor(Math.random() * titles_good.length)];
+                text = text_good[Math.floor(Math.random() * text_good.length)];
+                type = 'good';
+            } else if (rand > 0.10) { 
+                // MID
+                rating = 3;
+                title = titles_mid[Math.floor(Math.random() * titles_mid.length)];
+                text = text_mid[Math.floor(Math.random() * text_mid.length)];
+                type = 'mid';
+            } else { 
+                // BAD
+                rating = (Math.random() > 0.5 ? 1 : 0.5); // 0.5 or 1
+                title = titles_bad[Math.floor(Math.random() * titles_bad.length)];
+                text = text_bad[Math.floor(Math.random() * text_bad.length)];
+                type = 'bad';
+            }
+
+            reviewsData.push({
+                id: i,
+                name: names[i % names.length] + " " + String.fromCharCode(65 + Math.floor(Math.random() * 26)) + ".",
+                rating: rating,
+                title: title,
+                text: text,
+                date: Math.floor(Math.random() * 60) + " days ago", // Up to 60 days ago
+                color: getRandomColor(),
+                type: type
+            });
+        }
+
+        function getRandomColor() {
+            const colors = ['#E0F2FE', '#DCFCE7', '#FEF3C7', '#F3E8FF', '#FFE4E6', '#F1F5F9'];
+            const textColors = ['#0284C7', '#16A34A', '#D97706', '#9333EA', '#E11D48', '#475569'];
+            let idx = Math.floor(Math.random() * colors.length);
+            return { bg: colors[idx], text: textColors[idx] };
+        }
+
+        // 2. RENDER FUNCTION
+        const grid = document.getElementById('reviewsGrid');
+
+        function renderReviews(filterRating) {
+            grid.innerHTML = ''; // Clear current
+            
+            // Filter logic
+            const filtered = reviewsData.filter(r => {
+                if(filterRating === 'all') return true;
+                if(filterRating === '5') return r.rating >= 4;
+                if(filterRating === '3') return r.rating === 3;
+                if(filterRating === '1') return r.rating <= 2;
+            });
+
+            filtered.forEach(r => {
+                // Generate Star String
+                let starStr = '';
+                let starClass = '';
+                if(r.rating >= 4) { starStr = '★★★★★'; starClass = 'good'; }
+                else if(r.rating >= 3) { starStr = '★★★☆☆'; starClass = 'mid'; }
+                else if(r.rating === 1) { starStr = '★☆☆☆☆'; starClass = 'bad'; }
+                else { starStr = '½☆☆☆☆'; starClass = 'bad'; } // 0.5 star
+
+                const card = document.createElement('div');
+                card.className = 'review-card';
+                card.innerHTML = `
+                    <div class="review-top">
+                        <div class="reviewer-info">
+                            <div class="avatar-circle" style="background:${r.color.bg}; color:${r.color.text};">
+                                ${r.name.substring(0,2).toUpperCase()}
+                            </div>
+                            <div>
+                                <div style="font-weight:600; font-size:0.9rem;">${r.name}</div>
+                                <div class="review-date">${r.date}</div>
+                            </div>
+                        </div>
+                        <div class="rating-stars ${starClass}">${starStr}</div>
+                    </div>
+                    <div class="review-title">${r.title}</div>
+                    <div class="review-body">"${r.text}"</div>
+                    ${r.rating >= 4 ? '<div class="tag-pill">Verified Payout</div>' : ''}
+                `;
+                grid.appendChild(card);
+            });
+
+            // 3. ANIMATE ENTRY (Staggered)
+            gsap.fromTo(".review-card", 
+                { y: 50, opacity: 0 },
+                { 
+                    y: 0, 
+                    opacity: 1, 
+                    duration: 0.5, 
+                    stagger: 0.03, // Faster stagger for 100 items
+                    ease: "power2.out",
+                    scrollTrigger: {
+                        trigger: ".reviews-grid",
+                        start: "top 90%"
+                    }
+                }
+            );
+        }
+
+        // 4. FILTER BUTTON LOGIC
+        function filterReviews(type) {
+            // Update buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Re-render
+            renderReviews(type);
+        }
+
+        // Initial Load
+        renderReviews('all');
+
+        // Header Parallax
+        gsap.to(".reviews-header", {
+            backgroundPosition: "50% 100%",
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".reviews-header",
+                start: "top top",
+                end: "bottom top",
+                scrub: true
+            }
+        });
+
+    </script>
+</body>
+</html>
