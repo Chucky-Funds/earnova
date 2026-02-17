@@ -73,6 +73,7 @@
 
         revealOnScroll(".hiw-card");
         revealOnScroll(".reward-card");
+        revealOnScroll(".method-card"); // <--- ADD THIS LINE HERE
 
         // 4. Counter Animation
         const animateCounters = () => {

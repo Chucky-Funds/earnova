@@ -458,3 +458,134 @@
             width: 100%; padding: 12px; border: 1px solid var(--border-subtle); border-radius: 8px; outline: none; transition: 0.3s;
         }
         .contact-form-group input:focus, .contact-form-group textarea:focus { border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
+
+        /* -----------------------------------------------------------
+   EARNING METHODS SECTION
+----------------------------------------------------------- */
+.methods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    padding: 10px;
+}
+
+.method-card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 40px 30px;
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Hover Effect: Lift up and glow */
+.method-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 40px -10px rgba(30, 58, 138, 0.15);
+    border-color: rgba(30, 58, 138, 0.1);
+}
+
+.method-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 6px;
+    background: linear-gradient(90deg, var(--primary-blue), var(--accent-green));
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.method-card:hover::before {
+    opacity: 1;
+}
+
+.method-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: var(--accent-green);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+}
+
+.method-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    transition: 0.3s;
+}
+
+/* Icon Colors */
+.video-icon { background: #eff6ff; color: var(--primary-blue); }
+.question-icon { background: #fff7ed; color: var(--accent-orange); }
+.site-icon { background: #ecfdf5; color: var(--accent-green); }
+
+.method-card:hover .method-icon-wrapper {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.method-card h3 {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+    color: var(--text-main);
+}
+
+.method-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+    flex-grow: 1; /* Pushes content down */
+}
+
+.earning-potential {
+    background: var(--bg-light);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.earning-potential strong {
+    color: var(--text-main);
+}
+
+.method-link {
+    color: var(--primary-blue);
+    font-weight: 700;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.3s;
+}
+
+.method-link:hover {
+    gap: 12px;
+    color: var(--accent-orange);
+}
+
+/* Mobile Responsiveness tweak */
+@media (max-width: 768px) {
+    .methods-grid {
+        grid-template-columns: 1fr; /* Full width on mobile */
+        padding: 0;
+    }
+    .method-card {
+        padding: 30px 20px;
+    }
+}
