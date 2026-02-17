@@ -112,40 +112,33 @@
             });
         });
 
-        // 6. Testimonials Logic
-        const testimonials = [
-            { name: "Sarah J.", text: "Made ₦50,000 in my first week! The instant PayPal payouts are a game changer.", stars: "★★★★★" },
-            { name: "Mike D.", text: "Finally a survey site that doesn't disqualify me 10 minutes in. Very professional.", stars: "★★★★☆" },
-            { name: "Lena R.", text: "The interface is beautiful and works perfectly on my phone. Highly recommend!", stars: "★★★★★" }
-        ];
-
-        const slider = document.getElementById('testimonialSlider');
-        let currentIdx = 0;
-
-        function renderTestimonials() {
-            testimonials.forEach((t, i) => {
-                const card = document.createElement('div');
-                card.className = `testimonial-card ${i === 0 ? 'active' : ''}`;
-                card.innerHTML = `
-                    <div style="background:white; padding:40px; border-radius:16px; box-shadow:var(--shadow-md); text-align:center; max-width:600px; margin:0 auto;">
-                        <div style="color:#FFD700; margin-bottom:15px; font-size:1.2rem;">${t.stars}</div>
-                        <p style="font-style:italic; font-size:1.2rem; color:var(--text-main)">"${t.text}"</p>
-                        <h4 style="margin-top:20px; color:var(--primary-blue)">${t.name}</h4>
-                    </div>
-                `;
-                slider.appendChild(card);
-            });
-        }
-
-        function rotateTestimonials() {
-            const cards = document.querySelectorAll('.testimonial-card');
-            cards[currentIdx].classList.remove('active');
-            currentIdx = (currentIdx + 1) % cards.length;
-            cards[currentIdx].classList.add('active');
-        }
-
-        renderTestimonials();
-        setInterval(rotateTestimonials, 5000);
+        // 6. Initialize Swiper for Testimonials
+        var swiper = new Swiper(".mySwiper", {
+            slidesPerView: 1,      // Show 1 card on mobile
+            spaceBetween: 30,      // Gap between cards
+            loop: true,            // Infinite loop
+            grabCursor: true,      // Hand cursor on hover
+            autoplay: {
+                delay: 3500,       // Auto slide every 3.5 seconds
+                disableOnInteraction: false, // Keep auto-sliding after user swipes
+            },
+            pagination: {
+                el: ".swiper-pagination",
+                clickable: true,
+            },
+            breakpoints: {
+                // When window width is >= 640px (Tablet)
+                640: {
+                    slidesPerView: 2,
+                    spaceBetween: 20,
+                },
+                // When window width is >= 1024px (Desktop)
+                1024: {
+                    slidesPerView: 3,
+                    spaceBetween: 30,
+                },
+            },
+        });
 
         // 7. Back To Top
         backToTop.addEventListener('click', () => {

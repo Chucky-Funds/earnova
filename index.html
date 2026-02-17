@@ -8,6 +8,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <link rel="icon" type="image/png" href="images/logo.png">
+    <!-- Swiper JS CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+
     <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
@@ -28,7 +32,8 @@
                     <li><a href="#hero" class="nav-link">Home</a></li>
                     <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
                     <li><a href="#earning-methods" class="nav-link">Earn</a></li>
-                    <li><a href="#rewards" class="nav-link">Rewards</a></li>
+                    <li><a href="#rewards" class="nav-link">Withdrawal</a></li>
+                    <li><a href="#testimonials" class="nav-link">Testimonials</a></li>
                     <li><a href="#faq" class="nav-link">FAQ</a></li>
                     <li><a href="#contact" class="nav-link">Contact</a></li>
                 </ul>
@@ -262,11 +267,109 @@
     </section>
 
     <!-- TESTIMONIALS -->
-    <section class="section-padding">
+    <section class="section-padding" id="testimonials" style="background: var(--bg-light);">
         <div class="container">
-            <h2 class="text-center" style="margin-bottom:50px;">What Our Community Says</h2>
-            <div class="testimonials-slider" id="testimonialSlider">
-                <!-- JS will inject contents -->
+            <div class="text-center" style="margin-bottom:50px;">
+                <h2 class="section-title">Success Stories</h2>
+                <p class="section-subtitle">Join thousands of Africans earning daily.</p>
+            </div>
+            
+            <!-- Swiper -->
+            <div class="swiper mySwiper" style="padding-bottom: 50px;">
+                <div class="swiper-wrapper">
+                    
+                    <!-- Slide 1 -->
+                    <div class="swiper-slide">
+                        <div class="testi-card">
+                            <div class="testi-header">
+                                <div class="user-avatar" style="background:#E0F2FE; color:#0284C7;">SJ</div>
+                                <div>
+                                    <h4>Sarah Johnson</h4>
+                                    <div class="stars">★★★★★</div>
+                                </div>
+                            </div>
+                            <p>"I made ₦50,000 in my first week! I was skeptical at first, but the instant Bank Transfer really works. Best side hustle ever."</p>
+                            <span class="verified-badge">✔ Verified User</span>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2 -->
+                    <div class="swiper-slide">
+                        <div class="testi-card">
+                            <div class="testi-header">
+                                <div class="user-avatar" style="background:#DCFCE7; color:#16A34A;">MD</div>
+                                <div>
+                                    <h4>Michael David</h4>
+                                    <div class="stars">★★★★★</div>
+                                </div>
+                            </div>
+                            <p>"Finally a survey site that doesn't disqualify me 10 minutes in. The tasks are short, simple, and the pay is actually decent."</p>
+                            <span class="verified-badge">✔ Verified User</span>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3 -->
+                    <div class="swiper-slide">
+                        <div class="testi-card">
+                            <div class="testi-header">
+                                <div class="user-avatar" style="background:#FEF3C7; color:#D97706;">CA</div>
+                                <div>
+                                    <h4>Chidinma A.</h4>
+                                    <div class="stars">★★★★☆</div>
+                                </div>
+                            </div>
+                            <p>"Used my earnings to pay for my data subscription and electricity bills. It's not a get-rich-quick scheme, but it pays consistently."</p>
+                            <span class="verified-badge">✔ Verified User</span>
+                        </div>
+                    </div>
+
+                    <!-- Slide 4 -->
+                    <div class="swiper-slide">
+                        <div class="testi-card">
+                            <div class="testi-header">
+                                <div class="user-avatar" style="background:#F3E8FF; color:#9333EA;">EO</div>
+                                <div>
+                                    <h4>Emmanuel O.</h4>
+                                    <div class="stars">★★★★★</div>
+                                </div>
+                            </div>
+                            <p>"The crypto withdrawal via USDT is a lifesaver. I receive my funds in my Binance wallet within 20 minutes. Highly recommended!"</p>
+                            <span class="verified-badge">✔ Verified User</span>
+                        </div>
+                    </div>
+
+                    <!-- Slide 5 -->
+                    <div class="swiper-slide">
+                        <div class="testi-card">
+                            <div class="testi-header">
+                                <div class="user-avatar" style="background:#FFE4E6; color:#E11D48;">ZB</div>
+                                <div>
+                                    <h4>Zainab Bello</h4>
+                                    <div class="stars">★★★★★</div>
+                                </div>
+                            </div>
+                            <p>"Love the mobile interface. I do surveys while stuck in Lagos traffic. It turns wasted time into money. 10/10 platform."</p>
+                            <span class="verified-badge">✔ Verified User</span>
+                        </div>
+                    </div>
+
+                    <!-- Slide 6 -->
+                    <div class="swiper-slide">
+                        <div class="testi-card">
+                            <div class="testi-header">
+                                <div class="user-avatar" style="background:#ECFEFF; color:#0891B2;">KT</div>
+                                <div>
+                                    <h4>Kingsley T.</h4>
+                                    <div class="stars">★★★★☆</div>
+                                </div>
+                            </div>
+                            <p>"Customer support is very responsive. Had an issue with a survey, and they fixed it and credited my account within an hour."</p>
+                            <span class="verified-badge">✔ Verified User</span>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="swiper-pagination"></div>
             </div>
         </div>
     </section>
