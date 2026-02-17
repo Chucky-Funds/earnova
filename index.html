@@ -210,11 +210,11 @@
             <div class="faq-container">
                 <div class="faq-item">
                     <div class="faq-question">How much can I realistically earn? <span>+</span></div>
-                    <div class="faq-answer">Most active users earn between ₦50,000 and ₦200,000 per month depending on their demographic and time spent.</div>
+                    <div class="faq-answer">Most active users earn between ₦50,000 and ₦100,000 per month depending on their demographic and time spent.</div>
                 </div>
                 <div class="faq-item">
                     <div class="faq-question">Is there a minimum payout amount? <span>+</span></div>
-                    <div class="faq-answer">Yes, you can request a cashout as soon as you reach level 5 in your dashboard.</div>
+                    <div class="faq-answer">No, you can request a cashout as soon as you reach level 5 in your dashboard.</div>
                 </div>
                 <div class="faq-item">
                     <div class="faq-question">Are my personal details safe? <span>+</span></div>
@@ -315,7 +315,30 @@
     <div class="back-to-top" id="backToTop">↑</div>
 
     <!-- JAVASCRIPT LOGIC -->
-    <script src="js/index/index.js"></script>
-    <script src="scripts.js"></script>
+        <script src="js/index/index.js"></script>
+        <script src="scripts.js"></script>
+        <script>
+        // Contact form button feedback
+        document.addEventListener('DOMContentLoaded', function() {
+            var contactForm = document.getElementById('contactForm');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    var btn = contactForm.querySelector('button');
+                    if (btn) {
+                        var originalText = btn.textContent;
+                        btn.textContent = 'Processing';
+                        btn.disabled = true;
+                        setTimeout(function() {
+                            alert('Sent message');
+                            btn.textContent = originalText;
+                            btn.disabled = false;
+                            contactForm.reset();
+                        }, 600);
+                    }
+                });
+            }
+        });
+        </script>
 </body>
 </html>
