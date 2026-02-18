@@ -1,0 +1,523 @@
+
+        document.addEventListener("DOMContentLoaded", () => {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // 1. PSEUDO-RANDOM NUMBER GENERATOR (For Permanence)
+            // This ensures that every time you refresh, the "random" numbers are the same.
+            let seed = 999; 
+            function seededRandom() {
+                var x = Math.sin(seed++) * 10000;
+                return x - Math.floor(x);
+            }
+
+            // 2. DATASETS
+                const names = [
+                        "Emmanuel","Sarah","Chinedu","Grace","Tunde","Zainab","David","Ngozi","Ibrahim","Blessing",
+                        "Femi","Kelechi","Aisha","Musa","Bolaji","Chioma","Emeka","Funke","Ahmed","Precious",
+                        "Mercy","Samuel","Victor","Yusuf","Mary","Michael","Faith","Solomon","Olamide","Fatima",
+                        "Destiny","Gideon","Joy","Esther","Abubakar","Chisom","Daniel","Victoria","Prosper","Anita",
+                        "Kingsley","Jennifer","Umar","Folake","Bose","Idris","Tope","Nneka","Segun","Rita",
+
+                        "Adamu","Bukola","Chika","Damilola","Efe","Gbenga","Hauwa","Ifeanyi","Jumoke","Kabir",
+                        "Lilian","Mustapha","Ngozika","Obinna","Patience","Quadri","Racheal","Sadiq","Temitope","Uche",
+                        "Vivian","Wale","Yemi","Zubair","Amaka","Babatunde","Chibuzo","Dorcas","Elijah","Florence",
+                        "Godwin","Halima","Israel","Janet","Kunle","Lawal","Mariam","Nnamdi","Opeyemi","Paul",
+                        "Queen","Rasheed","Shola","Tosin","Usman","Vera","Wisdom","Yakubu","Zara","Ayodele",
+
+                        "Balikis","Chidinma","Dare","Ebuka","Favour","Gloria","Hassan","Inioluwa","Joseph","Khadija",
+                        "Lateef","Moyin","Nathaniel","Ogechi","Peter","Ridwan","Sandra","Taiwo","Ugo","Valentine",
+                        "Wasiu","Yinka","Zain","Adebayo","Bilikis","Chukwuemeka","Deborah","Eniola","Frank","Ganiyu",
+                        "Happiness","Ibrahim","Jide","Kehinde","Lukman","Modupe","Nura","Olabisi","Philip","Rukayat",
+                        "Saheed","Titilayo","Umaru","Victoria","Wuraola","Yahaya","Zainab","Adeola","Benedict","Chisom",
+
+                        "Divine","Eunice","Farouk","Gbemisola","Henry","Ijeoma","Jamil","Korede","Lydia","Matthew",
+                        "Ngozi","Oluwaseun","Promise","Rahmat","Simeon","Temiloluwa","Uchenna","Victoria","Wasiu","Yusuf",
+                        "Zion","Abiola","Bassey","Chidera","Danjuma","Ezinne","Felix","Grace","Hajara","Ikenna",
+                        "Jemima","Kamsi","Lekan","Martha","Ndubuisi","Opeyemi","Praise","Rashida","Shalom","Tolani",
+                        "Uzo","Victor","Walex","Yewande","Zubairu","Adekunle","Bimpe","Chiamaka","Daniela","Emmanuel",
+
+                        "Folasade","Goodluck","Hauwau","Ireti","John","Kikelomo","Luqman","Micheal","Nafisa","Olumide",
+                        "Peace","Rachael","Segun","Tobiloba","Umar","Vivienne","Williams","Yusuf","Zainabu","Akin",
+                        "Bosede","Chikaima","Dayo","Ebere","Fatai","Gideon","Habiba","Ifunanya","Juwon","Kudirat",
+                        "Lanre","Motunrayo","Nkechi","Olamipo","Precious","Rafiu","Sade","Tajudeen","Ufuoma","Victoria",
+                        "Wisdom","Yetunde","Zakari","Aminat","Bashir","Chinonso","Damilare","Ese","Fiyin","Ganiyat",
+                        "Hadiza","Ibrahim","Jamila","Kolade","Lola","Mubarak","Nengi","Oghene","Pius","Rasheeda",
+                        "Seyi","Tomisin","Umar","Violet","Wasiu","Yusrah","Zayyad","Adeyemi","Bolanle","Chigozie",
+                        "Dorathy","Efosa","Fatimah","Gbolahan","Halimah","Ismail","Janet","Kasim","Latifat","Maryam"
+                ];
+
+
+                            // PAIRED DATA (Title matches Description)
+                            const good_reviews_source = [
+                { t: "Amazing Platform", d: "I love that I can withdraw any amount easily. It is the best feature." },
+                { t: "Fast Payout", d: "I withdrew ₦2,000 to my Opay and saw it instantly. No stress." },
+                { t: "Legit Income", d: "I was skeptical, but I received my payment today. 100% legit." },
+                { t: "Best in Nigeria", d: "Finally a site that actually pays without asking for registration fees." },
+                { t: "Crypto Confirmed", d: "Received my USDT in my Binance wallet. Transaction was smooth." },
+                { t: "Student Saver", d: "This app helps me buy data for my studies. I love it." },
+                { t: "Smooth Sailing", d: "The tasks are easy to understand and the dashboard is very clean." },
+                { t: "No Stress", d: "I like that I can work whenever I want. No pressure at all." },
+                { t: "Data Money", d: "Made enough for my monthly subscription in just 3 days." },
+                { t: "Highly Recommended", d: "Support is active and the payments are real. What else do you need?" },
+                { t: "Instant Alert", d: "Got my bank alert immediately after withdrawal. Very impressive." },
+                { t: "Worth My Time", d: "I only spend one hour daily and I still make decent cash." },
+                { t: "Transparent System", d: "Everything is clear. No hidden deductions at all." },
+                { t: "Great Support", d: "Customer support replied me within minutes and solved my issue." },
+                { t: "Weekend Cash", d: "Made extra money during the weekend while relaxing at home." },
+                { t: "Simple Tasks", d: "The instructions are clear and very beginner friendly." },
+                { t: "No Hidden Charges", d: "I like that there are no hidden fees before withdrawing." },
+                { t: "Quick Verification", d: "My account was verified in less than 5 minutes." },
+                { t: "Daily Earnings", d: "I earn something small every day consistently." },
+                { t: "Reliable Payments", d: "Payment has never failed since I joined." },
+                { t: "User Friendly", d: "The interface is very easy to navigate." },
+                { t: "Survey King", d: "The surveys pay better than most other apps I have tried." },
+                { t: "Great Experience", d: "Overall experience has been smooth since day one." },
+                { t: "Flexible Work", d: "I can complete tasks anytime without restriction." },
+                { t: "Fast Crypto Transfer", d: "USDT withdrawal reflected in minutes." },
+                { t: "No Registration Fee", d: "Joining was completely free and simple." },
+                { t: "Extra Income", d: "Helps me cover small daily expenses easily." },
+                { t: "Legit Platform", d: "This platform actually keeps its promise." },
+                { t: "Smooth Dashboard", d: "Dashboard loads quickly and shows clear earnings." },
+
+                { t: "Easy Withdrawal", d: "Withdrawal process is straightforward and fast." },
+                { t: "Consistent Pay", d: "I have received payment three times without issues." },
+                { t: "Clear Instructions", d: "Every task comes with clear guidelines." },
+                { t: "Mobile Friendly", d: "Works perfectly on my mobile device." },
+                { t: "Fast Approval", d: "My withdrawal was approved within minutes." },
+                { t: "Honest Platform", d: "No tricks, just complete tasks and get paid." },
+                { t: "Quick Earnings", d: "Earned my first payout within 48 hours." },
+                { t: "Reliable Surveys", d: "Surveys credit immediately after completion." },
+                { t: "Good Side Income", d: "Perfect for earning small side cash daily." },
+                { t: "Safe and Secure", d: "I feel safe using the platform." },
+
+                { t: "Prompt Payment", d: "Payment reflected in my account the same day." },
+                { t: "Helpful Support", d: "Support team is polite and responsive." },
+                { t: "Simple Interface", d: "Very simple and easy to navigate." },
+                { t: "Real Earnings", d: "The earnings are real and not exaggerated." },
+                { t: "Fast Dashboard", d: "Everything loads quickly without lag." },
+                { t: "Great Opportunity", d: "A good opportunity for students." },
+                { t: "Legit Withdrawal", d: "Successfully withdrew without any stress." },
+                { t: "Smooth Experience", d: "Everything works smoothly from start to finish." },
+                { t: "Trusted Site", d: "I trust this platform because it pays." },
+                { t: "Easy Signup", d: "Registration process was quick and simple." },
+
+                { t: "Quick Cash", d: "Made quick cash for airtime." },
+                { t: "Transparent Earnings", d: "Earnings are displayed clearly." },
+                { t: "No Complications", d: "No complicated steps to earn." },
+                { t: "Works Perfectly", d: "Platform works perfectly on my phone." },
+                { t: "Steady Income", d: "Steady small income every week." },
+                { t: "Good Rewards", d: "Rewards match the effort given." },
+                { t: "Fair Platform", d: "Everything feels fair and transparent." },
+                { t: "Fast Response", d: "Support responded to my question quickly." },
+                { t: "No Delay", d: "Withdrawal had no delay." },
+                { t: "Easy Tasks", d: "Tasks are easy and understandable." },
+
+                { t: "Reliable Service", d: "Service has been reliable so far." },
+                { t: "Instant Credit", d: "Task rewards are credited instantly." },
+                { t: "Simple Earnings", d: "Simple way to earn small cash online." },
+                { t: "Great Support Team", d: "The team behind this platform is active." },
+                { t: "User Focused", d: "Feels like the platform cares about users." },
+                { t: "Quick Transfer", d: "Transfer to my wallet was quick." },
+                { t: "Consistent Platform", d: "Platform works consistently every day." },
+                { t: "Genuine Opportunity", d: "This is a genuine earning opportunity." },
+                { t: "Flexible Hours", d: "I work anytime that suits me." },
+                { t: "Smooth Withdrawal", d: "Withdrawal was processed smoothly." },
+
+                { t: "Good Experience", d: "Overall a good earning experience." },
+                { t: "Earn From Home", d: "I earn comfortably from home." },
+                { t: "Fast Earnings", d: "Earnings accumulate faster than expected." },
+                { t: "No Hassle", d: "No hassle while completing tasks." },
+                { t: "Clear Dashboard", d: "Dashboard clearly shows my balance." },
+                { t: "Perfect for Students", d: "Very helpful for students needing extra cash." },
+                { t: "Simple System", d: "System is easy to understand." },
+                { t: "Trustworthy Platform", d: "Platform has proven to be trustworthy." },
+                { t: "Instant Confirmation", d: "Received confirmation immediately." },
+                { t: "Easy Crypto Withdrawal", d: "Crypto withdrawal was straightforward." },
+
+                { t: "Great Platform", d: "One of the best earning platforms I have tried." },
+                { t: "No Stress Withdrawal", d: "Withdrawal process was stress free." },
+                { t: "Good Task Variety", d: "Different types of tasks available daily." },
+                { t: "Fast Verification", d: "Account verification was quick." },
+                { t: "Accurate Tracking", d: "Earnings are tracked accurately." },
+                { t: "Consistent Rewards", d: "Rewards come consistently." },
+                { t: "Helpful Platform", d: "Very helpful platform for extra income." },
+                { t: "Smooth Payments", d: "Payments are always smooth." },
+                { t: "Reliable Earnings", d: "Reliable earnings every time." },
+                { t: "Top Choice", d: "This is now my top earning platform." }
+                ];
+
+                            const mid_reviews_source = [
+                { t: "Good but slow", d: "The payment comes, but sometimes the website loads a bit slowly on my phone." },
+                { t: "Battery Drain", d: "Great app for making money, but it consumes my battery when watching videos." },
+                { t: "More Tasks Please", d: "I finished all the tasks for today. Waiting for new ones to drop." },
+                { t: "Okay Experience", d: "It is decent. Not a get-rich-quick scheme, but it pays for the small things." },
+                { t: "Needs Dark Mode", d: "The white background is too bright at night. Please add a dark theme." },
+                { t: "Decent Pay", d: "The pay is okay, but I wish there were more high-paying surveys available." },
+                { t: "Internet Heavy", d: "Video tasks use a lot of data. Make sure you have a good connection." },
+                { t: "Sometimes Slow", d: "Works fine but occasionally takes time to load." },
+                { t: "Average Earnings", d: "Not bad, but earnings depend on available tasks." },
+                { t: "Needs More Surveys", d: "I hope more surveys will be added soon." },
+                { t: "Good Interface", d: "Interface is good but can be improved further." },
+                { t: "Data Usage", d: "Video tasks consume a bit of data." },
+                { t: "Task Limits", d: "Daily task limits can be increased." },
+                { t: "Decent Platform", d: "It pays, but patience is required." },
+                { t: "Update Needed", d: "App needs minor improvements after updates." },
+                { t: "Fair Rewards", d: "Rewards are fair for the effort given." },
+                { t: "Okay So Far", d: "Still testing it but it seems promising." },
+                { t: "Mobile Optimization", d: "Could be better optimized for smaller screens." },
+                { t: "Crypto Delay", d: "Crypto withdrawal took longer than expected once." },
+                { t: "Loading Issue", d: "Sometimes pages take a few seconds to open." },
+                { t: "Needs Tutorial", d: "New users may need a proper guide." },
+                { t: "Limited Tasks", d: "Tasks finish quickly each day." },
+
+                { t: "Slow Refresh", d: "Sometimes the page needs to refresh before it responds." },
+                { t: "Survey Screen Out", d: "I get screened out of some surveys after answering a few questions." },
+                { t: "Moderate Earnings", d: "Earnings are moderate, not too high but consistent." },
+                { t: "Video Lag", d: "Videos sometimes lag on slower networks." },
+                { t: "Withdrawal Wait", d: "Withdrawal worked but took longer than expected." },
+                { t: "Occasional Glitch", d: "Experienced a small glitch once while submitting a task." },
+                { t: "Limited Daily Tasks", d: "Daily tasks get completed quickly." },
+                { t: "Needs More Options", d: "Would love to see more earning options added." },
+                { t: "Average Support", d: "Support eventually replies but not instantly." },
+                { t: "Minor Bugs", d: "There are minor bugs that need fixing." },
+
+                { t: "Data Consumption", d: "Uses a fair amount of data for video tasks." },
+                { t: "Verification Delay", d: "Verification message took a few minutes to arrive." },
+                { t: "Survey Availability", d: "Surveys are not always available." },
+                { t: "Basic Design", d: "Design is simple but could look more modern." },
+                { t: "Balance Update Delay", d: "Balance sometimes updates after a short delay." },
+                { t: "Network Dependent", d: "Performance depends heavily on network speed." },
+                { t: "Task Approval Time", d: "Some tasks take time before approval." },
+                { t: "Earnings Cap", d: "There seems to be a daily earnings cap." },
+                { t: "Moderate Speed", d: "Platform speed is moderate overall." },
+                { t: "App Size", d: "App takes up a bit of storage space." },
+
+                { t: "Occasional Logout", d: "Sometimes I get logged out unexpectedly." },
+                { t: "Payment Timing", d: "Payment timing can vary slightly." },
+                { t: "Survey Errors", d: "Encountered an error during one survey." },
+                { t: "UI Improvement", d: "User interface could be slightly improved." },
+                { t: "Video Buffering", d: "Videos buffer occasionally." },
+                { t: "Slow Dashboard", d: "Dashboard takes time to load sometimes." },
+                { t: "Limited High Pay", d: "High paying tasks are limited." },
+                { t: "Delayed Credit", d: "Task reward credited after a short delay." },
+                { t: "Needs FAQ Section", d: "A detailed FAQ section would help new users." },
+                { t: "Occasional Freeze", d: "App froze briefly but worked after restart." },
+
+                { t: "Slow OTP", d: "OTP arrived later than expected." },
+                { t: "Moderate Experience", d: "Experience is okay overall." },
+                { t: "Few Surveys Daily", d: "Only a few surveys available daily." },
+                { t: "Withdrawal Processing", d: "Processing time could be faster." },
+                { t: "Navigation Confusion", d: "Took time to understand navigation." },
+                { t: "Survey Length", d: "Some surveys are longer than expected." },
+                { t: "Video Task Delay", d: "Video tasks sometimes delay before starting." },
+                { t: "Network Errors", d: "Occasional network error message appears." },
+                { t: "Task Refresh Needed", d: "Had to refresh to see new tasks." },
+                { t: "Support Wait Time", d: "Support response time can improve." },
+
+                { t: "Balance Sync Delay", d: "Balance sync took a short while." },
+                { t: "Moderate Rewards", d: "Rewards are fair but not very high." },
+                { t: "Needs Update", d: "App needs periodic improvements." },
+                { t: "Daily Limit Reached", d: "Reached daily task limit quickly." },
+                { t: "Slight Lag", d: "Slight lag noticed on older devices." },
+                { t: "Crypto Processing Time", d: "Crypto processing took some time once." },
+                { t: "Survey Qualification", d: "Not qualified for some surveys." },
+                { t: "UI Brightness", d: "Brightness is high at night." },
+                { t: "Task Submission Delay", d: "Submission confirmation took time." },
+                { t: "Moderate Platform", d: "Platform is decent overall." },
+
+                { t: "Occasional Timeout", d: "Experienced timeout once during use." },
+                { t: "Average Loading Speed", d: "Loading speed is average." },
+                { t: "Needs More Updates", d: "More frequent updates would help." },
+                { t: "Payment Variation", d: "Payment time varies occasionally." },
+                { t: "Limited Bonus Offers", d: "Bonus offers are not frequent." },
+                { t: "App Restart Needed", d: "Had to restart app after minor bug." },
+                { t: "Video Quality Drop", d: "Video quality drops on slow network." },
+                { t: "Survey Delay", d: "Survey loading delay happened once." },
+                { t: "Moderate Earnings Rate", d: "Earning rate is moderate." },
+                { t: "Needs Performance Boost", d: "Performance can be optimized further." },
+
+                { t: "Occasional Crash", d: "App crashed once but reopened fine." },
+                { t: "Waiting Time", d: "Sometimes there is waiting time between tasks." },
+                { t: "Not Always Instant", d: "Credits are not always instant." },
+                { t: "Moderate Rewards System", d: "Reward system is fair but average." },
+                { t: "Needs More Features", d: "Would love to see more features added." },
+                { t: "Slight Delay", d: "Experienced slight delay while navigating." },
+                { t: "Survey Retry", d: "Had to retry one survey." },
+                { t: "Crypto Confirmation Wait", d: "Crypto confirmation took time once." }
+                ];
+
+                const bad_reviews_source = [
+                { t: "Network Error", d: "I keep getting 'Network Error' when I try to submit my survey. Please fix." },
+                { t: "Login Issue", d: "I forgot my password and the reset email took 30 minutes to arrive." },
+                { t: "App Glitch", d: "The page froze while I was doing a task and I had to refresh." },
+                { t: "Confusing Layout", d: "I am new and I don't know where to click to start earning. Needs a tutorial." },
+                { t: "Task Failed", d: "I completed a survey but my internet cut off, so I didn't get the points." },
+                { t: "SMS Delay", d: "Waiting for the verification code for 10 minutes now. It is delaying me." },
+                { t: "Where is the button?", d: "On mobile view, the withdraw button is hard to find." },
+                { t: "Verification Delay", d: "Verification code came late." },
+                { t: "Page Refresh", d: "Had to refresh page during task submission." },
+                { t: "Survey Rejection", d: "Completed survey but was screened out at the end." },
+                { t: "Withdrawal Delay", d: "Withdrawal took longer than usual once." },
+                { t: "Mobile Bug", d: "Mobile version froze briefly." },
+                { t: "Login Timeout", d: "Session logged me out unexpectedly." },
+                { t: "Slow Support", d: "Support response was slower than expected." },
+                { t: "Task Error", d: "Received error while completing task." },
+                { t: "OTP Delay", d: "OTP took several minutes to arrive." },
+                { t: "Glitchy Page", d: "One page did not load correctly." },
+
+                { t: "App Crash", d: "The app crashed while I was halfway through a survey." },
+                { t: "Balance Not Updated", d: "My balance did not update after completing a task." },
+                { t: "Slow Loading", d: "Pages take too long to load on good internet." },
+                { t: "Survey Not Credited", d: "Finished a survey but the reward was not credited." },
+                { t: "Frequent Errors", d: "I keep seeing error messages while browsing." },
+                { t: "Withdrawal Pending", d: "My withdrawal has been pending longer than expected." },
+                { t: "Login Failed", d: "Unable to login even with correct password." },
+                { t: "Blank Screen", d: "Screen turned blank while navigating." },
+                { t: "Task Not Available", d: "Clicked on task but it says not available." },
+                { t: "Verification Problem", d: "Having trouble verifying my account." },
+
+                { t: "Survey Timeout", d: "Survey timed out before I could finish." },
+                { t: "Payment Issue", d: "Payment did not reflect immediately." },
+                { t: "App Freezing", d: "App keeps freezing during use." },
+                { t: "Reward Missing", d: "Reward disappeared from my balance." },
+                { t: "Slow OTP", d: "OTP verification is very slow." },
+                { t: "Error Submitting", d: "Error occurs when submitting answers." },
+                { t: "Account Locked", d: "My account was locked without clear reason." },
+                { t: "Poor Navigation", d: "Navigation is confusing and unclear." },
+                { t: "Frequent Logout", d: "App logs me out repeatedly." },
+                { t: "Video Not Playing", d: "Video tasks refuse to play." },
+
+                { t: "Survey Crash", d: "Survey crashed before completion." },
+                { t: "Withdrawal Error", d: "Error message during withdrawal attempt." },
+                { t: "Delayed Credit", d: "Points credited after a long delay." },
+                { t: "Network Glitch", d: "Network glitch interrupted my task." },
+                { t: "Reset Link Failed", d: "Password reset link did not work." },
+                { t: "Task Disappeared", d: "Task disappeared while I was working on it." },
+                { t: "Unresponsive Button", d: "Buttons are sometimes unresponsive." },
+                { t: "Page Not Found", d: "Got page not found error during survey." },
+                { t: "Low Performance", d: "App performance is slow overall." },
+                { t: "Reward Delay", d: "Reward took too long to appear." },
+
+                { t: "Broken Link", d: "Some task links are broken." },
+                { t: "Submission Failed", d: "Submission failed after completing task." },
+                { t: "Laggy Interface", d: "Interface feels laggy." },
+                { t: "Withdrawal Cancelled", d: "My withdrawal request was cancelled automatically." },
+                { t: "Survey Loop", d: "Survey keeps redirecting in a loop." },
+                { t: "Error Code 404", d: "Received 404 error during task." },
+                { t: "Slow Dashboard", d: "Dashboard loads very slowly." },
+                { t: "Task Not Recording", d: "Task progress was not recorded." },
+                { t: "App Not Responding", d: "App stopped responding suddenly." },
+                { t: "Verification Failed", d: "Verification failed multiple times." },
+
+                { t: "Missing Points", d: "Points missing from my account." },
+                { t: "Server Error", d: "Server error appeared during withdrawal." },
+                { t: "Survey Closed", d: "Survey closed unexpectedly." },
+                { t: "Payment Rejected", d: "Payment request was rejected." },
+                { t: "Repeated Errors", d: "Repeated errors during navigation." },
+                { t: "Timeout Error", d: "Session timeout happened quickly." },
+                { t: "Glitch During Video", d: "Video task glitched halfway." },
+                { t: "Slow Verification", d: "Verification process is too slow." },
+                { t: "Balance Reset", d: "Balance reset unexpectedly." },
+                { t: "Task Submission Bug", d: "Bug occurred during task submission." },
+
+                { t: "Unexpected Logout", d: "Logged out without warning." },
+                { t: "Delayed Withdrawal", d: "Withdrawal delayed more than usual." },
+                { t: "Survey Not Loading", d: "Survey refuses to load." },
+                { t: "Button Missing", d: "Important button missing on mobile view." },
+                { t: "OTP Not Received", d: "Did not receive OTP code." },
+                { t: "Task Error Message", d: "Error message pops up during tasks." },
+                { t: "App Slow Response", d: "App responds very slowly." },
+                { t: "Credit Not Showing", d: "Credit not showing after task." },
+                { t: "Withdrawal Stuck", d: "Withdrawal request stuck in pending." },
+                { t: "Login Error", d: "Login shows error even with correct details." },
+
+                { t: "Survey Bug", d: "Bug occurred during survey completion." },
+                { t: "Loading Forever", d: "Page keeps loading without finishing." },
+                { t: "Submission Timeout", d: "Submission timed out unexpectedly." },
+                { t: "Points Not Added", d: "Points were not added after completion." },
+                { t: "Verification Loop", d: "Verification keeps repeating." },
+                { t: "Slow App", d: "Overall app performance is slow." },
+                { t: "Task Not Credited", d: "Task completed but not credited." },
+                { t: "App Restart Needed", d: "Had to restart app to fix error." },
+                { t: "Broken Survey Link", d: "Survey link leads to error page." },
+                { t: "Unexpected Error", d: "Unexpected error appeared during use." },
+                { t: "System Glitch", d: "System glitch interrupted my task." },
+                { t: "Payment Still Pending", d: "Payment still pending after long wait." },
+                { t: "Frequent Bugs", d: "Too many small bugs while using." }
+                ];
+
+
+            let allReviewsData = [];
+
+            function getRandomColor() {
+                const colors = ['#E0F2FE', '#DCFCE7', '#FEF3C7', '#F3E8FF', '#FFE4E6', '#F1F5F9'];
+                const textColors = ['#0284C7', '#16A34A', '#D97706', '#9333EA', '#E11D48', '#475569'];
+                // Use seededRandom() instead of Math.random()
+                let idx = Math.floor(seededRandom() * colors.length);
+                return { bg: colors[idx], text: textColors[idx] };
+            }
+
+            // Generate 100 Reviews with PERMANENT (Seeded) Randomness & Half Stars
+            for(let i=0; i<100; i++) {
+                let rating, title, text, sourceItem;
+                
+                // Use seededRandom() instead of Math.random()
+                let rand = seededRandom();
+
+                if (rand > 0.60) { 
+                    // GOOD (40% chance): Generates 4.0, 4.5, or 5.0
+                    rating = 4 + (Math.floor(seededRandom() * 3) * 0.5); 
+                    sourceItem = good_reviews_source[Math.floor(seededRandom() * good_reviews_source.length)];
+                } else if (rand > 0.30) { 
+                    // MID (30% chance): Generates 3.0 or 3.5
+                    rating = 3 + (Math.floor(seededRandom() * 2) * 0.5);
+                    sourceItem = mid_reviews_source[Math.floor(seededRandom() * mid_reviews_source.length)];
+                } else { 
+                    // BAD (30% chance): Generates 1.0, 1.5, 2.0, or 2.5
+                    rating = 1 + (Math.floor(seededRandom() * 4) * 0.5);
+                    sourceItem = bad_reviews_source[Math.floor(seededRandom() * bad_reviews_source.length)];
+                }
+
+                allReviewsData.push({
+                    id: i,
+                    name: names[i % names.length], // Assign names in exact order of array
+                    rating: rating,
+                    title: sourceItem.t,
+                    text: sourceItem.d,
+                    date: Math.floor(seededRandom() * 30) + " days ago",
+                    color: getRandomColor()
+                });
+            }
+
+            // 3. LAZY LOAD VARIABLES
+            let activeDataset = []; 
+            let loadedCount = 0;    
+            const BATCH_SIZE = 9;   
+            const grid = document.getElementById('reviewsGrid');
+            const statusText = document.getElementById('statusText');
+            let scrollTriggerInstance;
+
+            // 4. CORE FUNCTIONS
+            window.filterReviews = function(filterType) {
+                // BUTTON HIGHLIGHT LOGIC
+                const buttons = document.querySelectorAll('.filter-btn');
+                buttons.forEach(btn => btn.classList.remove('active'));
+
+                if (window.event && window.event.type === 'click') {
+                    // Triggered by user click
+                    const clickedBtn = window.event.target.closest('.filter-btn');
+                    if(clickedBtn) clickedBtn.classList.add('active');
+                } else {
+                    // Triggered by initial load -> Highlight first button if 'all'
+                    if (filterType === 'all' && buttons.length > 0) {
+                        buttons[0].classList.add('active');
+                    }
+                }
+
+                // Filter Logic (Updated for specific ranges)
+                activeDataset = allReviewsData.filter(r => {
+                    if(filterType === 'all') return true;
+                    // Excellent: 4.5 and 5
+                    if(filterType === 'excellent') return r.rating >= 4.5;
+                    // Moderate: 3, 3.5, and 4
+                    if(filterType === 'moderate') return r.rating >= 3 && r.rating <= 4;
+                    // Critical: 1, 1.5, 2, and 2.5
+                    if(filterType === 'critical') return r.rating <= 2.5;
+                });
+
+                // Reset Grid
+                grid.innerHTML = ''; 
+                loadedCount = 0;
+                statusText.innerText = "Scroll for more reviews...";
+                
+                // Start
+                loadNextBatch();
+                setupScrollTrigger();
+            }
+
+            function loadNextBatch() {
+                if (loadedCount >= activeDataset.length) {
+                    statusText.innerText = "No more reviews to show.";
+                    if(scrollTriggerInstance) scrollTriggerInstance.kill();
+                    return;
+                }
+
+                const nextBatch = activeDataset.slice(loadedCount, loadedCount + BATCH_SIZE);
+                const newCards = [];
+
+                nextBatch.forEach(r => {
+                    // 1. Determine Class based on rating group
+                    let starClass = '';
+                    if(r.rating >= 4.5) { starClass = 'good'; }
+                    else if(r.rating >= 3) { starClass = 'mid'; }
+                    else { starClass = 'bad'; }
+
+                    // 2. Generate Star String (Handling half stars)
+                    // Logic: Full stars + Half star symbol (½) if needed + Empty stars
+                    const fullStars = Math.floor(r.rating);
+                    const halfStar = (r.rating % 1 !== 0) ? '½' : '';
+                    const emptyStars = 5 - Math.ceil(r.rating);
+                    const starStr = '★'.repeat(fullStars) + halfStar + '☆'.repeat(emptyStars);
+
+                    const card = document.createElement('div');
+                    card.className = 'review-card';
+                    card.innerHTML = `
+                        <div class="review-top">
+                            <div class="reviewer-info">
+                                <div class="avatar-circle" style="background:${r.color.bg}; color:${r.color.text};">
+                                    ${r.name.substring(0,2).toUpperCase()}
+                                </div>
+                                <div>
+                                    <div style="font-weight:600; font-size:0.9rem;">${r.name}</div>
+                                    <div class="review-date">${r.date}</div>
+                                </div>
+                            </div>
+                            <div class="rating-stars ${starClass}">${starStr}</div>
+                        </div>
+                        <div class="review-title">${r.title}</div>
+                        <div class="review-body">"${r.text}"</div>
+                        ${r.rating >= 4.5 ? '<div class="tag-pill">Verified User</div>' : ''}
+                    `;
+                    
+                    grid.appendChild(card);
+                    newCards.push(card);
+                });
+
+                loadedCount += nextBatch.length;
+
+                // Animate ONLY new cards
+                gsap.fromTo(newCards, 
+                    { y: 50, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: "power2.out" }
+                );
+
+                ScrollTrigger.refresh();
+            }
+
+            function setupScrollTrigger() {
+                if(scrollTriggerInstance) scrollTriggerInstance.kill();
+
+                scrollTriggerInstance = ScrollTrigger.create({
+                    trigger: "#sentinel",
+                    start: "top bottom+=100", 
+                    onEnter: () => {
+                        setTimeout(loadNextBatch, 100); 
+                    }
+                });
+            }
+
+            // 5. INITIALIZE
+            window.filterReviews('all');
+
+            // Header Parallax
+            gsap.to(".reviews-header", {
+                backgroundPosition: "50% 100%",
+                ease: "none",
+                scrollTrigger: {
+                    trigger: ".reviews-header",
+                    start: "top top",
+                    end: "bottom top",
+                    scrub: true
+                }
+            });
+        });
