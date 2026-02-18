@@ -186,11 +186,12 @@
         <div class="container">
             
             <!-- Filters -->
+            <!-- Filters -->
             <div class="filter-container">
                 <button class="filter-btn active" onclick="filterReviews('all')">All Reviews</button>
-                <button class="filter-btn" onclick="filterReviews('5')">★★★★★ Excellent</button>
-                <button class="filter-btn" onclick="filterReviews('3')">★★★☆☆ Moderate</button>
-                <button class="filter-btn" onclick="filterReviews('1')">★☆☆☆☆ Critical</button>
+                <button class="filter-btn" onclick="filterReviews('excellent')">★★★★★ Excellent</button>
+                <button class="filter-btn" onclick="filterReviews('moderate')">★★★☆☆ Moderate</button>
+                <button class="filter-btn" onclick="filterReviews('critical')">★☆☆☆☆ Critical</button>
             </div>
             <div class="text-center">
                 <p style="color: var(--text-muted); transition: 0.3s; margin-bottom: 20px;">New Users Past month</p>
@@ -575,24 +576,24 @@
                 return { bg: colors[idx], text: textColors[idx] };
             }
 
-            // Generate 100 Reviews with PERMANENT (Seeded) Randomness
+            // Generate 100 Reviews with PERMANENT (Seeded) Randomness & Half Stars
             for(let i=0; i<100; i++) {
                 let rating, title, text, sourceItem;
                 
                 // Use seededRandom() instead of Math.random()
                 let rand = seededRandom();
 
-                if (rand > 0.35) { 
-                    // GOOD (65% chance)
-                    rating = (Math.floor(seededRandom() * 2) + 4); 
+                if (rand > 0.60) { 
+                    // GOOD (40% chance): Generates 4.0, 4.5, or 5.0
+                    rating = 4 + (Math.floor(seededRandom() * 3) * 0.5); 
                     sourceItem = good_reviews_source[Math.floor(seededRandom() * good_reviews_source.length)];
-                } else if (rand > 0.10) { 
-                    // MID (25% chance)
-                    rating = 3;
+                } else if (rand > 0.30) { 
+                    // MID (30% chance): Generates 3.0 or 3.5
+                    rating = 3 + (Math.floor(seededRandom() * 2) * 0.5);
                     sourceItem = mid_reviews_source[Math.floor(seededRandom() * mid_reviews_source.length)];
                 } else { 
-                    // BAD (10% chance)
-                    rating = (seededRandom() > 0.5 ? 2 : 1);
+                    // BAD (30% chance): Generates 1.0, 1.5, 2.0, or 2.5
+                    rating = 1 + (Math.floor(seededRandom() * 4) * 0.5);
                     sourceItem = bad_reviews_source[Math.floor(seededRandom() * bad_reviews_source.length)];
                 }
 
@@ -632,12 +633,15 @@
                     }
                 }
 
-                // Filter Logic
+                // Filter Logic (Updated for specific ranges)
                 activeDataset = allReviewsData.filter(r => {
                     if(filterType === 'all') return true;
-                    if(filterType === '5') return r.rating >= 4;
-                    if(filterType === '3') return r.rating === 3;
-                    if(filterType === '1') return r.rating <= 2;
+                    // Excellent: 4.5 and 5
+                    if(filterType === 'excellent') return r.rating >= 4.5;
+                    // Moderate: 3, 3.5, and 4
+                    if(filterType === 'moderate') return r.rating >= 3 && r.rating <= 4;
+                    // Critical: 1, 1.5, 2, and 2.5
+                    if(filterType === 'critical') return r.rating <= 2.5;
                 });
 
                 // Reset Grid
@@ -661,10 +665,18 @@
                 const newCards = [];
 
                 nextBatch.forEach(r => {
-                    let starStr = '', starClass = '';
-                    if(r.rating >= 4) { starStr = '★★★★★'; starClass = 'good'; }
-                    else if(r.rating >= 3) { starStr = '★★★☆☆'; starClass = 'mid'; }
-                    else { starStr = '★☆☆☆☆'; starClass = 'bad'; }
+                    // 1. Determine Class based on rating group
+                    let starClass = '';
+                    if(r.rating >= 4.5) { starClass = 'good'; }
+                    else if(r.rating >= 3) { starClass = 'mid'; }
+                    else { starClass = 'bad'; }
+
+                    // 2. Generate Star String (Handling half stars)
+                    // Logic: Full stars + Half star symbol (½) if needed + Empty stars
+                    const fullStars = Math.floor(r.rating);
+                    const halfStar = (r.rating % 1 !== 0) ? '½' : '';
+                    const emptyStars = 5 - Math.ceil(r.rating);
+                    const starStr = '★'.repeat(fullStars) + halfStar + '☆'.repeat(emptyStars);
 
                     const card = document.createElement('div');
                     card.className = 'review-card';
@@ -683,7 +695,7 @@
                         </div>
                         <div class="review-title">${r.title}</div>
                         <div class="review-body">"${r.text}"</div>
-                        ${r.rating >= 4 ? '<div class="tag-pill">Verified User</div>' : ''}
+                        ${r.rating >= 4.5 ? '<div class="tag-pill">Verified User</div>' : ''}
                     `;
                     
                     grid.appendChild(card);
