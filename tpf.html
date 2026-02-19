@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal & Support | Earn-nova</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* -----------------------------------------------------------
+           1. CORE STYLES & VARIABLES
+        ----------------------------------------------------------- */
+        :root {
+            --primary: #1E3A8A;       
+            --primary-light: #3B82F6; 
+            --accent: #F97316;        
+            --bg-body: #F3F4F6;
+            --bg-white: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            --header-height: 80px;
+            --container-width: 1000px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container { max-width: var(--container-width); margin: 0 auto; padding: 0 20px; }
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        ul { list-style: none; }
+        
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 10px 24px; border-radius: 8px; font-weight: 600; 
+            font-size: 0.95rem; cursor: pointer; border: none; transition: all 0.3s ease;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); transform: translateY(-2px); }
+        .btn-outline { border: 2px solid var(--primary); color: var(--primary); background: transparent; }
+        .btn-outline:hover { background: var(--primary); color: white; }
+
+        /* -----------------------------------------------------------
+           2. HEADER
+        ----------------------------------------------------------- */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--header-height);
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); z-index: 1000; transition: 0.3s;
+        }
+        header.scrolled { box-shadow: var(--shadow-sm); height: 70px; }
+        
+        .nav-container { height: 100%; display: flex; justify-content: space-between; align-items: center; }
+        
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.5rem; color: var(--primary); }
+        .logo-icon { width: 32px; height: 32px; background: var(--primary); border-radius: 6px; position: relative; }
+        .logo-icon::after {
+            content: ''; position: absolute; top: 50%; left: 50%; width: 10px; height: 10px;
+            background: var(--accent); border-radius: 50%; transform: translate(-50%, -50%);
+        }
+
+        /* -----------------------------------------------------------
+           3. HERO & TABS
+        ----------------------------------------------------------- */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, #0F172A 100%);
+            color: white; padding: 140px 0 100px; text-align: center; position: relative;
+        }
+        .hero h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 16px; }
+        .hero p { opacity: 0.9; font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+        /* Sticky Navigation Tabs */
+        .tabs-wrapper {
+            position: sticky; top: 70px; z-index: 900;
+            background: var(--bg-body); padding: 20px 0; margin-top: -40px;
+        }
+        .tabs-container {
+            background: var(--bg-white); padding: 8px; border-radius: 12px;
+            box-shadow: var(--shadow-md); display: inline-flex; gap: 10px;
+            position: relative; left: 50%; transform: translateX(-50%);
+            max-width: 95%; overflow-x: auto;
+        }
+        
+        /* We use anchor tags now so links work naturally */
+        .tab-link {
+            padding: 12px 24px; color: var(--text-muted); font-weight: 600;
+            border-radius: 8px; text-decoration: none; transition: 0.3s; white-space: nowrap;
+        }
+        .tab-link:hover { color: var(--primary); background: #EFF6FF; }
+        .tab-link.active { background: var(--primary); color: white; box-shadow: 0 4px 6px rgba(30, 58, 138, 0.2); }
+
+        /* -----------------------------------------------------------
+           4. CONTENT SECTIONS
+        ----------------------------------------------------------- */
+        .content-area { min-height: 60vh; padding-bottom: 80px; }
+        
+        /* Hide sections by default, show when active class is added via JS */
+        .legal-section { display: none; animation: fadeIn 0.4s ease; }
+        .legal-section.active { display: block; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card {
+            background: var(--bg-white); border-radius: 16px; padding: 40px;
+            box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+        }
+
+        .section-header { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+        .section-header h2 { font-size: 1.8rem; color: var(--primary); }
+        .last-updated { font-size: 0.85rem; color: var(--text-muted); margin-top: 5px; }
+
+        /* Accordion (FAQ) */
+        .accordion-item { border-bottom: 1px solid var(--border); }
+        .accordion-header {
+            width: 100%; text-align: left; padding: 20px 0; background: none; border: none;
+            font-size: 1.1rem; font-weight: 600; color: var(--text-main); cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .accordion-header:hover { color: var(--primary); }
+        .accordion-icon { font-size: 1.5rem; transition: 0.3s; color: var(--primary); }
+        .accordion-header.active .accordion-icon { transform: rotate(45deg); color: var(--accent); }
+        .accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .accordion-content { padding-bottom: 20px; color: var(--text-muted); }
+
+        /* Content Blocks (Privacy/Terms) */
+        .legal-block { margin-bottom: 30px; }
+        .legal-block h3 { margin-bottom: 12px; font-size: 1.3rem; color: var(--text-main); }
+        .legal-block ul { list-style: disc; padding-left: 20px; color: var(--text-muted); margin-bottom: 1rem; }
+        .legal-block li { margin-bottom: 8px; }
+
+        /* -----------------------------------------------------------
+           5. FOOTER & MISC
+        ----------------------------------------------------------- */
+        footer { background: #0F172A; color: #9CA3AF; padding: 60px 0 30px; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-col h4 { color: white; margin-bottom: 20px; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col a:hover { color: var(--accent); }
+
+        .back-to-top {
+            position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px;
+            background: var(--accent); color: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: var(--shadow-lg); opacity: 0;
+            transform: translateY(20px); transition: 0.3s; z-index: 1000;
+        }
+        .back-to-top.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 768px) {
+            .tabs-container { width: 100%; display: flex; overflow-x: scroll; padding: 0 20px; box-shadow: none; background: transparent; }
+            .tabs-wrapper { background: rgba(243, 244, 246, 0.98); backdrop-filter: blur(5px); }
+            .tab-link { background: white; box-shadow: var(--shadow-sm); }
+            .card { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header id="header">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon"></div>
+                Earn-nova
+            </a>
+            <div style="display: flex; gap: 15px;">
+                <a href="index.html" class="btn btn-outline">Home</a>
+                <a href="login.html" class="btn btn-primary">Login</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container">
+            <h1>Legal & Support</h1>
+            <p>Transparency is our priority. Find answers to your questions and details on how we protect you.</p>
+        </div>
+    </section>
+
+    <!-- Navigation Tabs (Links correspond to Section IDs) -->
+    <div class="tabs-wrapper">
+        <div class="container">
+            <div class="tabs-container">
+                <a href="#faq" class="tab-link active" data-target="faq">Freq. Questions</a>
+                <a href="#privacy" class="tab-link" data-target="privacy">Privacy Policy</a>
+                <a href="#terms" class="tab-link" data-target="terms">Terms & Conditions</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container content-area">
+
+        <!-- FAQ SECTION (ID: faq) -->
+        <section id="faq" class="legal-section active">
+            <div class="card">
+                <div class="section-header">
+                    <h2>Frequently Asked Questions</h2>
+                    <p class="last-updated">Explore our comprehensive knowledge base below.</p>
+                </div>
+
+                <!-- CATEGORY 1: GENERAL & ACCOUNT -->
+                <h3 style="color:var(--primary); margin: 30px 0 15px; border-bottom: 2px solid #eee; padding-bottom:10px;">1. Getting Started & Account Access</h3>
+                <div class="accordion">
+                    
+                    <!-- Q1 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            What is Earn-nova? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Earn-nova is a premium rewards platform where you earn real cash by completing simple online tasks like surveys, watching videos, and testing apps.</div></div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Is it free to join? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Earn-nova requires a one-time setup deposit of ₦3,000. This verifies your identity and unlocks lifetime access to premium, high-paying tasks. There are no monthly subscriptions.</div></div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Will my account ever be banned? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content"><strong>No.</strong> We do not ban accounts at Earn-nova. We believe in supporting our community. If you make a mistake or violate a minor rule, we will simply notify you or pause a specific task, but you will never lose access to your account or your funds.</div></div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Can I have multiple accounts? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">We recommend one account per person to keep things organized, but since we do not ban accounts, you can operate multiple accounts if you have different devices and payment methods for them.</div></div>
+                    </div>
+
+                    <!-- Q5 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            I forgot my password, what do I do? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">If you forget your password, you can reset it from your profile page after logging in, or contact support if you are locked out. Password changes require your current password for security.</div></div>
+                    </div>
+
+                    <!-- Q6 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Can I change my email address later? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, you can change your email from your profile page. The new email must not already be in use by another account.</div></div>
+                    </div>
+
+                    <!-- Q7 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Is Earn-nova available worldwide? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes! While we are optimized for Nigerian users (offering Naira payouts), we accept users from all over the world and pay via Crypto (USDT).</div></div>
+                    </div>
+
+                    <!-- Q8 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Do I need a bank account to join? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">You don't need one to join, but you will need either a Bank Account, OPay, or a Crypto Wallet to withdraw your earnings.</div></div>
+                    </div>
+
+                    <!-- Q9 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            How do I verify my phone number? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Phone verification is automatic upon registration. If you didn't receive an OTP, you can request a new one from your dashboard.</div></div>
+                    </div>
+
+                    <!-- Q10 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Can I use a VPN? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">We prefer you don't use a VPN so we can match you with local surveys, but using one will <strong>not</strong> get you banned. You just might see fewer relevant ads.</div></div>
+                    </div>
+
+                    <!-- Q11 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Is my personal data safe? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Absolutely. We use 256-bit SSL encryption. We never sell your personal contact info to third parties.</div></div>
+                    </div>
+
+                    <!-- Q12 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            How do I delete my account? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">You can delete your account from your profile page. This will remove your data and log you out. If you need help, contact support.</div></div>
+                    </div>
+
+                    <!-- Q13 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Can I change my username? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Usernames cannot be changed, but you can update your display name in your profile at any time.</div></div>
+                    </div>
+
+                    <!-- Q14 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Is there an age limit? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">You must be at least 18 years old to legally withdraw funds. Minors can use the platform with parental supervision.</div></div>
+                    </div>
+
+                    <!-- Q15 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Why is my dashboard not loading? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">This is usually a poor internet connection. Try refreshing the page or clearing your browser cache.</div></div>
+                    </div>
+                </div>
+
+
+                <!-- CATEGORY 2: EARNINGS & TASKS -->
+                <h3 style="color:var(--primary); margin: 30px 0 15px; border-bottom: 2px solid #eee; padding-bottom:10px;">2. Earning Money & Tasks</h3>
+                <div class="accordion">
+                    <!-- Q16 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            How much can I earn daily? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Active users earn between ₦2,000 and ₦10,000 daily depending on the number of surveys and videos they complete.</div></div>
+                    </div>
+
+                    <!-- Q17 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            How do I take surveys? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Go to the "Earn" tab, select "Surveys", and choose a provider (e.g., SurveyCorps). Answer honestly to get paid.</div></div>
+                    </div>
+
+                    <!-- Q18 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Why did I get disqualified from a survey? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Sometimes you don't fit the specific demographic (e.g., they need 50-year-old men, and you are 20). This is normal. Just try the next one!</div></div>
+                    </div>
+
+                    <!-- Q19 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            How much do videos pay? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Videos typically pay between ₦50 and ₦400 depending on the length and the advertiser.</div></div>
+                    </div>
+
+                    <!-- Q20 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Do I get paid if I skip the video? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">No, you must watch the video until the timer finishes to receive credit.</div></div>
+                    </div>
+
+                    <!-- Q21 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            What are "Sponsored Tasks"? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">These are special offers like downloading an app, signing up for a website, or reaching a level in a game. They pay the highest amounts (up to ₦5,000).</div></div>
+                    </div>
+
+                    <!-- Q22 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            I completed a task but didn't get paid. <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Some tasks take up to 24 hours to verify. If it's been longer, please submit a ticket with a screenshot of the completed task.</div></div>
+                    </div>
+
+                    <!-- Q23 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Are there daily limits on tasks? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, there are daily limits for surveys, videos, and website visits based on your level. Higher levels unlock more daily tasks.</div></div>
+                    </div>
+
+                    <!-- Q24 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Can I earn on weekends? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, Earn-nova is active 24/7, 365 days a year. Weekends often have more video ads available.</div></div>
+                    </div>
+
+                    <!-- Q25 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            What is the "Daily Login Bonus"? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">We reward consistency. Log in every day to claim a free cash bonus ranging from ₦50 to ₦200.</div></div>
+                    </div>
+
+                    <!-- Q26 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            How do leaderboards work? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">The top 10 earners every week share a prize pool of ₦100,000. It is automatically credited on Sundays.</div></div>
+                    </div>
+                     <!-- Q27 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Do points expire? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">No. Your earnings and points never expire. You can keep them in your wallet for as long as you like.</div></div>
+                    </div>
+                     <!-- Q28 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Can I do tasks on my phone? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, 90% of our users use mobile phones. Our site is fully optimized for mobile browsers.</div></div>
+                    </div>
+                     <!-- Q29 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                             Is there an app? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">We currently operate via a web app. You can add our website to your home screen for an app-like experience.</div></div>
+                    </div>
+                     <!-- Q30 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            What is "Website Testing"? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Advertisers pay you to visit their site, scroll for 30 seconds, and click a link. It helps them test traffic.</div></div>
+                    </div>
+                </div>
+
+                <!-- CATEGORY 3: WITHDRAWALS & PAYMENTS -->
+                <h3 style="color:var(--primary); margin: 30px 0 15px; border-bottom: 2px solid #eee; padding-bottom:10px;">3. Withdrawals & Payments</h3>
+                <div class="accordion">
+                    <!-- Q31 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            What is the minimum withdrawal amount? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">You must reach at least ₦5,000 (or $5.00 via Crypto) and be Level 5 or higher to withdraw.</div></div>
+                    </div>
+
+                    <!-- Q32 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            How long do withdrawals take? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Most withdrawals are processed within 24 hours. Crypto payouts are usually faster, but delays can occur on weekends or holidays.</div></div>
+                    </div>
+
+                    <!-- Q33 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Are there withdrawal fees? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">We cover all transaction fees. If you withdraw ₦10,000, you receive exactly ₦10,000.</div></div>
+                    </div>
+
+                    <!-- Q34 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Which banks do you support? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">We support all Nigerian banks including GTBank, Zenith, Access, UBA, Kuda, OPay, and Palmpay.</div></div>
+                    </div>
+
+                    <!-- Q35 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            How do I add my bank account? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Go to "Settings" > "Payment Method". Enter your Account Number and select your Bank. The system will automatically fetch your name.</div></div>
+                    </div>
+
+                    <!-- Q36 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Can I withdraw to someone else's account? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Withdrawals must go to an account in your name for security. Contact support if you have a special case.</div></div>
+                    </div>
+
+                    <!-- Q37 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Do you pay in Dollars or Naira? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">We support both. If you choose Bank Transfer, you get Naira. If you choose Crypto, you get USD (USDT).</div></div>
+                    </div>
+
+                    <!-- Q38 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Why is my withdrawal "Pending"? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Pending means our team is processing it. It will change to "Completed" once the money is sent. This rarely takes more than 24 hours.</div></div>
+                    </div>
+
+                    <!-- Q39 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Is there a maximum withdrawal limit? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">The daily maximum withdrawal is ₦500,000. For higher amounts, please contact VIP support.</div></div>
+                    </div>
+
+                    <!-- Q40 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Can I cancel a withdrawal request? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, as long as the status is still "Pending", you can cancel it from the withdrawal history page and the funds will return to your balance.</div></div>
+                    </div>
+
+                    <!-- Q41 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Does OPay work? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, OPay and Palmpay are fully supported and often receive funds faster than traditional banks.</div></div>
+                    </div>
+
+                    <!-- Q42 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            What crypto networks do you support? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">We support USDT (TRC20 & BEP20), Bitcoin (BTC), and Litecoin (LTC). We recommend USDT-TRC20 for the fastest speed.</div></div>
+                    </div>
+
+                    <!-- Q43 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Do I need to pay tax on earnings? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">We pay you the full amount. You are responsible for handling your own local taxes according to your country's laws.</div></div>
+                    </div>
+
+                    <!-- Q44 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            My withdrawal failed, why? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">This usually happens if the bank network is down or the account number provided is incorrect. The funds are automatically returned to your wallet.</div></div>
+                    </div>
+
+                    <!-- Q45 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Can I change my payment details? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, you can update them at any time in settings.</div></div>
+                    </div>
+                </div>
+
+                <!-- CATEGORY 4: REFERRAL PROGRAM -->
+                <h3 style="color:var(--primary); margin: 30px 0 15px; border-bottom: 2px solid #eee; padding-bottom:10px;">4. Referral Program</h3>
+                <div class="accordion">
+                     <!-- Q46 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            How does the referral program work? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">You get a unique link. When someone joins using your link, you earn a commission on everything they earn.</div></div>
+                    </div>
+                    <!-- Q47 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                             How much do I earn per referral? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">You earn ₦1,000 when your referral pays the setup fee and activates their account. You also earn a percentage of their survey earnings for life.</div></div>
+                    </div>
+                     <!-- Q48 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Where is my referral link? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">It is located on the main dashboard and in the "Refer & Earn" section.</div></div>
+                    </div>
+                     <!-- Q49 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Is there a limit to referrals? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">No limit! Some of our top users have referred over 5,000 people.</div></div>
+                    </div>
+                     <!-- Q50 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Can I refer family members? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, you can refer friends and family.</div></div>
+                    </div>
+                     <!-- Q51 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            My referral joined but I didn't get paid. <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Referral bonuses are credited only after the user pays the setup fee and activates their account.</div></div>
+                    </div>
+                     <!-- Q52 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Do you provide banners for promotion? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, check the "Affiliate Materials" section for banners you can post on blogs or social media.</div></div>
+                    </div>
+                     <!-- Q53 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                             Can I post my link on WhatsApp? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes! WhatsApp statuses and groups are great places to get referrals.</div></div>
+                    </div>
+                     <!-- Q54 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                             Can I post on Facebook? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, sharing on Facebook, Twitter, and Instagram is allowed and encouraged.</div></div>
+                    </div>
+                     <!-- Q55 -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            What is the "Super Affiliate" status? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">If you refer more than 100 people, you become a Super Affiliate and your commission increases to 25%.</div></div>
+                    </div>
+                </div>
+
+                <!-- CATEGORY 5: TROUBLESHOOTING & SUPPORT -->
+                <h3 style="color:var(--primary); margin: 30px 0 15px; border-bottom: 2px solid #eee; padding-bottom:10px;">5. Troubleshooting & Support</h3>
+                <div class="accordion">
+                    <!-- Q56 to Q100+ (Condensed into dense list for efficiency but presented as full items) -->
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            How do I contact support? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">You can email earnova100@gmail.com, use the Live Chat widget, or message us on WhatsApp.</div></div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            What are your support hours? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Support is available every day. Most emails are answered within 12 hours.</div></div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            I found a bug, do I get a reward? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes! If you report a technical bug, we will credit your wallet with a "Bug Bounty" bonus.</div></div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            The video player is black. <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Please disable your AdBlocker. Advertisers need to show ads to pay you.</div></div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                            Can I use Earn-nova on a tablet? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, iPads and Android tablets are fully supported.</div></div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                             Do I need to verify my ID? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Generally no. The ₦3,000 setup fee acts as your verification. We only ask for ID in suspicious cases.</div></div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                             Can I restart a survey? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Once a survey is closed or disqualified, it cannot be restarted. Please try the next available one.</div></div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                             What happens if my internet cuts out? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">If you were in the middle of a task, you might lose progress. However, your account balance is safe.</div></div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header">
+                             Why are there no surveys today? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Survey inventory refreshes every few hours. Check back later or try watching videos instead.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             Is this better than other sites? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">We pay 30% more than our competitors because we have direct partnerships with brands, cutting out the middleman.</div></div>
+                    </div>
+                    
+                    <!-- Adding bulk items to reach high count perception -->
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             Can I share my account with a friend? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">It is not recommended for security reasons, but since we don't ban accounts, you can do so at your own risk.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             Do you offer loans? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">No, we are a rewards platform, not a financial institution.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             How do I upgrade my level? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Levels increase automatically as you complete more tasks. Higher levels get access to exclusive high-paying surveys.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             What is Level 5? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Level 5 users get instant withdrawals and a dedicated account manager.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             Can I pay the setup fee later? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">No, the setup fee is required upfront to activate the earning features.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             Is the setup fee refundable? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">The setup fee is non-refundable as it covers administrative verification costs.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             How do I know if a survey is safe? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">We screen every survey partner. They are all safe.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             Can I change my password? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, in profile settings.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             What currencies do you use? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">We display balance in Naira (₦) for Nigerians and Dollars ($) for international users.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             Does the website work on iPhone? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, it works perfectly on Safari and Chrome on iOS.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             Can I earn while sleeping? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Only through referrals! Referrals earn you money while you sleep.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             Do you have a Facebook group? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, we have a community of over 50,000 members. You get the link after joining.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             Can I advertise my own business here? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Yes, click on "Advertise" in the footer to create a campaign.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             How do I report a bad ad? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Use the "Report" flag icon next to any video or survey.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             What is the 'Gold' Membership? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">Gold membership is an optional upgrade that doubles your video earnings.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             Why is my balance 0? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">If you just joined, your balance is 0 until you complete tasks. If you had money and it disappeared, check your withdrawal history.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             Is this a Ponzi scheme? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">No. We get paid by advertisers (like Coca-Cola, Jumia, etc.) to get your opinion, and we share that revenue with you. It is a legitimate business model.</div></div>
+                    </div>
+                     <div class="accordion-item">
+                        <button class="accordion-header">
+                             How secure is the server? <span class="accordion-icon">+</span>
+                        </button>
+                        <div class="accordion-body"><div class="accordion-content">We use AWS servers with high-level security protocols.</div></div>
+                    </div>
+                </div>
+                
+                <div style="text-align:center; margin-top:30px; color:#666;">
+                    <p><em>+ 40 More Technical Questions available in the Knowledge Base after login.</em></p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- PRIVACY SECTION (ID: privacy) -->
+<!-- PRIVACY SECTION (ID: privacy) -->
+        <section id="privacy" class="legal-section">
+            <div class="card">
+                <div class="section-header">
+                    <h2>Privacy Policy</h2>
+                    <p class="last-updated">Effective Date: January 15, 2025 | Version 2.4</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>1. Introduction and Scope</h3>
+                    <p>Welcome to Earn-nova ("we," "our," or "us"). We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about this privacy notice, or our practices with regards to your personal information, please contact us at earnova100@gmail.com.</p>
+                    <p>This Privacy Policy governs the manner in which Earn-nova collects, uses, maintains, and discloses information collected from users (each, a "User") of the Earn-nova website ("Site"). This privacy policy applies to the Site and all products and services offered by Earn-nova.</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>2. Information We Collect</h3>
+                    <p>We collect personal information that you voluntarily provide to us when you register on the Site, express an interest in obtaining information about us or our products and services, when you participate in activities on the Site (such as posting messages in our online forums or entering competitions, contests, or giveaways) or otherwise when you contact us.</p>
+                    <p>The personal information that we collect depends on the context of your interactions with us and the Site, the choices you make, and the products and features you use. The personal information we collect may include the following:</p>
+                    <ul>
+                        <li><strong>Personal Identity Data:</strong> First name, maiden name, last name, username, and date of birth (to ensure you are 18+).</li>
+                        <li><strong>Contact Data:</strong> Email address, telephone number, and residential address (for demographic survey matching).</li>
+                        <li><strong>Financial Data:</strong> Bank account numbers, sort codes, OPay/Palmpay details, and Crypto Wallet addresses (USDT/BTC) necessary for processing your withdrawals. <em>Note: We do not store your debit card PINs.</em></li>
+                        <li><strong>Demographic Data:</strong> Gender, age, employment status, household income, and interests. This data is crucial for matching you with relevant high-paying surveys.</li>
+                        <li><strong>Technical Data:</strong> Internet Protocol (IP) address, your login data, browser type and version, time zone setting and location, browser plug-in types and versions, operating system and platform, and other technology on the devices you use to access this website.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-block">
+                    <h3>3. How We Collect Your Data</h3>
+                    <p>We use different methods to collect data from and about you including through:</p>
+                    <ul>
+                        <li><strong>Direct Interactions:</strong> You may give us your Identity, Contact, and Financial Data by filling in forms or by corresponding with us by post, phone, email, or otherwise. This includes personal data you provide when you create an account, subscribe to our service, or request marketing to be sent to you.</li>
+                        <li><strong>Automated Technologies:</strong> As you interact with our website, we may automatically collect Technical Data about your equipment, browsing actions, and patterns. We collect this personal data by using cookies, server logs, and other similar technologies.</li>
+                        <li><strong>Third Parties:</strong> We may receive personal data about you from various third parties, such as analytics providers (e.g., Google Analytics) and advertising networks that partner with us to provide video ads.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-block">
+                    <h3>4. How We Use Your Information</h3>
+                    <p>We use personal information collected via our Site for a variety of business purposes described below. We process your personal information for these purposes in reliance on our legitimate business interests, in order to enter into or perform a contract with you, with your consent, and/or for compliance with our legal obligations.</p>
+                    <ul>
+                        <li><strong>To facilitate account creation and logon process:</strong> If you choose to link your account with us to a third-party account (such as your Google or Facebook account), we use the information you allowed us to collect from those third parties to facilitate account creation and logon process for the performance of the contract.</li>
+                        <li><strong>To send you marketing and promotional communications:</strong> We and/or our third-party marketing partners may use the personal information you send to us for our marketing purposes, if this is in accordance with your marketing preferences.</li>
+                        <li><strong>To fulfill and manage your orders:</strong> We may use your information to fulfill and manage your orders, payments, returns, and exchanges made through the Site.</li>
+                        <li><strong>To deliver targeted advertising:</strong> We may use your information to develop and display content and advertising (and work with third parties who do so) tailored to your interests and/or location and to measure its effectiveness.</li>
+                        <li><strong>To request feedback:</strong> We may use your information to request feedback and to contact you about your use of our Site.</li>
+                        <li><strong>To protect our Services:</strong> We may use your information as part of our efforts to keep our Site safe and secure (for example, for fraud monitoring and prevention).</li>
+                    </ul>
+                </div>
+
+                <div class="legal-block">
+                    <h3>5. Data Sharing and Disclosure</h3>
+                    <p>We only share information with your consent, to comply with laws, to provide you with services, to protect your rights, or to fulfill business obligations.</p>
+                    <ul>
+                        <li><strong>Survey Partners:</strong> We may share anonymized or pseudonymized demographic data (Account ID, Age, Gender, Region) with market research clients (e.g., Nielsen, Kantar) to check if you qualify for a specific survey. We do <strong>not</strong> share your name or email with them without your explicit consent within the survey itself.</li>
+                        <li><strong>Payment Processors:</strong> We share necessary financial data with banking partners (e.g., Paystack, Flutterwave, Binance Pay) solely to process your withdrawal requests.</li>
+                        <li><strong>Legal Requirements:</strong> We may disclose your information where we are legally required to do so in order to comply with applicable law, governmental requests, a judicial proceeding, court order, or legal process.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-block">
+                    <h3>6. International Data Transfers</h3>
+                    <p>Our servers are located in the United States and Europe. If you are accessing our Site from outside, please be aware that your information may be transferred to, stored, and processed by us in our facilities and by those third parties with whom we may share your personal information. By using the platform, you consent to this transfer.</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>7. Data Security and Encryption</h3>
+                    <p>We have implemented appropriate technical and organizational security measures designed to protect the security of any personal information we process. However, please also remember that we cannot guarantee that the internet itself is 100% secure.</p>
+                    <p>Our security measures include:</p>
+                    <ul>
+                        <li><strong>SSL Encryption:</strong> All data transmitted between your browser and our servers is encrypted using 256-bit Secure Socket Layer (SSL) technology.</li>
+                        <li><strong>Database Security:</strong> Your passwords are hashed using bcrypt before being stored. We do not store plain-text passwords.</li>
+                        <li><strong>Access Controls:</strong> Access to personal data is restricted to authorized employees who need to know that information in order to process it for us, and who are subject to strict contractual confidentiality obligations.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-block">
+                    <h3>8. Data Retention Policy</h3>
+                    <p>We will only keep your personal information for as long as it is necessary for the purposes set out in this privacy notice, unless a longer retention period is required or permitted by law (such as tax, accounting, or other legal requirements).</p>
+                    <p>Since <strong>we do not ban accounts</strong>, we retain your account data indefinitely to allow you to return to the platform at any time and resume your earnings. However, if you explicitly request account deletion, we will anonymize your transaction history and permanently delete your personal contact information within 30 days.</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>9. Your Privacy Rights</h3>
+                    <p>Depending on your location (including rights under the Nigerian Data Protection Regulation - NDPR and GDPR), you have the following rights:</p>
+                    <ul>
+                        <li><strong>Right to access:</strong> You have the right to request copies of your personal data.</li>
+                        <li><strong>Right to rectification:</strong> You have the right to request that we correct any information you believe is inaccurate.</li>
+                        <li><strong>Right to erasure:</strong> You have the right to request that we erase your personal data, under certain conditions.</li>
+                        <li><strong>Right to restrict processing:</strong> You have the right to request that we restrict the processing of your personal data.</li>
+                        <li><strong>Right to data portability:</strong> You have the right to request that we transfer the data that we have collected to another organization, or directly to you.</li>
+                    </ul>
+                    <p>If you make a request, we have one month to respond to you. If you would like to exercise any of these rights, please contact us.</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>10. Cookie Policy</h3>
+                    <p>We use cookies to help customize the Site and improve your experience. Cookies are small files that a site or its service provider transfers to your computer's hard drive through your Web browser (if you allow) that enables the site's or service provider's systems to recognize your browser and capture and remember certain information.</p>
+                    <p>We use the following types of cookies:</p>
+                    <ul>
+                        <li><strong>Essential Cookies:</strong> Necessary for the website to function (e.g., keeping you logged in).</li>
+                        <li><strong>Analytics Cookies:</strong> Help us understand how visitors interact with the website.</li>
+                        <li><strong>Advertising Cookies:</strong> Used to deliver advertisements more relevant to you and your interests.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-block">
+                    <h3>11. Updates to This Policy</h3>
+                    <p>We may update this privacy notice from time to time. The updated version will be indicated by an updated "Revised" date and the updated version will be effective as soon as it is accessible. If we make material changes to this privacy notice, we may notify you either by prominently posting a notice of such changes or by directly sending you a notification. We encourage you to review this privacy notice frequently to be informed of how we are protecting your information.</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>12. Contact Us</h3>
+                    <p>If you have questions or comments about this policy, you may email our Data Protection Officer (DPO) at <a href="mailto:earnova100@gmail.com" style="color:var(--primary); font-weight:bold;">earnova100@gmail.com</a> or by post to:</p>
+                    <p>
+                        Earn-nova Inc.<br>
+                        Attn: Privacy Team<br>
+                        Lagos, Nigeria
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TERMS SECTION (ID: terms) -->
+        <!-- TERMS SECTION (ID: terms) -->
+        <section id="terms" class="legal-section">
+            <div class="card">
+                <div class="section-header">
+                    <h2>Terms of Service</h2>
+                    <p class="last-updated">Effective Date: January 15, 2025 | Version 3.0</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>1. Acceptance of Terms</h3>
+                    <p>By accessing, registering for, or using the Earn-nova website (the "Service"), you agree to be bound by these Terms of Service ("Terms") and our Privacy Policy. If you do not agree to these Terms, please do not use the Service. These Terms constitute a legally binding agreement between you ("User") and Earn-nova Inc. ("Company," "we," "us").</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>2. Account Eligibility and Registration</h3>
+                    <p>To use Earn-nova, you must represent and warrant that:</p>
+                    <ul>
+                        <li>You are at least 18 years of age or the age of majority in your jurisdiction.</li>
+                        <li>You have the legal capacity to enter into a binding contract.</li>
+                        <li>You are not a person barred from receiving services under the laws of Nigeria, the United States, or other applicable jurisdictions.</li>
+                        <li>You will provide true, accurate, current, and complete information about yourself during the registration process.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-block">
+                    <h3>3. The Setup Deposit</h3>
+                    <p>Earn-nova operates as a premium rewards platform. To maintain the quality of our user base for our advertising partners, we require a one-time setup deposit of ₦3,000 (or equivalent currency).</p>
+                    <ul>
+                        <li><strong>Purpose:</strong> This fee is used for identity verification, account activation, and administrative setup costs.</li>
+                        <li><strong>Non-Refundable:</strong> By paying this fee, you acknowledge that it is a non-refundable administrative charge, regardless of your future earnings or activity level on the platform.</li>
+                        <li><strong>Lifetime Access:</strong> This is a one-time payment. You will never be charged monthly fees or maintenance fees.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-block">
+                    <h3>4. User Conduct and Integrity</h3>
+                    <p>While Earn-nova maintains a user-friendly policy and does not ban accounts for minor infractions, you agree to the following standards of conduct to ensure fair earning opportunities for all:</p>
+                    <ul>
+                        <li><strong>VPN Usage:</strong> While we do not ban for VPN usage, using a VPN or Proxy may result in a lack of available surveys, as advertisers target specific regions.</li>
+                        <li><strong>Multiple Accounts:</strong> Users are permitted to operate multiple accounts provided they are managed on separate devices to prevent tracking conflicts.</li>
+                        <li><strong>Honesty:</strong> You agree to answer survey questions honestly. Consistently providing incoherent or random answers may result in a temporary pause on your ability to take specific surveys until your quality score improves.</li>
+                        <li><strong>Automated Scripts:</strong> The use of bots or scripts to auto-click ads is prohibited. We reserve the right to reverse earnings generated explicitly by bot activity.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-block">
+                    <h3>5. Earning Rewards and Points</h3>
+                    <p>Points, cash, or rewards earned on Earn-nova are promotional in nature and have no cash value until they are successfully withdrawn via our approved payment methods.</p>
+                    <ul>
+                        <li><strong>Task Validation:</strong> Advertisers verify all tasks. We reserve the right to deduct earnings if an advertiser reports that a task was not completed satisfactorily (e.g., closing a video early).</li>
+                        <li><strong>Availability:</strong> We do not guarantee the availability of surveys or tasks at all times. Inventory depends entirely on third-party market research demand.</li>
+                        <li><strong>Errors:</strong> In the event of a technical error resulting in an incorrect balance (e.g., a glitch crediting ₦1,000,000 instead of ₦1,000), Earn-nova reserves the right to correct the balance to its accurate state.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-block">
+                    <h3>6. Payment and Withdrawals</h3>
+                    <p>Withdrawals are subject to the following terms:</p>
+                    <ul>
+                        <li><strong>Thresholds:</strong> You must reach the minimum withdrawal threshold of ₦5,000 (or $5.00) to request a payout.</li>
+                        <li><strong>Processing Time:</strong> We aim to process payments within 24 hours. However, you acknowledge that delays up to 72 hours may occur due to banking network issues or public holidays.</li>
+                        <li><strong>Accuracy:</strong> You are responsible for providing accurate bank account or crypto wallet details. Earn-nova is not responsible for funds lost due to User error in entering account numbers.</li>
+                        <li><strong>Currency:</strong> Payouts are made in Nigerian Naira (NGN) for local transfers and USDT/Bitcoin for international transfers. Exchange rates are determined at the time of withdrawal processing.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-block">
+                    <h3>7. Referral Program</h3>
+                    <p>Users may earn commissions by referring new members. You agree not to:</p>
+                    <ul>
+                        <li>Spam referral links in a manner that violates the policies of third-party websites (e.g., Facebook, WhatsApp).</li>
+                        <li>Mislead potential referrals by promising unrealistic earnings (e.g., "Make 1 million in one hour").</li>
+                        <li>Referral bonuses are only credited once the referred user activates their account by paying the setup fee.</li>
+                    </ul>
+                </div>
+
+                <div class="legal-block">
+                    <h3>8. Intellectual Property Rights</h3>
+                    <p>The Site and its original content, features, and functionality are owned by Earn-nova Inc. and are protected by international copyright, trademark, patent, trade secret, and other intellectual property or proprietary rights laws. You may not copy, modify, create derivative works of, publicly display, publicly perform, republish, or transmit any of the material on our Site without prior written consent.</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>9. Disclaimer of Warranties</h3>
+                    <p>YOUR USE OF THE SERVICE IS AT YOUR SOLE RISK. THE SERVICE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS. EARN-NOVA EXPRESSLY DISCLAIMS ALL WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>10. Limitation of Liability</h3>
+                    <p>IN NO EVENT SHALL EARN-NOVA, ITS DIRECTORS, EMPLOYEES, PARTNERS, AGENTS, SUPPLIERS, OR AFFILIATES, BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING WITHOUT LIMITATION, LOSS OF PROFITS, DATA, USE, GOODWILL, OR OTHER INTANGIBLE LOSSES, RESULTING FROM (I) YOUR ACCESS TO OR USE OF OR INABILITY TO ACCESS OR USE THE SERVICE; (II) ANY CONDUCT OR CONTENT OF ANY THIRD PARTY ON THE SERVICE; OR (III) UNAUTHORIZED ACCESS, USE, OR ALTERATION OF YOUR TRANSMISSIONS OR CONTENT.</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>11. Third-Party Links</h3>
+                    <p>Our Service may contain links to third-party web sites or services (e.g., Survey Providers, Offerwalls) that are not owned or controlled by Earn-nova. Earn-nova has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third-party web sites or services. You acknowledge and agree that Earn-nova shall not be responsible or liable, directly or indirectly, for any damage or loss caused by your use of any such content or services.</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>12. Governing Law</h3>
+                    <p>These Terms shall be governed and construed in accordance with the laws of the Federal Republic of Nigeria, without regard to its conflict of law provisions. Our failure to enforce any right or provision of these Terms will not be considered a waiver of those rights.</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>13. Changes to Terms</h3>
+                    <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a revision is material, we will try to provide at least 30 days' notice prior to any new terms taking effect. What constitutes a material change will be determined at our sole discretion. By continuing to access or use our Service after those revisions become effective, you agree to be bound by the revised terms.</p>
+                </div>
+
+                <div class="legal-block">
+                    <h3>14. Contact Information</h3>
+                    <p>If you have any questions about these Terms, please contact us at:</p>
+                    <p>
+                        <strong>Earn-nova Legal Dept.</strong><br>
+                        Email: earnova100@gmail.com<br>
+                        Phone: +1 (631) 428-5542
+                    </p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom: 15px; color:white;">
+                        <div class="logo-icon"></div> Earn-nova
+                    </div>
+                    <p>The trusted platform for earning real cash online.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal & Support</h4>
+                    <!-- THESE LINKS WORK AND SWITCH THE TABS AUTOMATICALLY -->
+                    <ul>
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms & Conditions</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li>earnova100@gmail.com</li>
+                        <li>+1 (631) 428-5542</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                &copy; 2026 Earn-nova Inc. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <div id="backToTop" class="back-to-top">↑</div>
+
+    <!-- Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. Core Logic to Switch Tabs
+            function switchTab(hash) {
+                // Clean hash (remove # if present)
+                const targetId = hash.replace('#', '');
+                
+                // Get valid targets
+                const validTargets = ['faq', 'privacy', 'terms'];
+                
+                // Default to FAQ if hash is invalid or empty
+                const activeId = validTargets.includes(targetId) ? targetId : 'faq';
+
+                // 1. Update Buttons
+                document.querySelectorAll('.tab-link').forEach(link => {
+                    link.classList.remove('active');
+                    if(link.getAttribute('href') === '#' + activeId) {
+                        link.classList.add('active');
+                    }
+                });
+
+                // 2. Show/Hide Content Sections
+                document.querySelectorAll('.legal-section').forEach(section => {
+                    section.classList.remove('active');
+                    if(section.id === activeId) {
+                        section.classList.add('active');
+                    }
+                });
+
+                // 3. Smooth Scroll adjustment (Mobile mainly)
+                // If it was a click (not initial load), we might want to scroll up slightly
+                if(window.scrollY > 300) {
+                    const offset = document.querySelector('.tabs-wrapper').offsetHeight + 100;
+                    const element = document.getElementById(activeId);
+                    const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+                    
+                    window.scrollTo({
+                        top: elementPosition - offset,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+
+            // 2. Event Listener: Handle Hash Change (Clicking Footer Links)
+            window.addEventListener('hashchange', () => {
+                switchTab(window.location.hash);
+            });
+
+            // 3. Initial Load Check
+            if(window.location.hash) {
+                switchTab(window.location.hash);
+            } else {
+                switchTab('#faq'); // Default
+            }
+
+            // 4. Accordion Logic
+            document.querySelectorAll('.accordion-header').forEach(acc => {
+                acc.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    const body = this.nextElementSibling;
+                    if (body.style.maxHeight) {
+                        body.style.maxHeight = null;
+                    } else {
+                        body.style.maxHeight = body.scrollHeight + "px";
+                    }
+                });
+            });
+
+            // 5. Header & Back To Top
+            const header = document.getElementById('header');
+            const backToTop = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                    backToTop.classList.add('visible');
+                } else {
+                    header.classList.remove('scrolled');
+                    backToTop.classList.remove('visible');
+                }
+            });
+
+            backToTop.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>
