@@ -146,7 +146,7 @@
             transform: rotate(45deg) translate(-1px, -1px);
         }
 
-        .logo-text { font-size: 24px; font-weight: 800; color: var(--bg-dark); }
+        .logo-text { font-size: 24px; font-weight: bolder; color: var(--bg-dark); }
 
         /* Desktop Nav */
         .nav-links {
