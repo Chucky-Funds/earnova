@@ -223,42 +223,64 @@
         </div>
     </section>
 
-<!-- REWARDS -->
+    <!-- REWARDS (UPDATED SECTION - Single Merged Card) -->
     <section id="rewards" class="section-padding rewards-section">
         <div class="container">
             <div class="text-center" style="margin-bottom:60px;">
-                <h2 class="section-title">Withdrawal Methods</h2>
-                <p class="section-subtitle">Secure payouts directly to your local bank account or crypto wallet.</p>
+                <h2 class="section-title">Withdrawal</h2>
+                <p class="section-subtitle">Secure, fast, and direct payouts to your account.</p>
             </div>
 
-            <div class="rewards-grid two-col-layout">
+            <!-- Single Full Width Card Container -->
+            <div class="reward-card premium-card" style="max-width: 1000px; margin: 0 auto; display: flex; flex-direction: row; flex-wrap: wrap; gap: 40px; align-items: center; justify-content: space-between; text-align: left;">
                 
-                <!-- Option 1: Bank Transfer -->
-                <div class="reward-card premium-card">
-                    <div class="card-badge">Most Popular</div>
-                    <div class="icon-pulse">🏦</div>
-                    <h3>Bank Transfer</h3>
-                    <p class="reward-desc">Direct deposit to any local bank account. Best for direct cash access.</p>
-
-                    <div class="supported-list">
-                        <p>Supported Banks:</p>
-                        <div class="bank-logos">
-                            <span>GTBank</span> • <span>Zenith</span> • <span>Access</span> • <span>Opay</span> • <span>Kuda</span> & many more
+                <!-- Left Side: Main Info (Title & Logos) -->
+                <div style="flex: 1; min-width: 300px;">
+                    <div class="card-badge" style="position:relative; top:0; right:0; display:inline-block; margin-bottom:20px;">Instant Pay</div>
+                    <div class="icon-pulse" style="display:block; font-size: 3rem;">🏦</div>
+                    <h3 style="color:white; font-size: 2rem; margin-bottom: 15px;">Local Bank Transfer</h3>
+                    <p class="reward-desc" style="border-bottom:none; margin-bottom: 20px;">Direct deposit to any commercial or microfinance bank in Nigeria. Funds are typically available immediately after processing.</p>
+                    
+                    <div class="supported-list" style="margin-top:20px;">
+                        <p style="color: var(--accent-orange); font-weight:bold; letter-spacing:1px; margin-bottom:15px; font-size:0.85rem;">SUPPORTED BANKS</p>
+                        <div class="bank-logos" style="display: flex; flex-wrap: wrap; gap: 10px; opacity: 0.9;">
+                            <span style="background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:6px; font-size:0.9rem;">GTBank</span>
+                            <span style="background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:6px; font-size:0.9rem;">Zenith</span>
+                            <span style="background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:6px; font-size:0.9rem;">Access</span>
+                            <span style="background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:6px; font-size:0.9rem;">Opay</span>
+                            <span style="background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:6px; font-size:0.9rem;">Kuda</span>
+                            <span style="background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:6px; font-size:0.9rem;">UBA</span>
+                            <span style="background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:6px; font-size:0.9rem;">All Other Banks</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Option 2: Crypto -->
-                <div class="reward-card premium-card">
-                    <div class="icon-pulse">₿</div>
-                    <h3>Crypto Wallet</h3>
-                    <p class="reward-desc">Withdraw via USDT, Bitcoin, Litecoin & more. Perfect for saving in foreign currency.</p>
+                <!-- Right Side: Specs Box (Darker background) -->
+                <div style="flex: 1; min-width: 300px; background: rgba(0,0,0,0.3); padding: 30px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h4 style="color:white; font-size:1.2rem; margin:0;">Transaction Specs</h4>
+                        <span style="display:flex; align-items:center; gap:6px; font-size:12px; color:var(--accent-green); background:rgba(16, 185, 129, 0.1); padding:4px 10px; border-radius:20px; border:1px solid rgba(16, 185, 129, 0.2);">
+                            <span style="width:8px; height:8px; background:var(--accent-green); border-radius:50%; box-shadow:0 0 5px var(--accent-green);"></span>
+                            System Online
+                        </span>
+                    </div>
 
-                    <div class="supported-list">
-                        <p>Supported Networks:</p>
-                        <div class="bank-logos">
-                            <span>TRC20</span> • <span>BEP20</span> • <span>Bitcoin Network</span> • <span>Litecoin</span> & many more
-                        </div>
+                    <!-- Spec Rows -->
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
+                        <span style="color:#9CA3AF; font-size:0.95rem;">Processing Speed</span>
+                        <span style="color:white; font-weight:bold;">Instant - 24 Hours</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
+                        <span style="color:#9CA3AF; font-size:0.95rem;">Minimum Withdrawal</span>
+                        <span style="color:var(--accent-orange); font-weight:bold;">No Minimum</span>
+                    </div>
+                     <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
+                        <span style="color:#9CA3AF; font-size:0.95rem;">Maximum Withdrawal</span>
+                        <span style="color:white; font-weight:bold; color:var(--accent-orange);">Unlimited</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#9CA3AF; font-size:0.95rem;">Gateway Fees</span>
+                        <span style="color:var(--accent-green); font-weight:bold;">0% (Free)</span>
                     </div>
                 </div>
 
@@ -333,7 +355,7 @@
                                     <div class="stars">★★★★★</div>
                                 </div>
                             </div>
-                            <p>"The crypto withdrawal via USDT is a lifesaver. I receive my funds in my Binance wallet within 20 minutes. Highly recommended!"</p>
+                            <p>"The bank transfer withdrawal is a lifesaver. I receive my funds in my GTBank account within 20 minutes. Highly recommended!"</p>
                             <span class="verified-badge">✔ Verified User</span>
                         </div>
                     </div>
