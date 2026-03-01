@@ -173,32 +173,31 @@
             box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
         }
 
-        /* File Upload Styling */
         /* Fixed File Upload Styling */
         .file-upload-box {
-            display: flex;                  /* key fix: makes it a flex container */
-            flex-direction: column;         /* stacks items vertically */
-            align-items: center;            /* centers items horizontally */
-            justify-content: center;        /* centers items vertically */
-            width: 100%;                    /* ensures it fills the form width */
+            display: flex;                  
+            flex-direction: column;         
+            align-items: center;            
+            justify-content: center;        
+            width: 100%;                    
             border: 2px dashed var(--border-subtle); 
             border-radius: 10px;
-            padding: 30px 20px;             /* increased padding for better breathing room */
+            padding: 30px 20px;             
             text-align: center; 
             cursor: pointer; 
             transition: all 0.3s ease;
-            background-color: var(--bg-light); /* Slight background to define the area */
+            background-color: var(--bg-light); 
             margin-top: 5px;
         }
 
         .file-upload-box:hover { 
             border-color: var(--accent-orange); 
             background: #FFF7ED; 
-            transform: translateY(-2px);    /* subtle lift effect */
+            transform: translateY(-2px);
         }
 
         .file-upload-box input { 
-            display: none;                  /* keeps the ugly default input hidden */
+            display: none;
         }
         
         .upload-icon {
@@ -305,8 +304,15 @@
         /* RESPONSIVE */
         @media (max-width: 900px) {
             .support-container { grid-template-columns: 1fr; }
-            .info-card { order: 2; }
-            .form-wrapper { order: 1; padding: 30px; }
+            .info-card { 
+                order: 2; 
+                width: 100%; /* FIX: Ensures it fills the container width */
+            }
+            .form-wrapper { 
+                order: 1; 
+                padding: 30px; 
+                width: 100%; /* FIX: Ensures form fills the container width */
+            }
         }
         @media (max-width: 480px) {
             .chat-window { width: 90%; right: 5%; bottom: 100px; }
@@ -342,7 +348,7 @@
     <div class="support-container">
         
         <!-- LEFT: INFO -->
-        <div class="info-card gsap-fade-left">
+        <div class="info-card gsap-fade-left" style="transform: translate(0px, 0px)">
             <h3 style="margin-bottom: 30px; font-size: 1.5rem;">Contact Information</h3>
             
             <div class="contact-method">
