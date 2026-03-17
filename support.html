@@ -220,6 +220,13 @@
         }
         .btn-submit:hover { background: #172554; transform: translateY(-2px); }
 
+        /* Disabled Button State */
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
         /* Ticket & Captcha Visuals */
         .security-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .captcha-dummy {
@@ -449,14 +456,15 @@
                 </div>
 
                 <div class="security-row">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <input type="checkbox" id="human" required>
-                        <label for="human" style="font-size: 0.9rem; color: var(--text-muted);">I am human</label>
+                    <div style="display: flex; align-items: center; gap: 10px; flex: 1; margin-right: 15px;">
+                        <input type="text" id="captchaInput" class="form-input" placeholder="Type exact code to verify..." required style="padding: 10px 15px;">
                     </div>
-                    <div class="captcha-dummy">X7K9M</div>
+                    <!-- The value inside will be instantly overwritten by javascript on refresh -->
+                    <div class="captcha-dummy" id="captchaCode">X7K9M</div>
                 </div>
 
-                <button type="submit" class="btn-submit">
+                <!-- Added ID and disabled by default -->
+                <button type="submit" class="btn-submit" id="mainSubmitBtn" disabled>
                     <span>Submit Ticket</span>
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
@@ -526,7 +534,7 @@
         const fileInput = document.getElementById('fileInput');
         const fileNameDisplay = document.getElementById('fileName');
         const successOverlay = document.getElementById('successOverlay');
-        const submitBtn = document.querySelector('.btn-submit');
+        const submitBtn = document.getElementById('mainSubmitBtn');
 
         // File Upload Visual
         fileInput.addEventListener('change', function() {
@@ -556,10 +564,42 @@
             successOverlay.classList.remove('active');
             contactForm.reset();
             fileNameDisplay.textContent = "";
+            submitBtn.disabled = true; // Re-disable button after reset
+            generateNewCaptcha(); // Generate a new random code for the next form submit
         }
 
         // ----------------------------------------------------
-        // 3. AI CHATBOT LOGIC
+        // 3. CAPTCHA VALIDATION (Randomized)
+        // ----------------------------------------------------
+        const captchaInput = document.getElementById('captchaInput');
+        const captchaDisplay = document.getElementById('captchaCode');
+        
+        // List of 7 random codes
+        const codeOptions = ["X7K9M", "B4V2A", "9P8QZ", "L5T3R", "W1Y9C", "M4D6F", "N8J2K"];
+        let currentCaptcha = "";
+
+        // Function to pick a new random code and display it
+        function generateNewCaptcha() {
+            const randomIndex = Math.floor(Math.random() * codeOptions.length);
+            currentCaptcha = codeOptions[randomIndex];
+            captchaDisplay.textContent = currentCaptcha;
+        }
+
+        // Generate the initial code when the page loads
+        generateNewCaptcha();
+
+        // Listen to keystrokes on the new input field
+        captchaInput.addEventListener('input', function() {
+            // Enable button ONLY if the input exactly matches the CURRENT captcha code
+            if (this.value === currentCaptcha) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        });
+
+        // ----------------------------------------------------
+        // 4. AI CHATBOT LOGIC
         // ----------------------------------------------------
         const chatToggle = document.getElementById('chatToggle');
         const chatWindow = document.getElementById('chatWindow');
