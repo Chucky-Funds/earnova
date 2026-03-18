@@ -621,16 +621,29 @@
         });
 
         // Knowledge Base (Simple JS Object)
-        const botKnowledge = {
-            "hello": "Hi there! Welcome to Earn-nova Support. What's your name?",
-            "hi": "Hello! How can I assist you today?",
-            "withdraw": "Withdrawals are processed instantly for amounts under ₦50,000. Larger amounts take 24 hours.",
-            "money": "You can earn money by taking surveys, watching videos, or referring friends.",
-            "payment": "We support all Nigerian banks including Opay, Kuda, GTBank, and Zenith.",
-            "survey": "If a survey disqualifies you, don't worry! New surveys are added every hour.",
-            "login": "Having trouble logging in? Please reset your password or contact support@earnova.com.",
-            "scam": "Earn-nova is a verified platform with over 250,000 active users. We never ask for your PIN.",
-            "default": "I see. Could you please provide more details? Or you can use the form on the left to open a ticket."
+         const botKnowledge = {
+            "hello": "Hi there! 👋 Welcome to Earn-nova. Are you looking to earn money or check a withdrawal?",
+            "hi": "Hello! How can I assist you with your earning journey today?",
+            "hey": "Hey! Nova here. Ready to make some extra cash? 💰",
+            "withdraw": "Withdrawals are processed within 1-24 hours. Small amounts (under ₦50,000) are usually instant!",
+            "minimum": "The minimum withdrawal amount is ₦2,000. Keep completing surveys to reach it!",
+            "money": "You earn by completing tasks, taking surveys, and referring friends. The more active you are, the more you make.",
+            "payment": "We pay via all Nigerian commercial banks, plus Opay, Kuda, and PalmPay.",
+            "survey": "If you don't see surveys, try updating your profile. New surveys are posted every hour!",
+            "disqualified": "Don't worry! Not every survey is a match. You still get a small 'attempt bonus' for trying.",
+            "refer": "Invite friends using your unique link! You get a ₦500 bonus for every friend who completes their first task.",
+            "login": "If you can't log in, try the 'Forgot Password' link or email support@earnova.com for a manual reset.",
+            "scam": "Earn-nova is 100% legit! We have over 250k users and have paid out millions. Check our social media for payment proofs!",
+            "real": "Yes, we are real! We partner with global brands like Nielsen and Kantar for market research.",
+            "verification": "KYC verification usually takes 2-4 hours. Make sure your ID photo is clear!",
+            "bank": "You can update your bank details in the 'Profile' section of your dashboard.",
+            "whatsapp": "Our official WhatsApp support is +1 (631) 428-5542. Be careful of impersonators!",
+            "agent": "I'm an AI, but you can speak to a human agent by filling out the 'Submit Ticket' form on this page.",
+            "app": "We are currently web-based to ensure the highest security for your earnings. No app download is required!",
+            "tasks": "Daily tasks reset at midnight. Log in early to catch the high-paying ones!",
+            "thanks": "You're very welcome! Happy earning! 🚀",
+            "bye": "Goodbye! Don't forget to check back for new surveys later!",
+            "help": "I can help with: Withdrawal issues, Survey tips, Referral bonuses, and Account settings. What do you need?"
         };
 
         function addMessage(text, sender) {
@@ -642,15 +655,29 @@
         }
 
         function getBotResponse(input) {
-            input = input.toLowerCase();
+            input = input.toLowerCase().trim();
             
-            // Check for keywords
+            // 1. Check for specific keywords
             for (let key in botKnowledge) {
                 if (input.includes(key)) {
                     return botKnowledge[key];
                 }
             }
-            return botKnowledge["default"];
+
+            // 2. Handle very short or gibberish-looking input
+            if (input.length < 3) {
+                return "I'm sorry, could you tell me a bit more? I need more than a few letters to help you!";
+            }
+
+            // 3. Handle random letters/gibberish (e.g., "asdfghjkl")
+            // This checks if the input is mostly consonants or has no spaces
+            const isGibberish = !/[aeiouy]/i.test(input) || (input.length > 10 && !input.includes(" "));
+            if (isGibberish) {
+                return "Hmm, I didn't quite catch that. Could you please use full words? For example, ask about 'withdrawals' or 'how to earn'.";
+            }
+
+            // 4. Default response if no keywords found
+            return "I'm not sure I understand that specific question. However, most users ask about 'withdrawals' or 'surveys'. Would you like help with those?";
         }
 
         function handleChat() {
