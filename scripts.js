@@ -215,7 +215,7 @@ if (document.readyState === 'loading') {
     const details = document.querySelector('.payment-details');
     if(details){
       details.innerHTML = `
-        <div class="payment-row"><span class="payment-label">Amount:</span><span class="payment-value" style="color: var(--secondary-orange);">₦3,000.00</span></div>
+        <div class="payment-row"><span class="payment-label">Amount:</span><span class="payment-value" style="color: var(--secondary-orange);">₦5,000.00</span></div>
       `;
     }
     if(paymentModal) paymentModal.classList.add('active');
