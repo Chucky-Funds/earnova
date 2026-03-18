@@ -380,7 +380,7 @@
         /* Small Phones (Below 480px) */
         @media (max-width: 480px) {
             .rewards-grid { grid-template-columns: 1fr; }
-            .footer-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
             .hero-btns .btn { width: 100%; }
             .section-padding { padding: 50px 0; }
             .logo-text { font-size: 20px; }
@@ -414,7 +414,7 @@
         .faq-item.active .faq-answer { max-height: 200px; padding-bottom: 20px; border-top: 1px solid var(--border-subtle); padding-top: 20px; }
 
         footer { background: var(--bg-dark); color: #9CA3AF; padding: 80px 0 30px; }
-        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 60px; }
+        .footer-grid { display: grid; grid-template-columns:1fr 1fr; gap: 40px; margin-bottom: 60px; }
         .footer-col h4 { color: white; margin-bottom: 24px; }
         .footer-col ul { list-style: none; }
         .footer-col li { margin-bottom: 12px; }
