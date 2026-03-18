@@ -236,7 +236,7 @@ if (document.readyState === 'loading') {
     const handler = PaystackPop.setup({
       key: PAYSTACK_PUBLIC_KEY,
       email: tempAccount.email,
-      amount: 300000, // ₦3,000 in kobo
+      amount: 500000, // ₦3,000 in kobo
       currency: 'NGN',
       callback: function(response){
         tempAccount.paymentCompleted = true;
