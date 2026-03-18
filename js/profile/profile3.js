@@ -810,34 +810,56 @@ function openVideoModal(videoIndex) {
 
   function onYouTubeReadyForModal() {
     if (!window.YT || !window.YT.Player) return setTimeout(onYouTubeReadyForModal, 100);
-    let lastTime = 0; let skipped = false; let rewardGiven = false;
+    
+    let lastTime = 0; 
+    let hasSkipped = false; 
+    let rewardGiven = false;
+
     const player = new YT.Player(ytDivId, {
       height: '360', width: '640', videoId: video.videoId,
       playerVars: { autoplay: 1, controls: 1, rel: 0, modestbranding: 1, enablejsapi: 1 },
       events: {
         onStateChange: function (event) {
+          // When the video starts playing
           if (event.data === YT.PlayerState.PLAYING) {
-            lastTime = player.getCurrentTime();
-            skipped = false;
-            player._interval = setInterval(function () {
-              const current = player.getCurrentTime();
-              if (current - lastTime > 2.5) skipped = true;
-              lastTime = current;
-            }, 1000);
+            
+            // Only start the interval if it's not already running
+            if (!player._monitorInterval) {
+              player._monitorInterval = setInterval(function () {
+                const currentTime = player.getCurrentTime();
+                
+                // If the user jumped forward by more than 2 seconds
+                // We compare current position to where they were 500ms ago
+                if (currentTime - lastTime > 2.5) { 
+                  hasSkipped = true;
+                }
+                
+                // Update lastTime to current position for the next check
+                lastTime = currentTime;
+              }, 500);
+            }
+
           } else if (event.data === YT.PlayerState.ENDED) {
-            clearInterval(player._interval);
-            if (!skipped && !rewardGiven) {
+            clearInterval(player._monitorInterval);
+            player._monitorInterval = null; // Reset for next time
+            
+            if (hasSkipped) {
+              alert('REWARD DENIED: You skipped parts of the video. You must watch the video from start to finish without jumping forward to earn money.');
+              closeVideoModal(); 
+            } else if (!rewardGiven) {
               rewardGiven = true;
+              console.log(hasSkipped);
               try {
                 window.addFunds && window.addFunds(reward.amount, 'Video', `Video Task #${video.index + 1}`, reward.xp);
                 markVideoCompleted(video.videoId);
                 incrementDailyWatch();
                 updateVideoCardStates();
-                alert('Reward added to your profile!');
-              } catch (e) {}
+                alert(`Congratulations! ₦${reward.amount} and ${reward.xp} XP have been added to your profile.`);
+              } catch (e) { console.error("Error adding funds:", e); }
             }
           } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.BUFFERING) {
-            clearInterval(player._interval);
+            // We don't clear the interval here because we want to maintain 
+            // the 'lastTime' baseline even while paused or loading
           }
         }
       }
