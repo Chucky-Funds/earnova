@@ -144,7 +144,7 @@ function updateBalanceUI(animate = true) {
 }
 
 function addFunds(amount, type, desc, xpAmount) {
-    if (amount < 0.1 || amount > 100) return alert('Error: Invalid reward amount detected.');
+    if (amount < 0.1 || amount > 500) return alert('Error: Invalid reward amount detected.');
     STATE.balance += amount;
     STATE.completedTasks++;
     // XP logic
