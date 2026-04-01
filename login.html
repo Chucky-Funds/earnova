@@ -6,6 +6,15 @@
     <title>Earn-nova | Secure Access</title>
     <link rel="icon" type="image/png" href="images/logo.png">
     <link rel="stylesheet" href="css/login.css">
+    <script>
+        const accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+
+// Check if there's at least one account with name and email
+if (accounts.length || accounts[0].name || accounts[0].email) {
+    // Redirect if name or email is missing
+    window.location.href = 'profile.html';
+}
+    </script>
 </head>
 <body>
     <script src="https://js.paystack.co/v1/inline.js"></script>
@@ -128,5 +137,51 @@
 
     <script src="js/login/login.js"></script>
     <script src="scripts.js"></script>
+    <script>
+/**
+ * 1. Function to switch the UI based on the URL Hash
+ */
+function updateViewFromHash() {
+    const hash = window.location.hash;
+    const loginView = document.getElementById('login-view');
+    const signupView = document.getElementById('signup-view');
+
+    if (hash === '#signup') {
+        // Show Signup
+        loginView.style.display = 'none';
+        signupView.style.display = 'block';
+        signupView.classList.remove('hidden-right');
+    } else {
+        // Default to Login (for #login or empty hash)
+        loginView.style.display = 'block';
+        signupView.style.display = 'none';
+        window.location.hash = 'login'; // Optional: force #login in URL
+    }
+}
+
+/**
+ * 2. Update the toggleView function to only change the hash
+ * This triggers the 'hashchange' event listener below
+ */
+function toggleView(view) {
+    window.location.hash = view;
+}
+
+/**
+ * 3. Event Listeners
+ */
+
+// Listen for when the hash changes (user clicks link or back button)
+window.addEventListener('hashchange', updateViewFromHash);
+
+// Handle the view on initial page load
+window.addEventListener('DOMContentLoaded', () => {
+    // If no hash exists, set it to login by default
+    if (!window.location.hash) {
+        window.location.hash = 'login';
+    }
+    updateViewFromHash();
+});
+</script>
 </body>
 </html>
