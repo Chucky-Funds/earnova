@@ -16,6 +16,36 @@
             window.location.href = '../profile/';
         }
     </script>
+    <style>
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            z-index: 2100;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-icon::after {
+            content: '';
+            width: 8px;
+            height: 14px;
+            border: solid var(--accent-orange);
+            border-width: 0 3px 3px 0;
+            transform: rotate(45deg) translate(-1px, -1px);
+        }
+
+        .logo-text { font-size: 24px; font-weight: bolder; color: var(--bg-dark); }
+    </style>
 </head>
 
 <body>
@@ -23,18 +53,10 @@
 
     <!-- Header -->
     <header>
-        <a href="../">
-            <div class="logo">
-                <div class="logo-icon">
-                    <!-- Simple CSS Shape Logo -->
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                    </svg>
-                </div>
-                <span>Earn-nova</span>
-            </div>
-        </a>
+        <a href="../" class="logo">
+                <div class="logo-icon"></div>
+                <span class="logo-text">Earn-nova</span>
+            </a>
     </header>
 
     <main>
