@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,41 +10,43 @@
     <script>
         const accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
 
-// Check if there's at least one account with name and email
-if (accounts.length || accounts[0].name || accounts[0].email) {
-    // Redirect if name or email is missing
-    window.location.href = 'profile.html';
-}
+        // Check if there's at least one account with name and email
+        if (accounts.length || accounts[0].name || accounts[0].email) {
+            // Redirect if name or email is missing
+            window.location.href = 'profile.html';
+        }
     </script>
 </head>
+
 <body>
     <script src="https://js.paystack.co/v1/inline.js"></script>
 
     <!-- Header -->
     <header>
         <a href="index.html">
-        <div class="logo">
-            <div class="logo-icon">
-                <!-- Simple CSS Shape Logo -->
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                </svg>
+            <div class="logo">
+                <div class="logo-icon">
+                    <!-- Simple CSS Shape Logo -->
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                </div>
+                <span>Earn-nova</span>
             </div>
-            <span>Earn-nova</span>
-        </div>
         </a>
     </header>
 
     <main>
         <div class="auth-card">
-            
+
             <div class="forms-wrapper">
-                
+
                 <!-- LOGIN VIEW -->
                 <div id="login-view" class="view-section">
                     <h2>Welcome Back</h2>
                     <p class="subtitle">Enter your credentials to access your account.</p>
-                    
+
                     <form id="login-form">
                         <div class="input-group">
                             <label for="login-email">Email Address</label>
@@ -69,7 +72,7 @@ if (accounts.length || accounts[0].name || accounts[0].email) {
                 <div id="signup-view" class="view-section hidden-right" style="display: none;">
                     <h2>Create Account</h2>
                     <p class="subtitle">Join Earn-nova today. It takes less than a minute.</p>
-                    
+
                     <form id="signup-form">
                         <div class="input-group animate-in">
                             <label for="reg-name">Full Name</label>
@@ -88,7 +91,7 @@ if (accounts.length || accounts[0].name || accounts[0].email) {
                             <input type="password" id="reg-pass" placeholder="Min. 6 characters" required>
                             <div class="error-msg" id="reg-pass-error">Password must be at least 6 characters.</div>
                         </div>
-                        
+
                         <div class="input-group animate-in">
                             <label for="reg-confirm">Confirm Password</label>
                             <input type="password" id="reg-confirm" placeholder="Repeat password" required>
@@ -112,13 +115,15 @@ if (accounts.length || accounts[0].name || accounts[0].email) {
         <div class="payment-card">
             <div class="success-icon">
                 <!-- Check Icon SVG -->
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
             </div>
             <h2>Almost There!</h2>
-            <p class="subtitle" style="margin-bottom: 20px;">Your details are secure. To activate your account, a one-time registration fee is required.</p>
-            
+            <p class="subtitle" style="margin-bottom: 20px;">Your details are secure. To activate your account, a
+                one-time registration fee is required.</p>
+
             <div class="payment-details">
                 <div class="payment-row">
                     <span class="payment-label">Amount:</span>
@@ -137,14 +142,19 @@ if (accounts.length || accounts[0].name || accounts[0].email) {
 
     <script src="js/login/login.js"></script>
     <script src="scripts.js"></script>
-    <script>
-/**
+    <script>/**
  * 1. Function to switch the UI based on the URL Hash
  */
 function updateViewFromHash() {
     const hash = window.location.hash;
     const loginView = document.getElementById('login-view');
     const signupView = document.getElementById('signup-view');
+
+     const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
+    
+    if (loginForm) loginForm.reset();
+    if (signupForm) signupForm.reset();
 
     if (hash === '#signup') {
         // Show Signup
@@ -182,6 +192,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     updateViewFromHash();
 });
-</script>
+    </script>
 </body>
+
 </html>

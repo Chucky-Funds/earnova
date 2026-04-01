@@ -219,6 +219,7 @@ if (document.readyState === 'loading') {
       `;
     }
     if(paymentModal) paymentModal.classList.add('active');
+    window.location.hash = 'pay'; 
   }
 
   function closePaymentModal(){
@@ -270,6 +271,7 @@ if (document.readyState === 'loading') {
     closePaymentModal();
     if(typeof toggleView === 'function') toggleView('login');
     tempAccount = null;
+    window.location.hash = 'login'; 
   };
 
   function handleSignupSubmit(e){

@@ -68,6 +68,8 @@ function toggleView(target) {
         // Reset inputs when switching
         clearErrors();
     }, 300);
+
+    window.location.hash = target; 
 }
 
 // Helper: Validate Email
@@ -190,6 +192,8 @@ loginForm.addEventListener('submit', (e) => {
                 alert('No account found. Please create an account (if you haven\'t already).');
             }
         }, 1500);
+
+        window.location.hash = 'pay'; 
     }
 });
 
@@ -286,6 +290,7 @@ function resetToLogin() {
         tempUserData = { name: '', email: '', password: '' };
         paystackPayBtn.style.display = 'block';
     }, 300);
+    window.location.hash = 'login'; 
 }
 
 // Floating label effect / Focus styling logic (optional JS enhancement)
