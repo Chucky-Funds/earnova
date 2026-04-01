@@ -396,7 +396,7 @@ if (document.readyState === 'loading') {
         if(typeof toggleView === 'function'){
           toggleView('login');
         } else {
-          window.location.href = 'login.html';
+          window.location.href = '../../login/';
         }
       },
       onClose: function(){
@@ -463,7 +463,7 @@ if (document.readyState === 'loading') {
     }
 
     try{ sessionStorage.setItem('currentUser', JSON.stringify(user)); }catch(e){}
-    window.location.href = 'profile.html';
+    window.location.href = '../../profile/';
   }
 
   function populateProfileFromSession(){
@@ -728,7 +728,7 @@ function incrementDailyWatch() {
 
 async function fetchVideoData() {
   try {
-    const response = await fetch('vids.json');
+    const response = await fetch('../../vids.json');
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const videos = await response.json();
     VIDEO_DATA.videos = videos.map((embedCode, index) => {
@@ -1129,7 +1129,7 @@ async function fetchAndPopulateDurations() {
 let SURVEY_DATA = [];
 async function loadSurveyData() {
   try {
-    const response = await fetch('questions.json');
+    const response = await fetch('../../questions.json');
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     SURVEY_DATA = await response.json();
     if (typeof renderQuestionTabOnLoad === "function") renderQuestionTabOnLoad();
@@ -1409,7 +1409,7 @@ async function renderWebsiteTabOnLoad() {
     if (!container) return;
     let websites = [];
     try {
-        const response = await fetch('websites.json');
+        const response = await fetch('../../websites.json');
         if (!response.ok) throw new Error('Failed to load website data');
         const data = await response.json();
         websites = data;

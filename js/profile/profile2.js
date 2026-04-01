@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
             accounts = accounts.filter(function(acc) { return acc.email !== currentUser.email; });
             localStorage.setItem('accounts', JSON.stringify(accounts));
             sessionStorage.removeItem('currentUser');
-            window.location.href = 'login.html';
+            window.location.href = '../../login/';
         });
     }
 });

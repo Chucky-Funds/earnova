@@ -5,15 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Earn-nova | Secure Access</title>
-    <link rel="icon" type="image/png" href="images/logo.png">
-    <link rel="stylesheet" href="css/login.css">
+    <link rel="icon" type="image/png" href="../images/logo.png">
+    <link rel="stylesheet" href="../css/login.css">
     <script>
         const accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
 
         // Check if there's at least one account with name and email
         if (accounts.length || accounts[0].name || accounts[0].email) {
             // Redirect if name or email is missing
-            window.location.href = 'profile.html';
+            window.location.href = '../profile/';
         }
     </script>
 </head>
@@ -23,7 +23,7 @@
 
     <!-- Header -->
     <header>
-        <a href="index.html">
+        <a href="../">
             <div class="logo">
                 <div class="logo-icon">
                     <!-- Simple CSS Shape Logo -->
@@ -140,8 +140,8 @@
         </div>
     </div>
 
-    <script src="js/login/login.js"></script>
-    <script src="scripts.js"></script>
+    <script src="../js/login/login.js"></script>
+    <script src="../scripts.js"></script>
     <script>/**
  * 1. Function to switch the UI based on the URL Hash
  */

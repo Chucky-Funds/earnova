@@ -8,8 +8,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Paystack Inline JS -->
     <script src="https://js.paystack.co/v1/inline.js"></script>
-    <link rel="stylesheet" href="css/profile.css">
-    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="stylesheet" href="../css/profile.css">
+    <link rel="icon" type="image/png" href="../images/logo.png">
     <script>
     // Check if the user is NOT logged in
 
@@ -19,7 +19,7 @@ const accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
 // Check if there's at least one account with name and email
 if (!accounts.length || !accounts[0].name || !accounts[0].email) {
     // Redirect if name or email is missing
-    window.location.href = '/';
+    window.location.href = '../';
 }
 </script>
 </head>
@@ -509,9 +509,9 @@ if (!accounts.length || !accounts[0].name || !accounts[0].email) {
     </div>
 </div>
 
-<script src="js/profile/profile1.js"></script>
-<script src="js/scripts.js"></script>
-<script src="js/profile/profile2.js"></script>
+<script src="../js/profile/profile1.js"></script>
+<script src="../scripts.js"></script>
+<script src="../js/profile/profile2.js"></script>
 
 <!-- VIDEO MODAL -->
 <div class="video-modal-overlay" id="video-modal-overlay">
@@ -563,6 +563,6 @@ if (!accounts.length || !accounts[0].name || !accounts[0].email) {
     </div>
 </div>
 
-<script src="js/profile/profile3.js"></script>
+<script src="../js/profile/profile3.js"></script>
 </body>
 </html>
