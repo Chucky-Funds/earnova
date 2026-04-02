@@ -106,7 +106,7 @@ function initPaystackPayment() {
     const handler = PaystackPop.setup({
         key: paystackPublicKey,
         email: tempUserData.email,
-        amount: 5000 * 100, // Amount in kobo (₦5,000)
+        amount: 3000 * 100, // Amount in kobo (₦5,000)
         ref: '' + Math.floor((Math.random() * 1000000000) + 1), // Generate unique reference
         onClose: function() {
             alert('Payment window was closed without completing payment. Please try again.');
