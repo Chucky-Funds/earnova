@@ -463,7 +463,7 @@ if (document.readyState === 'loading') {
     }
 
     try{ sessionStorage.setItem('currentUser', JSON.stringify(user)); }catch(e){}
-    window.location.href = '../../profile/';
+    window.location.href = '../profile/';
   }
 
   function populateProfileFromSession(){
