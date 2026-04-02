@@ -15,13 +15,31 @@
         // Check if the user is NOT logged in
 
         // Check if there's at least one account with name and email
-        const accounts = JSON.parse(localStorage.getItem('accounts') || '[]');
+       // Immediately run the check before anything else
+(function() {
+    // Safely get the 'accounts' from localStorage
+    let accounts = [];
+    try {
+        const stored = localStorage.getItem('accounts');
+        accounts = stored ? JSON.parse(stored) : [];
+    } catch (e) {
+        accounts = [];
+    }
 
-        // Check if there's at least one account with name and email
-        if (!accounts.length || !accounts[0].name || !accounts[0].email) {
-            // Redirect if name or email is missing
-            window.location.href = '../';
-        }
+    // Helper function to check if an account object is valid
+    function isValidAccount(account) {
+        return account && typeof account.name === 'string' && account.name.trim() !== '' &&
+               typeof account.email === 'string' && account.email.trim() !== '';
+    }
+
+    // Check if any account in the array is valid
+    const hasValidAccount = accounts.some(isValidAccount);
+
+    // If no valid account exists, redirect immediately
+    if (!hasValidAccount) {
+        window.location.href = '../';
+    }
+})();
     </script>
 </head>
 
