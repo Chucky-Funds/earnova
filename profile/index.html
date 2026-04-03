@@ -12,34 +12,31 @@
     <link rel="stylesheet" href="../css/profile.css">
     <link rel="icon" type="image/png" href="../images/logo.png">
     <script>
-        // Check if the user is NOT logged in
+        // Immediately run the check before anything else
+        (function () {
+            // Safely get the 'accounts' from localStorage
+            let accounts = [];
+            try {
+                const stored = localStorage.getItem('accounts');
+                accounts = stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                accounts = [];
+            }
 
-        // Check if there's at least one account with name and email
-       // Immediately run the check before anything else
-(function() {
-    // Safely get the 'accounts' from localStorage
-    let accounts = [];
-    try {
-        const stored = localStorage.getItem('accounts');
-        accounts = stored ? JSON.parse(stored) : [];
-    } catch (e) {
-        accounts = [];
-    }
+            // Helper function to check if an account object is valid
+            function isValidAccount(account) {
+                return account && typeof account.name === 'string' && account.name.trim() !== '' &&
+                    typeof account.email === 'string' && account.email.trim() !== '';
+            }
 
-    // Helper function to check if an account object is valid
-    function isValidAccount(account) {
-        return account && typeof account.name === 'string' && account.name.trim() !== '' &&
-               typeof account.email === 'string' && account.email.trim() !== '';
-    }
+            // Check if any account in the array is valid
+            const hasValidAccount = accounts.some(isValidAccount);
 
-    // Check if any account in the array is valid
-    const hasValidAccount = accounts.some(isValidAccount);
-
-    // If no valid account exists, redirect immediately
-    if (!hasValidAccount) {
-        window.location.href = '../';
-    }
-})();
+            // If no valid account exists, redirect immediately
+            if (!hasValidAccount) {
+                window.location.href = '../';
+            }
+        })();
     </script>
 </head>
 
@@ -205,7 +202,7 @@
                     <!-- DASHBOARD -->
                     <section id="dashboard" class="content-section active">
                         <div class="section-header">
-                            <h1 class="page-title">Welcome back, John</h1>
+                            <h1 class="page-title">Welcome back, User</h1>
                             <p class="page-subtitle">Here's your activity overview for today.</p>
                         </div>
 
@@ -486,12 +483,12 @@
                                         <div class="form-group">
                                             <label class="form-label">Full Name</label>
                                             <input type="text" id="profile-fullname" class="form-input"
-                                                value="John Doe">
+                                                value="User">
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Email Address</label>
                                             <input type="email" id="profile-email" class="form-input"
-                                                value="john.doe@earn-nova.com">
+                                                value="user@website.com">
                                         </div>
                                     </form>
                                     <button class="btn btn-outline" id="update-profile-btn"
